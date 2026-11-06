@@ -2,18 +2,9 @@
 let ITEMS=null;const BOX={cx:0,cz:0,hx:1.9,hz:5,y0:0,y1:3};      /* габариты корпуса, уточняются после загрузки */
 const getGlb=id=>fetch('models/'+id+'.glb').then(r=>{if(!r.ok)throw new Error('models/'+id+'.glb: '+r.status);return r.arrayBuffer()});
 function loadModel(){
- return getGlb('maus').then(buf=>new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',g=>{try{g.scene.updateMatrixWorld(true);const items=[];
-  /* модель сжата (число вершин изменилось) — роль детали определяем по порядку мешей, а не по числу вершин */
-  const ORIG=[168,168,168,306,240,168,144,1110,168,168,144,306,168,144,1197,144,144,168,144,4560,168,144,240,168,168,144,144,144,144,144,168,324,324];let _k=0;
-  g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();const cnt=gm.attributes.position.count;items.push({g:gm,bb:gm.boundingBox,n:(ORIG.length==33&&ORIG[_k]!==undefined&&(cnt==ORIG[_k]||(cnt>=ORIG[_k]*.8&&cnt<=ORIG[_k]*1.01)))?ORIG[_k]:cnt,mat:o.material});_k++});
-  if(!items.some(i=>i.n==4560)){ /* запасной вариант: число мешей/вершин не совпало с ORIG — роли по размеру */
-   console.warn('maus: ORIG не совпал, мешей='+items.length+', роли по числу вершин');
-   items.forEach(i=>{i.n=i.g.attributes.position.count});
-   const s=items.slice().sort((a,b)=>b.n-a.n);
-   if(s.length<3)throw new Error('maus.glb: слишком мало мешей ('+items.length+')');
-   s[0].n=4560;s[1].n=1197;s[2].n=1110;
-   s.slice(3,5).forEach(i=>{i.n=324});}
-  const hi=items.find(i=>i.n==4560);if(!hi)throw new Error('не найден корпус (4560), мешей='+items.length);const h=hi.bb;BOX.cx=(h.max.x+h.min.x)/2;BOX.cz=(h.max.z+h.min.z)/2;BOX.hx=(h.max.x-h.min.x)/2;BOX.hz=(h.max.z-h.min.z)/2;BOX.y0=Math.min(0,h.min.y);BOX.y1=h.max.y+.6;ok(items)}catch(e){bad(e)}},bad)))}
+ return getGlb('maus').then(buf=>new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',g=>{g.scene.updateMatrixWorld(true);const items=[];
+  g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();items.push({g:gm,bb:gm.boundingBox,n:gm.attributes.position.count,mat:o.material})});
+  const h=items.find(i=>i.n==4560).bb;BOX.cx=(h.max.x+h.min.x)/2;BOX.cz=(h.max.z+h.min.z)/2;BOX.hx=(h.max.x-h.min.x)/2;BOX.hz=(h.max.z-h.min.z)/2;BOX.y0=Math.min(0,h.min.y);BOX.y1=h.max.y+.6;ok(items)},bad)))}
 function mk(g,m,p){const o=new THREE.Mesh(g,m);o.castShadow=o.receiveShadow=true;if(p)o.position.copy(p);return o}
 function makeTank(items,name){
  const T={own:[],ownGeo:true,name,root:new THREE.Group(),body:new THREE.Group(),wheels:[],tracks:[],decals:[],hp:1200,maxhp:1200,alive:true,x:0,z:0,h:0,v:0,w:0,ty:0,gp:0,rec:0,rl:0,fl:0};
@@ -49,7 +40,7 @@ const MODELS={},CATALOG=[
  {id:'kv1',kmh:35,tier:5,len:6.8,name:'КВ-1',nat:'СССР',hp:1000,dmg:140,pen:110,rel:4.0,price:120000,cls:'ТТ',arm:[75,75,70,75,75],raw:{gun:/^Object_2$/,tur:/^Object_3$/,gp:.1}},
  {id:'kv2',kmh:25,tier:6,len:6.8,name:'КВ-2',nat:'СССР',hp:1300,dmg:520,pen:120,rel:11,price:200000,cls:'ТТ',arm:[75,75,70,75,75],raw:{gun:/^Object_2$/,tur:/^Object_7$/,gp:.1}},
  {id:'is6',kmh:35,tier:8,len:8.6,name:'ИС-6',nat:'СССР',hp:1500,dmg:330,pen:215,rel:4.4,price:350000,cls:'ТТ',arm:[150,100,70,220,40],raw:{gun:/^gun_0Shape1_group_0/,tur:/^vertices_group_0_1(_|$)/,flip:1,off:[0,.0163],gp:.05}},
- {id:'govnotank',kmh:35,tier:8,len:10.6,name:'GOVNOTANK AERO',nat:'Европа',hp:1550,dmg:330,pen:215,rel:4.3,price:0,gold:1000,cls:'ТТ',arm:[150,100,70,220,40],raw:{gun:/Gun/,tur:/Turret|Cupola/,pg:[-.214,1.835,1.5],pt:[-.214,.256]}}];
+ {id:'govnotank',kmh:35,tier:8,len:10.6,name:'GOVNOTANK AERO',nat:'Европа',hp:1550,dmg:330,pen:215,rel:4.3,price:0,gold:1000,cls:'ТТ',arm:[150,100,70,220,40],raw:{gun:/Gun/,tur:/Turret|Cupola/,pg:[-.214,1.835,1.5],pt:[-.214,.256],trk:{x:1.3,yt:.96,yb:-.05,F:3.38,B:-3.4,w:.64,th:.15,pl:.155,n:89}}}];
 /* «сырые» модели (без узлов Hull>Turret>Gun): разбираем меши по именам, запекаем в мировые координаты и собираем нужную иерархию */
 /* колёса, вшитые в общий меш (AMX 40, O-Ho, O-I): делим меш на несвязные острова, круглые и тонкие по X — отдельные колёса */
 function splitWheels(g,mn){const pos=g.attributes.position,n=pos.count,ix=g.index?g.index.array:null,tn=(ix?ix.length:n)/3|0,vid=new Int32Array(n),mp=new Map();
@@ -71,7 +62,7 @@ function adaptModel(sc,sp){sc.updateMatrixWorld(true);let named=false;sc.travers
  sc.traverse(m=>{if(!m.isMesh)return;const nm=[];for(let o=m;o&&o!==sc;o=o.parent)nm.push(o.name||'');
   const k=nm.some(n=>sp.gun.test(n))?'Gun':nm.some(n=>sp.tur.test(n))?'Turret':'Hull';
   const g=m.geometry.clone();g.applyMatrix4(m.matrixWorld);if(sp.flip)g.applyMatrix4(FLIP);if(sp.off)g.translate(sp.off[0],0,sp.off[1]);if(sp.yaw)g.applyMatrix4(new THREE.Matrix4().makeRotationY(sp.yaw));g.computeBoundingBox();const it={g,m:m.material};
-  if(k=='Hull'&&/WHEEL/i.test(nm[0]))it.wh=1;if(k=='Hull'&&/^link\d*_/i.test(nm[0]))it.lk=1;if(k=='Hull'&&sp.wm&&sp.wm(g))it.wh=1;   /* sp.wm: отдельные меши-колёса, которые не надо делить на острова */
+  if(k=='Hull'&&/WHEEL/i.test(nm[0]))it.wh=1;if(k=='Hull'&&sp.wm&&sp.wm(g))it.wh=1;   /* sp.wm: отдельные меши-колёса, которые не надо делить на острова */
   const uv=g.attributes.uv;if(k=='Hull'&&uv&&m.material.map){let a=1e9,b=-1e9;for(let i=0;i<uv.count;i++){const v=uv.getY(i);if(v<a)a=v;if(v>b)b=v}
    if(b-a>3){const bx=g.boundingBox,yb=bx.min.y+(bx.max.y-bx.min.y)*.06,Q=g.attributes.position,ar=[];   /* скорость прокрутки текстуры: медиана dV/dZ по нижней (плоской) ветке гусеницы */
     for(let i=0;i<Q.count;i++)if(Q.getY(i)<=yb)ar.push([Q.getZ(i),uv.getY(i)]);ar.sort((p,q)=>p[0]-q[0]);const sl=[];
@@ -82,11 +73,11 @@ function adaptModel(sc,sp){sc.updateMatrixWorld(true);let named=false;sc.travers
  if(bb.Gun.isEmpty())throw new Error('в модели не найдено орудие');
  const gb=bb.Gun,tb=bb.Turret,pG=sp.pg?V3(sp.pg[0],sp.pg[1],sp.pg[2]):V3((gb.min.x+gb.max.x)/2,(gb.min.y+gb.max.y)/2,gb.min.z+(gb.max.z-gb.min.z)*(sp.gp||.1)),
   pT=sp.pt?V3(sp.pt[0],tb.min.y,sp.pt[1]):tb.isEmpty()?V3(pG.x,gb.min.y,pG.z):V3((tb.min.x+tb.max.x)/2,tb.min.y,(tb.min.z+tb.max.z)/2);
- const grp=(n,o)=>{const g=new THREE.Group();g.name=n;let wi=0,li=0;parts[n].forEach(p=>{let c=null;if(p.wh||p.lk){c=p.g.boundingBox.getCenter(V3(0,0,0))}p.g.translate(-o.x-(c?c.x:0),-o.y-(c?c.y:0),-o.z-(c?c.z:0));
-  const ms=new THREE.Mesh(p.g,p.m);if(c&&p.lk){ms.name='Link_'+(li++);ms.position.copy(c)}else if(c){ms.name='Wheel_'+wi++;ms.position.copy(c);p.g.computeBoundingBox();ms.userData.r=Math.max(.15,(p.g.boundingBox.max.y-p.g.boundingBox.min.y)/2)}
+ const grp=(n,o)=>{const g=new THREE.Group();g.name=n;let wi=0;parts[n].forEach(p=>{let c=null;if(p.wh){c=p.g.boundingBox.getCenter(V3(0,0,0))}p.g.translate(-o.x-(c?c.x:0),-o.y-(c?c.y:0),-o.z-(c?c.z:0));
+  const ms=new THREE.Mesh(p.g,p.m);if(c){ms.name='Wheel_'+wi++;ms.position.copy(c);p.g.computeBoundingBox();ms.userData.r=Math.max(.15,(p.g.boundingBox.max.y-p.g.boundingBox.min.y)/2)}
   if(p.tk)ms.userData.tr=p.tk;g.add(ms)});return g};
  const root=new THREE.Group(),hh=grp('Hull',V3(0,0,0)),tu=grp('Turret',pT),gu=grp('Gun',pG);
- tu.position.copy(pT);gu.position.copy(pG).sub(pT);tu.add(gu);hh.add(tu);root.add(hh);return root}
+ if(sp.trk)hh.userData.trk=sp.trk;tu.position.copy(pT);gu.position.copy(pG).sub(pT);tu.add(gu);hh.add(tu);root.add(hh);return root}
 const _lm=new Map();
 function litify(sc){sc.traverse(o=>{if(!o.isMesh)return;const f=m=>{if(!m.isMeshBasicMaterial)return m;let n=_lm.get(m);if(!n){n=new THREE.MeshStandardMaterial({map:m.map,color:m.color.clone().multiplyScalar(.85),roughness:.85,metalness:.1,side:m.side,transparent:m.transparent,opacity:m.opacity,alphaTest:m.alphaTest});_lm.set(m,n)}return n};
  o.material=Array.isArray(o.material)?o.material.map(f):f(o.material)})}
@@ -110,21 +101,17 @@ function makeGlbTank(id,name,hp){
  /* колёса: узлы Wheel_* вращаются вокруг оси X; гусеницы: цепочка траков бегает по замкнутому контуру */
  hg.traverse(o=>{if(o.name&&o.name.startsWith('Wheel_'))T.wheels.push({m:o,r:(o.userData.r||17)*k,side:o.position.x<0?1:-1,a:0,sg:1})});
  hg.traverse(o=>{const tr=o.isMesh&&o.userData&&o.userData.tr;if(tr){const m=o.material.clone();m.map=m.map.clone();m.map.needsUpdate=true;o.material=m;T.own.push(m,m.map);T.tracks.push({t:m.map,side:tr.side,r:-tr.slope/k})}});
-  /* родные траки модели (Link_*): каждый едет по замкнутому контуру, заданному их же положением в модели */
- const lk=[[],[]];hg.traverse(o=>{if(o.name&&o.name.startsWith('Link_'))lk[o.position.x<0?0:1].push(o)});
- T.links=lk.filter(a=>a.length>8).map(a=>{let zc=0,yc=0;a.forEach(o=>{zc+=o.position.z;yc+=o.position.y});zc/=a.length;yc/=a.length;
-  a.sort((p,q)=>Math.atan2(q.position.y-yc,q.position.z-zc)-Math.atan2(p.position.y-yc,p.position.z-zc));
-  const n=a.length,P=a.map(o=>({z:o.position.z,y:o.position.y,s:0}));let L=0;
-  for(let i=0;i<n;i++){P[i].s=L;const q=P[(i+1)%n];L+=Math.hypot(q.z-P[i].z,q.y-P[i].y)}
-  const pa=P.map((p,i)=>{const u=P[(i+n-1)%n],v=P[(i+1)%n];return Math.atan2(v.y-u.y,v.z-u.z)});
-  return{L,P,pa,n,d:0,side:a[0].position.x<0?1:-1,items:a.map((m,i)=>({m,s0:P[i].s,j:i,a0:pa[i]}))}});
- T.links.forEach(l=>trackPose(l))
+ const tp=H.userData.trk;if(tp){const R=(tp.yt-tp.yb)/2,yc=(tp.yt+tp.yb)/2,zf=tp.F-R,zr=tp.B+R,Lb=zf-zr,L=2*Lb+2*Math.PI*R,N=tp.n||Math.round(L/6.2);
+  const path=s=>{s=((s%L)+L)%L;let z,y,a;
+   if(s<Lb){z=zf-s;y=tp.yb;a=Math.PI}else if((s-=Lb)<Math.PI*R){const t=-Math.PI/2-s/R;z=zr+R*Math.cos(t);y=yc+R*Math.sin(t);a=t-Math.PI/2}
+   else if((s-=Math.PI*R)<Lb){z=zr+s;y=tp.yt;a=0}else{s-=Lb;const t=Math.PI/2-s/R;z=zf+R*Math.cos(t);y=yc+R*Math.sin(t);a=t-Math.PI/2}
+   return[z,y,a]};
+  const mt=new THREE.MeshStandardMaterial({color:0x3a3d33,roughness:.9,metalness:.3}),gm=new THREE.BoxGeometry(tp.w,tp.th||2.6,tp.pl||5.2);
+  T.links=[-1,1].map(sx=>{const im=new THREE.InstancedMesh(gm,mt,N);im.frustumCulled=false;im.castShadow=im.receiveShadow=true;hg.add(im);return{im,N,L,path,x:sx*tp.x,side:sx<0?1:-1,d:0,sp:L/N}});
+  T.links.forEach(l=>trackPose(l))}
  return T}
 const _m=new THREE.Matrix4(),_q=new THREE.Quaternion(),_tp=new THREE.Vector3(),_s=new THREE.Vector3(1,1,1),_ax=new THREE.Vector3(1,0,0);
-function trackPose(l){const{P,pa,n,L}=l,TP=Math.PI*2;for(const it of l.items){let x=((it.s0+l.d)%L+L)%L,j=it.j;
- while(x<P[j].s)j=(j+n-1)%n;while(j<n-1&&x>=P[j+1].s)j++;it.j=j;const A=P[j],e=j<n-1?P[j+1].s:L,t=(x-A.s)/(e-A.s||1);
- let da=pa[(j+1)%n]-pa[j];da-=TP*Math.round(da/TP);const B=P[(j+1)%n];
- it.m.position.z=A.z+(B.z-A.z)*t;it.m.position.y=A.y+(B.y-A.y)*t;let r=pa[j]+da*t-it.a0;r-=TP*Math.round(r/TP);it.m.rotation.x=-r}}
+function trackPose(l){for(let i=0;i<l.N;i++){const[z,y,a]=l.path(i*l.sp+l.d);_q.setFromAxisAngle(_ax,-a);_tp.set(l.x,y,z);_m.compose(_tp,_q,_s);l.im.setMatrixAt(i,_m)}l.im.instanceMatrix.needsUpdate=true}
 function buildTank(id){const c=CATALOG.find(c=>c.id==id);let T;
  if(id=='maus'){T=makeTank(ITEMS,'Maus');T.box=Object.assign({},BOX);T.hp=T.maxhp=c.hp}else T=makeGlbTank(id,c.name,c.hp);
  T.cat=c;T.vm=c.kmh/3.6;T.root.traverse(m=>{if(m.isMesh)m.castShadow=TQ>0});if(id=='is6')T.root.traverse(m=>{if(!m.isMesh)return;m.receiveShadow=false;(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>{if(x&&x.roughness!==undefined){x.roughness=1;x.metalness=0;x.needsUpdate=true}})});let nat=8;if(id=='maus')nat=2*BOX.hz;else{T.root.updateMatrixWorld(true);const gv=T.gunG.visible;T.gunG.visible=false;const bb=new THREE.Box3();T.body.traverse(m=>{if(m.isMesh&&m.visible&&!(m.userData&&m.userData.hl)&&m.geometry){m.geometry.boundingBox||m.geometry.computeBoundingBox();bb.union(m.geometry.boundingBox.clone().applyMatrix4(m.matrixWorld))}});T.gunG.visible=gv;const zl=bb.max.z-bb.min.z;if(zl>1&&zl<80)nat=zl/(T.body.scale.x||1)}const s=c.len/nat;T.cs=c.len/8;T.body.scale.setScalar(s);
