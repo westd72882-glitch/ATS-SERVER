@@ -11,13 +11,16 @@ async function api(path,body){
  if(path=='register'){if(U[body.nick.toLowerCase()])throw new Error('Ник занят');U[body.nick.toLowerCase()]={nick:body.nick,h:await hash(body.password,body.nick.toLowerCase())};lsS('maus_users',U);return{nick:body.nick,token:'local'}}
  if(path=='login'){const k=body.login.trim().toLowerCase(),u=U[k];if(!u||u.h!=await hash(body.password,u.nick.toLowerCase()))throw new Error('Неверный ник или пароль');return{nick:u.nick,token:'local'}}
 }
-function done(r){lsS('maus_session',{nick:r.nick,token:r.token});if(window.mausPull)setTimeout(window.mausPull,50);$('auth').classList.remove('on');const n=$('hnick');if(n)n.textContent=r.nick}
+function bootLoad(){try{const l=$('ldr');if(!l||l.style.display!='none')return;showLoader('','Загрузка профиля…');setBar(0);setTimeout(()=>setBar(100,2300),60);setTimeout(()=>{$('ltxt').textContent='Вход в ангар…'},1500);setTimeout(hideLoader,2500)}catch(_){}}
+function done(r){lsS('maus_session',{nick:r.nick,token:r.token});bootLoad();if(window.mausPull)setTimeout(window.mausPull,50);$('auth').classList.remove('on');$('auth').classList.add('sp');const n=$('hnick');if(n)n.textContent=r.nick}
 function ui(){const up=mode=='up';for(const[i,v]of[['a_mail',false],['a_pass2',up],['a_code',false],['a_nick',!step],['a_pass',!step]]){$(i).style.display=$('l_'+i).style.display=v?'':'none'}
  $('a_re').style.display='none';
- $('a_go').textContent=up?'Зарегистрироваться':'Войти';$('a_pass').autocomplete=up?'new-password':'current-password';
- $('a_nick').placeholder='Ник';document.querySelectorAll('#auth .at button').forEach(b=>b.classList.toggle('on',b.dataset.m==mode))}
+ $('a_go').textContent=up?'Зарегистрироваться':'Войти';$('a_h').textContent=up?'РЕГИСТРАЦИЯ В ATS BLITZ':'ВОЙТИ В ATS BLITZ';$('a_sw').textContent=up?'Уже есть аккаунт? Войти':'Нет аккаунта? Регистрация';$('a_pass').autocomplete=up?'new-password':'current-password';
+ $('a_nick').placeholder='Никнейм';document.querySelectorAll('#auth .at button').forEach(b=>b.classList.toggle('on',b.dataset.m==mode))}
 document.querySelectorAll('#auth .at button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;step=0;er();ui()});
 async function sendCode(){const r=await api('register',pend);er(r.demoCode?'Демо-режим: ваш код '+r.demoCode:'Код отправлен на '+pend.email,true)}
+$('a_sw').onclick=()=>{mode=mode=='in'?'up':'in';step=0;er();ui()};
+$('a_enter').onclick=()=>$('auth').classList.remove('sp');$('a_back').onclick=()=>{er();$('auth').classList.add('sp')};
 $('a_re').onclick=async()=>{try{await sendCode()}catch(e){er(e.message)}};
 $('af').onsubmit=async ev=>{ev.preventDefault();er();const nick=$('a_nick').value.trim(),pass=$('a_pass').value;$('a_go').disabled=true;
  try{
@@ -27,5 +30,5 @@ $('af').onsubmit=async ev=>{ev.preventDefault();er();const nick=$('a_nick').valu
   done(await api('register',{nick,password:pass}));
  }catch(e){er(e.message||'Ошибка сети')}finally{$('a_go').disabled=false}};
 document.querySelectorAll('#af input').forEach(i=>i.addEventListener('focus',()=>setTimeout(()=>{try{i.scrollIntoView({block:'center'})}catch(_){}},350)));
-let s=lsG('maus_session');if(s&&s.guest){try{localStorage.removeItem('maus_session')}catch(_){}s=null}ui();if(!API_URL)er('Сервер не подключён: аккаунт сохранится только на этом устройстве',true);if(s&&s.nick){const n=$('hnick');if(n)n.textContent=s.nick}else $('auth').classList.add('on');
+let s=lsG('maus_session');if(s&&s.guest){try{localStorage.removeItem('maus_session')}catch(_){}s=null}ui();if(!API_URL)er('Сервер не подключён: аккаунт сохранится только на этом устройстве',true);if(s&&s.nick){const n=$('hnick');if(n)n.textContent=s.nick}else{$('auth').classList.add('on','sp')}
 })();
