@@ -184,7 +184,7 @@ hCredits();
 
 /* ===== настройки графики и игры (сохраняются) ===== */
 const PRE={l:{res:'50',obj:'l',tank:'l',fx:'l',dist:'l',sh:'0',hd:false},m:{res:'75',obj:'m',tank:'m',fx:'m',dist:'m',sh:'2',hd:false},h:{res:'100',obj:'h',tank:'h',fx:'h',dist:'h',sh:'3',hd:true}};
-const CFG=Object.assign({snd:true,fps:true,sens:1,gq:'m',aa:'0'},PRE.m,jl('maus_cfg4'));if(+CFG.res>100||!+CFG.res)CFG.res='100';
+const CFG=Object.assign({snd:true,fps:true,sens:1,gq:'h',aa:'1'},PRE.h,jl('maus_cfg4'));if(+CFG.res>100||!+CFG.res)CFG.res='100';
 const saveCfg=()=>js('maus_cfg4',CFG);
 [smoke,fire].forEach(p=>{const e=p.emit;p.emit=function(){if(Math.random()<FXK)e.apply(p,arguments)}});
 function applyCfg(){muted=!CFG.snd;if(AC){MG.gain.value=muted?0:1;muted?AC.suspend():AC.resume()}
@@ -193,7 +193,7 @@ function applyCfg(){muted=!CFG.snd;if(AC){MG.gain.value=muted?0:1;muted?AC.suspe
  document.querySelectorAll('.sw[data-k]').forEach(b=>b.classList.toggle('on',!!CFG[b.dataset.k]));
  document.querySelectorAll('#gq button').forEach(b=>b.classList.toggle('on',b.dataset.v==CFG.gq))}
 function applyGfx(){const o=GL[CFG.obj],t=GL[CFG.tank],f=GL[CFG.fx],d=GL[CFG.dist];TQ=t;FXK=[.3,.65,1][f];
- PRMAX=Math.max(.5,Math.min(1.5,(devicePixelRatio||1)*(+CFG.res||100)/100,R.capabilities.maxTextureSize/Math.max(innerWidth,innerHeight)));PR=PRMAX;R.setPixelRatio(PR);
+ PRMAX=Math.max(.5,Math.min((devicePixelRatio||1)*(+CFG.res||100)/100,R.capabilities.maxTextureSize/Math.max(innerWidth,innerHeight)));PR=PRMAX;R.setPixelRatio(PR);
  const sh=+CFG.sh||0,sz=[1024,512,1024,2048,3072][sh];sun.castShadow=hsun.castShadow=sh>0;if(sun.shadow.mapSize.x!=sz){sun.shadow.mapSize.set(sz,sz);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
  scene.fog.near=[55,75,90][d];scene.fog.far=[170,240,330][d];cam.far=[230,320,700][d];cam.updateProjectionMatrix();resize();
  const an=CFG.hd?R.capabilities.getMaxAnisotropy():1,ta=m=>{[].concat(m.material||[]).forEach(x=>{if(x&&x.map&&x.map.anisotropy!=an){x.map.anisotropy=an;x.map.needsUpdate=true}})};
