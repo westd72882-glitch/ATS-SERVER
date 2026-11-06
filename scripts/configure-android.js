@@ -66,7 +66,7 @@ const extra = `
 -keepclassmembers class * extends android.webkit.WebChromeClient { *; }
 -dontwarn com.getcapacitor.**
 # AssetKeyPlugin обращается через Capacitor reflection - не переименовывать/не выпиливать
--keep class ${'${applicationId}'}.AssetKeyPlugin { *; }
+-keep class **.AssetKeyPlugin { *; }
 `;
 fs.appendFileSync(proguardPath, extra);
 console.log('proguard-rules.pro дополнен правилами для Capacitor/WebView.');
