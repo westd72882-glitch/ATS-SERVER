@@ -1,8 +1,8 @@
 /* ===== ядро: рендерер, сцена, свет, утилиты ===== */
 const $=i=>document.getElementById(i),V3=(x,y,z)=>new THREE.Vector3(x,y,z);
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),R2=()=>Math.random()-.5;
-const cv=$('c'),R=new THREE.WebGLRenderer({canvas:cv,antialias:(()=>{try{const q=JSON.parse(localStorage.getItem('maus_cfg4')||'{}');return String(q.aa)!=='0'}catch(_){return true}})(),powerPreference:'high-performance'});
-let inHangar=true,SENS=1;let PRMAX=Math.min(window.devicePixelRatio||1,2.5);let PR=PRMAX;R.setPixelRatio(PR);   /* авто-подстройка разрешения под FPS */
+const cv=$('c'),R=new THREE.WebGLRenderer({canvas:cv,antialias:(()=>{try{const q=JSON.parse(localStorage.getItem('maus_cfg4')||'{}');return String(q.aa)==='1'}catch(_){return false}})(),powerPreference:'high-performance'});
+let inHangar=true,SENS=1;let PRMAX=Math.min(window.devicePixelRatio||1,1.5);let PR=PRMAX;R.setPixelRatio(PR);   /* авто-подстройка разрешения под FPS */
 let _ft=0,_fn=0;
 R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFShadowMap;
 R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.85;

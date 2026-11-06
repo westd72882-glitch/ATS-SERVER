@@ -176,3 +176,23 @@ if (fs.existsSync(stylesPath)) {
     console.log('MainActivity.java: goFull() добавлен.');
   }
 }
+
+// 9. иконка приложения (ATS BLITZ) + имя
+{
+  const resDir = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res');
+  const iconDir = path.join(__dirname, 'icons');
+  for (const d of ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']) {
+    const dst = path.join(resDir, 'mipmap-' + d);
+    fs.mkdirSync(dst, { recursive: true });
+    fs.copyFileSync(path.join(iconDir, `ic_launcher-${d}.png`), path.join(dst, 'ic_launcher.png'));
+    fs.copyFileSync(path.join(iconDir, `ic_launcher_round-${d}.png`), path.join(dst, 'ic_launcher_round.png'));
+    fs.copyFileSync(path.join(iconDir, `ic_launcher_foreground-${d}.png`), path.join(dst, 'ic_launcher_foreground.png'));
+  }
+  const bg = path.join(resDir, 'values', 'ic_launcher_background.xml');
+  fs.writeFileSync(bg, '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#1E6FC8</color>\n</resources>\n');
+  const strings = path.join(resDir, 'values', 'strings.xml');
+  if (fs.existsSync(strings)) {
+    fs.writeFileSync(strings, fs.readFileSync(strings, 'utf8').replace(/(<string name="(?:app_name|title_activity_main)">)[^<]*/g, '$1ATS BLITZ'));
+  }
+  console.log('Иконка ATS BLITZ и имя приложения применены.');
+}

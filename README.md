@@ -1,4 +1,4 @@
-# Anode Tanks Simulator (ATS) — защищённая сборка APK
+# ATS BLITZ (ATS) — защищённая сборка APK
 
 ## Самый быстрый старт
 

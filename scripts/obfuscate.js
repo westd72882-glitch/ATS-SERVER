@@ -4,25 +4,24 @@ const JavaScriptObfuscator = require('javascript-obfuscator');
 
 const JS_DIR = path.join(__dirname, '..', 'www', 'js');
 
+// Лёгкий профиль: тяжёлые трансформации (control-flow flattening, dead code, debugProtection,
+// selfDefending, rc4, splitStrings) убивали FPS в игровом цикле — оставлены только дешёвые.
 const OPTIONS = {
   compact: true,
-  controlFlowFlattening: true,
-  controlFlowFlatteningThreshold: 0.75,
-  deadCodeInjection: true,
-  deadCodeInjectionThreshold: 0.3,
-  debugProtection: true,
-  debugProtectionInterval: 2000,
+  controlFlowFlattening: false,
+  deadCodeInjection: false,
+  debugProtection: false,
   disableConsoleOutput: true,
-  identifierNamesGenerator: 'hexadecimal',
+  identifierNamesGenerator: 'mangled-shuffled',
   renameGlobals: false,
-  selfDefending: true,
+  selfDefending: false,
   stringArray: true,
-  stringArrayEncoding: ['rc4'],
-  stringArrayThreshold: 0.9,
-  splitStrings: true,
-  splitStringsChunkLength: 8,
-  transformObjectKeys: true,
-  numbersToExpressions: true,
+  stringArrayEncoding: ['base64'],
+  stringArrayThreshold: 0.7,
+  stringArrayCallsTransform: false,
+  splitStrings: false,
+  transformObjectKeys: false,
+  numbersToExpressions: false,
   simplify: true,
   unicodeEscapeSequence: false
 };

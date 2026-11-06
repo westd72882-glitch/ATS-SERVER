@@ -2,7 +2,7 @@
   "name": "ats-game-apk",
   "version": "1.0.0",
   "private": true,
-  "description": "Anode Tanks Simulator (ATS) — защищённая сборка APK (обфускация + шифрование ассетов) через Capacitor и GitHub Actions",
+  "description": "ATS BLITZ — защищённая сборка APK (обфускация + шифрование ассетов) через Capacitor и GitHub Actions",
   "scripts": {
     "build:web": "node scripts/build.js",
     "cap:add": "cap add android",
