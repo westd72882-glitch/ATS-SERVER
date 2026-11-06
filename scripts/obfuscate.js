@@ -12,7 +12,7 @@ const OPTIONS = {
   deadCodeInjection: false,
   debugProtection: false,
   disableConsoleOutput: true,
-  identifierNamesGenerator: 'mangled-shuffled',
+  identifierNamesGenerator: 'hexadecimal',
   renameGlobals: false,
   selfDefending: false,
   stringArray: true,

@@ -120,16 +120,13 @@ if (!mainActivity.includes('AssetKeyPlugin')) {
 //    (главный способ — работает даже если пользователь повернёт телефон/отключит автоповорот)
 const manifestPath = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
 let manifest = fs.readFileSync(manifestPath, 'utf8');
-if (!manifest.includes('android:screenOrientation')) {
-  manifest = manifest.replace(
-    /(<activity\s+android:name="\.MainActivity")/,
-    '$1\n            android:screenOrientation="landscape"\n            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"'
-  );
-  fs.writeFileSync(manifestPath, manifest);
-  console.log('AndroidManifest.xml: MainActivity зафиксирована в landscape.');
-} else {
-  console.log('AndroidManifest.xml уже содержит screenOrientation — пропущено.');
-}
+manifest = manifest.replace(/<activity\b[^>]*android:name="\.MainActivity"[^>]*>/, tag => {
+  tag = tag.replace(/\s+android:screenOrientation="[^"]*"/, '');
+  tag = tag.replace(/\s+android:configChanges="[^"]*"/, '');
+  return tag.replace(/<activity/, '<activity\n            android:screenOrientation="sensorLandscape"\n            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|keyboard|uiMode|locale"');
+});
+fs.writeFileSync(manifestPath, manifest);
+console.log('AndroidManifest.xml: MainActivity зафиксирована в sensorLandscape.');
 
 // 7. полный экран без чёрной рамки у фронтальной камеры (вырез): рисуем под вырезом
 const stylesPath = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res', 'values', 'styles.xml');
