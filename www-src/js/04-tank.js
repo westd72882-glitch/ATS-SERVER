@@ -2,9 +2,11 @@
 let ITEMS=null;const BOX={cx:0,cz:0,hx:1.9,hz:5,y0:0,y1:3};      /* габариты корпуса, уточняются после загрузки */
 const getGlb=id=>fetch('models/'+id+'.glb').then(r=>{if(!r.ok)throw new Error('models/'+id+'.glb: '+r.status);return r.arrayBuffer()});
 function loadModel(){
- return getGlb('maus').then(buf=>new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',g=>{g.scene.updateMatrixWorld(true);const items=[];
-  g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();items.push({g:gm,bb:gm.boundingBox,n:gm.attributes.position.count,mat:o.material})});
-  const h=items.find(i=>i.n==4560).bb;BOX.cx=(h.max.x+h.min.x)/2;BOX.cz=(h.max.z+h.min.z)/2;BOX.hx=(h.max.x-h.min.x)/2;BOX.hz=(h.max.z-h.min.z)/2;BOX.y0=Math.min(0,h.min.y);BOX.y1=h.max.y+.6;ok(items)},bad)))}
+ return getGlb('maus').then(buf=>new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',g=>{try{g.scene.updateMatrixWorld(true);const items=[];
+  /* модель сжата (число вершин изменилось) — роль детали определяем по порядку мешей, а не по числу вершин */
+  const ORIG=[168,168,168,306,240,168,144,1110,168,168,144,306,168,144,1197,144,144,168,144,4560,168,144,240,168,168,144,144,144,144,144,168,324,324];let _k=0;
+  g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();const cnt=gm.attributes.position.count;items.push({g:gm,bb:gm.boundingBox,n:(ORIG.length==33&&ORIG[_k]!==undefined&&(cnt==ORIG[_k]||(cnt>=ORIG[_k]*.8&&cnt<=ORIG[_k]*1.01)))?ORIG[_k]:cnt,mat:o.material});_k++});
+  const h=items.find(i=>i.n==4560).bb;BOX.cx=(h.max.x+h.min.x)/2;BOX.cz=(h.max.z+h.min.z)/2;BOX.hx=(h.max.x-h.min.x)/2;BOX.hz=(h.max.z-h.min.z)/2;BOX.y0=Math.min(0,h.min.y);BOX.y1=h.max.y+.6;ok(items)}catch(e){bad(e)}},bad)))}
 function mk(g,m,p){const o=new THREE.Mesh(g,m);o.castShadow=o.receiveShadow=true;if(p)o.position.copy(p);return o}
 function makeTank(items,name){
  const T={own:[],ownGeo:true,name,root:new THREE.Group(),body:new THREE.Group(),wheels:[],tracks:[],decals:[],hp:1200,maxhp:1200,alive:true,x:0,z:0,h:0,v:0,w:0,ty:0,gp:0,rec:0,rl:0,fl:0};
