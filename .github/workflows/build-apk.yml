@@ -34,7 +34,7 @@ jobs:
           java-version: "17"
 
       - name: Install npm deps
-        run: npm ci
+        run: npm install
 
       - name: Resolve ASSET_KEY (use secret, or generate ephemeral)
         env:
