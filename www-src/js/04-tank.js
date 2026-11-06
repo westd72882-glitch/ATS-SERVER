@@ -6,7 +6,14 @@ function loadModel(){
   /* модель сжата (число вершин изменилось) — роль детали определяем по порядку мешей, а не по числу вершин */
   const ORIG=[168,168,168,306,240,168,144,1110,168,168,144,306,168,144,1197,144,144,168,144,4560,168,144,240,168,168,144,144,144,144,144,168,324,324];let _k=0;
   g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();const cnt=gm.attributes.position.count;items.push({g:gm,bb:gm.boundingBox,n:(ORIG.length==33&&ORIG[_k]!==undefined&&(cnt==ORIG[_k]||(cnt>=ORIG[_k]*.8&&cnt<=ORIG[_k]*1.01)))?ORIG[_k]:cnt,mat:o.material});_k++});
-  const h=items.find(i=>i.n==4560).bb;BOX.cx=(h.max.x+h.min.x)/2;BOX.cz=(h.max.z+h.min.z)/2;BOX.hx=(h.max.x-h.min.x)/2;BOX.hz=(h.max.z-h.min.z)/2;BOX.y0=Math.min(0,h.min.y);BOX.y1=h.max.y+.6;ok(items)}catch(e){bad(e)}},bad)))}
+  if(!items.some(i=>i.n==4560)){ /* запасной вариант: число мешей/вершин не совпало с ORIG — роли по размеру */
+   console.warn('maus: ORIG не совпал, мешей='+items.length+', роли по числу вершин');
+   items.forEach(i=>{i.n=i.g.attributes.position.count});
+   const s=items.slice().sort((a,b)=>b.n-a.n);
+   if(s.length<3)throw new Error('maus.glb: слишком мало мешей ('+items.length+')');
+   s[0].n=4560;s[1].n=1197;s[2].n=1110;
+   s.slice(3,5).forEach(i=>{i.n=324});}
+  const hi=items.find(i=>i.n==4560);if(!hi)throw new Error('не найден корпус (4560), мешей='+items.length);const h=hi.bb;BOX.cx=(h.max.x+h.min.x)/2;BOX.cz=(h.max.z+h.min.z)/2;BOX.hx=(h.max.x-h.min.x)/2;BOX.hz=(h.max.z-h.min.z)/2;BOX.y0=Math.min(0,h.min.y);BOX.y1=h.max.y+.6;ok(items)}catch(e){bad(e)}},bad)))}
 function mk(g,m,p){const o=new THREE.Mesh(g,m);o.castShadow=o.receiveShadow=true;if(p)o.position.copy(p);return o}
 function makeTank(items,name){
  const T={own:[],ownGeo:true,name,root:new THREE.Group(),body:new THREE.Group(),wheels:[],tracks:[],decals:[],hp:1200,maxhp:1200,alive:true,x:0,z:0,h:0,v:0,w:0,ty:0,gp:0,rec:0,rl:0,fl:0};

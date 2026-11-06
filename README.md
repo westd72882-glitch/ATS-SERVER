@@ -2,7 +2,7 @@
 
 ## Самый быстрый старт
 
-Залей репозиторий на GitHub → вкладка **Actions** → **Build signed & obfuscated APK** →
+Залей репозиторий на GitHub → вкладка **Actions** → **Build signed APK** →
 **Run workflow**. Больше ничего делать не нужно — если секреты (см. ниже) не заданы,
 пайплайн сам сгенерирует одноразовый ключ шифрования и self-signed keystore прямо
 в job'е. Через пару минут в разделе **Artifacts** будет готовый `ats-release-apk`,
@@ -44,8 +44,8 @@ openssl rand -hex 32
 
 ### 3. APK
 1. GitHub → Settings → Secrets and variables → Actions → **Variables** → `API_URL` = адрес сервера Render.
-2. Секреты подписи (`ASSET_KEY`, `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`) — см. выше.
-3. Actions → *Build signed & obfuscated APK* → Run, либо `git tag v1.2.0 && git push origin v1.2.0`.
+2. Секреты подписи (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`) — см. выше.
+3. Actions → *Build signed APK* → Run, либо `git tag v1.2.0 && git push origin v1.2.0`.
 4. Новая версия: `node scripts/bump-version.js 1.3.0` → push (Render задеплоит сервер) → дождаться деплоя → тег для APK. Версии сервера и APK обязаны совпадать.
 
 ### 4. Что теперь делает СЕРВЕР (авторитетный бой)

@@ -2,7 +2,7 @@
   "name": "ats-game-apk",
   "version": "1.0.0",
   "private": true,
-  "description": "ATS BLITZ — защищённая сборка APK (обфускация + шифрование ассетов) через Capacitor и GitHub Actions",
+  "description": "ATS BLITZ — сборка APK через Capacitor и GitHub Actions",
   "scripts": {
     "build:web": "node scripts/build.js",
     "cap:add": "cap add android",
@@ -14,7 +14,6 @@
     "@capacitor/core": "^6.1.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.1.2",
-    "javascript-obfuscator": "^4.1.1"
+    "@capacitor/cli": "^6.1.2"
   }
 }

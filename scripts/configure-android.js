@@ -65,56 +65,17 @@ const extra = `
 -keep class com.getcapacitor.** { *; }
 -keepclassmembers class * extends android.webkit.WebChromeClient { *; }
 -dontwarn com.getcapacitor.**
-# AssetKeyPlugin обращается через Capacitor reflection - не переименовывать/не выпиливать
--keep class **.AssetKeyPlugin { *; }
 `;
 fs.appendFileSync(proguardPath, extra);
 console.log('proguard-rules.pro дополнен правилами для Capacitor/WebView.');
 
-// 4. генерируем нативный плагин AssetKey: ключ раздроблен и XOR-замаскирован,
-//    в JS-бандл не попадает вообще, отдаётся только по запросу через bridge.
-const ASSET_KEY = process.env.ASSET_KEY;
-if (!ASSET_KEY || ASSET_KEY.length !== 64) {
-  console.error('ASSET_KEY не задан — нативный плагин ключа не может быть сгенерирован.');
-  process.exit(1);
-}
-
-const pkg = require(path.join(__dirname, '..', 'capacitor.config.json')).appId; // com.ats.tanks
+const pkg = require(path.join(__dirname, '..', 'capacitor.config.json')).appId;
 const pkgDir = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'java', ...pkg.split('.'));
 if (!fs.existsSync(pkgDir)) {
   console.error('Не найдена папка пакета: ' + pkgDir);
   process.exit(1);
 }
-
-const XOR_BYTE = Math.floor(Math.random() * 255) + 1;
-const keyBytes = Buffer.from(ASSET_KEY, 'hex');
-const maskedHex = Buffer.from(keyBytes.map(b => b ^ XOR_BYTE)).toString('hex');
-// рубим на 4 куска, чтобы ключ не лежал одной читаемой строкой в classes.dex
-const chunkSize = Math.ceil(maskedHex.length / 4);
-const parts = [];
-for (let i = 0; i < maskedHex.length; i += chunkSize) parts.push(maskedHex.slice(i, i + chunkSize));
-const partsLiteral = parts.map(p => `"${p}"`).join(', ');
-
-let pluginSrc = fs.readFileSync(path.join(__dirname, 'templates', 'AssetKeyPlugin.java'), 'utf8');
-pluginSrc = pluginSrc
-  .replace('__PACKAGE__', pkg)
-  .replace('__KEY_PARTS__', partsLiteral)
-  .replace('__XOR_BYTE__', String(XOR_BYTE));
-
-fs.writeFileSync(path.join(pkgDir, 'AssetKeyPlugin.java'), pluginSrc);
-console.log('AssetKeyPlugin.java сгенерирован (ключ раздроблен + XOR-замаскирован).');
-
-// 5. регистрируем плагин в MainActivity (instance initializer block, как рекомендует Capacitor)
 const mainActivityPath = path.join(pkgDir, 'MainActivity.java');
-let mainActivity = fs.readFileSync(mainActivityPath, 'utf8');
-if (!mainActivity.includes('AssetKeyPlugin')) {
-  mainActivity = mainActivity.replace(
-    /public class MainActivity extends BridgeActivity \{/,
-    `public class MainActivity extends BridgeActivity {\n  {\n    registerPlugin(AssetKeyPlugin.class);\n  }\n`
-  );
-  fs.writeFileSync(mainActivityPath, mainActivity);
-  console.log('MainActivity.java: AssetKeyPlugin зарегистрирован.');
-}
 
 // 6. принудительная альбомная ориентация на уровне Android-манифеста
 //    (главный способ — работает даже если пользователь повернёт телефон/отключит автоповорот)
@@ -168,7 +129,7 @@ if (fs.existsSync(stylesPath)) {
     c.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
   }
 `;
-    ma = ma.replace('registerPlugin(AssetKeyPlugin.class);\n  }\n', 'registerPlugin(AssetKeyPlugin.class);\n  }\n' + code);
+    ma = ma.replace(/public class MainActivity extends BridgeActivity \{/, m => m + '\n' + code);
     fs.writeFileSync(mainActivityPath, ma);
     console.log('MainActivity.java: goFull() добавлен.');
   }
