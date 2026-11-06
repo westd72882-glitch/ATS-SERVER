@@ -1,0 +1,12 @@
+{
+  "appId": "com.ats.tanks",
+  "appName": "Anode Tanks Simulator",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "buildOptions": {
+      "minifyEnabled": true,
+      "releaseType": "APK"
+    }
+  }
+}

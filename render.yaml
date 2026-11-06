@@ -1,0 +1,14 @@
+# Необязательный файл: если создаёте сервис вручную (как в README), он не используется.
+# Для Blueprint: базу создайте в Render заранее, а DATABASE_URL (Internal Database URL) введите, когда Render спросит.
+services:
+  - type: web
+    name: ats-server
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
