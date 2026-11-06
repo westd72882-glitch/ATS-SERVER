@@ -14,12 +14,16 @@ const open=()=>{fill();$('prof').classList.add('on')},close=()=>{$('prof').class
 $('hprof').onclick=open;$('pback').onclick=close;
 $('pava').onclick=()=>{if(typeof toast=='function')toast('Смена аватара пока недоступна')};
 $('pchn').onclick=()=>{$('pni').value=nick();$('pnr').style.display='flex'};
-$('pnok').onclick=()=>{const v=$('pni').value.trim();if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(v)){if(typeof toast=='function')toast('Ник: 3–16 символов');return}
- try{const s=JSON.parse(localStorage.getItem('maus_session'))||{};s.nick=v;localStorage.setItem('maus_session',JSON.stringify(s))}catch(_){}
- $('hnick').textContent=v;$('pnick').textContent=v;$('pnr').style.display='none'};
+$('pnok').onclick=async()=>{const v=$('pni').value.trim(),T=m=>{if(typeof toast=='function')toast(m)};
+ if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(v)){T('Ник: 3–16 символов');return}if(v==nick()){T('Это ваш текущий ник');return}
+ if(ECO.au<750){T('Не хватает золота: смена ника стоит 750');return}
+ const fin=n=>{try{const s=JSON.parse(localStorage.getItem('maus_session'))||{};s.nick=n;localStorage.setItem('maus_session',JSON.stringify(s))}catch(_){}
+  $('hnick').textContent=n;$('pnick').textContent=n;$('pnr').style.display='none';hCredits();T('Ник изменён (−750 золота)')};
+ if(typeof ONL=='function'&&ONL()){try{const r=await window.mausCall('nick',{nick:v});if(typeof applyEco=='function')applyEco(r.eco);else{ECO.au=r.eco.au}fin(r.nick)}catch(e){T(e.message||'Ошибка')}return}
+ ECO.au-=750;try{localStorage.setItem('maus_eco2',JSON.stringify(ECO))}catch(_){}fin(v)};
 /* выход */
 const ex=$('exq'),shown=()=>ex.classList.contains('on');
-function back(){if($('auth').classList.contains('on')&&!shown()){ex.classList.add('on');return}
+let _bt=0;function back(){const n=Date.now();if(n-_bt<700)return;_bt=n;if($('auth').classList.contains('on')&&!shown()){ex.classList.add('on');return}
  if(shown()){ex.classList.remove('on');return}
  if($('prof').classList.contains('on')){close();return}
  ex.classList.add('on')}

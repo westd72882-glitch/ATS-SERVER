@@ -150,7 +150,7 @@ const isPrem=c=>!!c&&c.nat!='СССР';                                        /
 const RCOST={1:400,2:1200,3:4500,4:9500,5:25000,6:70000,7:200000,8:800000,9:2500000,10:8000000};   /* цена исследования по уровню */
 const GPRICE={5:1500,6:2000,7:2800,8:4500,9:6500,10:9000};               /* цена премиум-танка в золоте по уровню */
 CATALOG.forEach(c=>{if(isPrem(c))c.gold=c.gold||GPRICE[c.tier]||9000;c.rc=RCOST[c.tier]});
-const ECO=Object.assign({cr:1000,au:25000,xp:0,own:['ms1'],res:['ms1']},jl('maus_eco2'));
+const ECO=Object.assign({cr:500,au:0,xp:0,own:['ms1'],res:['ms1']},jl('maus_eco2'));
 ECO.own=ECO.own.filter(id=>CATALOG.some(c=>c.id==id));if(!ECO.own.includes('ms1'))ECO.own.unshift('ms1');
 ECO.res=ECO.res.filter(id=>SOVB.includes(id));if(!ECO.res.includes('ms1'))ECO.res.unshift('ms1');
 const fmt=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');

@@ -87,14 +87,15 @@ $('bpg').onclick=()=>{
 for(const[id,txt]of[['mpb','GAGROS'],['mb','AERO']]){const o=$(id);if(!o)continue;const n=o.cloneNode(true);o.replaceWith(n);
  n.querySelectorAll('svg,span').forEach(x=>x.style.display='none');const s=document.createElement('span');s.textContent=txt;s.style.cssText='position:static;transform:none;display:block;font:800 2.2vh system-ui;color:#fff;opacity:1;text-shadow:0 .1vh .3vh #000';n.appendChild(s)}
 /* --- промокоды (вкладка «Сеть»), работают и без сервера; использованные хранятся в maus_promo (при онлайне уходят в облако) --- */
-const PR={anode65:{tank:'govnotank',msg:'Получен танк GOVNOTANK AERO!'},viva672:{gold:100000,silver:1000000,msg:'Получено 100 000 золота и 1 000 000 серебра!'}};
 const pb=$('prb');if(pb)pb.onclick=()=>{const c=$('pri').value.trim().toLowerCase(),T=m=>{if(typeof toast=='function')toast(m)};if(!c)return;
  if(ONL()){ecoOp('promo',{code:c},r=>{buildHangar();if(typeof buildShop=='function')buildShop();$('pri').value='';T(r.msg)});return}
-  const w=PR[c];if(!w){T('Промокод не найден');return}
- let used=[];try{used=JSON.parse(localStorage.getItem('maus_promo'))||[]}catch(_){}
- if(used.includes(c)){T('Промокод уже активирован');return}
- used.push(c);try{localStorage.setItem('maus_promo',JSON.stringify(used))}catch(_){}
- if(w.tank){if(ECO.own.includes(w.tank))ECO.au+=1000;else ECO.own.push(w.tank)}
- if(w.gold)ECO.au+=w.gold;if(w.silver)ECO.cr+=w.silver;
- js('maus_eco2',ECO);hCredits();buildHangar();if(typeof buildShop=='function')buildShop();$('pri').value='';T(w.msg)};
+  const apply=w=>{let used=[];try{used=JSON.parse(localStorage.getItem('maus_promo'))||[]}catch(_){}
+  if(used.includes(c)){T('Промокод уже активирован');return}
+  used.push(c);try{localStorage.setItem('maus_promo',JSON.stringify(used))}catch(_){}
+  if(w.tank){if(ECO.own.includes(w.tank))ECO.au+=1000;else ECO.own.push(w.tank)}
+  if(w.gold)ECO.au+=w.gold;if(w.silver)ECO.cr+=w.silver;
+  js('maus_eco2',ECO);hCredits();buildHangar();if(typeof buildShop=='function')buildShop();$('pri').value='';T(w.msg)};
+  /* оффлайн: код проверяет сервер, на устройстве кодов нет */
+  if(!window.API_URL){T('Для проверки промокода нужен сервер');return}
+  fetch(window.API_URL+'/api/promo/check',{method:'POST',headers:{'Content-Type':'application/json','X-App-Version':window.APP_VERSION||'0'},body:JSON.stringify({code:c})}).then(r=>r.json().then(j=>({ok:r.ok,j}))).then(x=>{if(!x.ok){T(x.j.error||'Промокод не найден');return}apply(x.j.reward)}).catch(()=>T('Нет связи с сервером — промокод проверить нельзя'))};
 })();

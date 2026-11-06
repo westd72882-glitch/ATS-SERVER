@@ -36,7 +36,7 @@ function ui(){
  body=document.createElement('pre');body.style.cssText='flex:1;overflow:auto;margin:0;padding:8px;white-space:pre-wrap;word-break:break-all;user-select:text;-webkit-user-select:text';
  panel.appendChild(bar);panel.appendChild(body);
  b.onclick=function(){env();panel.style.display='flex';body.textContent=LOG.join('\n');body.scrollTop=body.scrollHeight};
- document.body.appendChild(b);document.body.appendChild(panel)}
+ document.body.appendChild(panel)}
 if(document.body)ui();else addEventListener('DOMContentLoaded',ui);
 addEventListener('DOMContentLoaded',env);
 add('STEP','debug готов');

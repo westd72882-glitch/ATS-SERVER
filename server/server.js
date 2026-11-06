@@ -20,7 +20,7 @@ const CHAIN=['ms1','bt5','bt7','kv1','kv2','is6'],RCOST={1:400,2:1200,3:4500,4:9
 const AVR={a0:'c',a1:'c',r1:'r',r2:'r',r3:'r',e1:'e',e2:'e',e3:'e',l1:'l',l2:'l',l3:'l'},AVP={c:0,r:400,e:1200,l:3500};
 const QDEF=[['k5','k',5,5000],['k25','k',25,20000],['b3','b',3,4000],['w1','w',1,8000],['d5k','d',5000,6000],['d30k','d',30000,25000]];
 const prem=id=>TK[id][1]!='СССР',gprice=id=>TK[id][2]||GPRICE[TK[id][0]]||9000,fmt=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
-const newEco=()=>({cr:1000,au:25000,xp:0,own:['ms1'],res:['ms1'],av:['a0','a1'],promos:[],q:{k:0,b:0,w:0,d:0,c:[]},mail:[{id:1,t:'Добро пожаловать, танкист!',b:'Командование выделило стартовый подарок. Заберите награду и выполняйте задания во вкладке «Задачи».',r:3000,rd:0,c:0}]});
+const newEco=()=>({cr:500,au:0,xp:0,own:['ms1'],res:['ms1'],av:['a0','a1'],promos:[],q:{k:0,b:0,w:0,d:0,c:[]},mail:[{id:1,t:'Добро пожаловать, танкист!',b:'Командование выделило стартовый подарок. Заберите награду и выполняйте задания во вкладке «Задачи».',r:3000,rd:0,c:0}]});
 const num=(v,d)=>Number.isFinite(+v)&&+v>=0?Math.floor(+v):d;
 function ecoGet(key){let e=db.eco[key];if(e)return e;e=newEco();const sv=db.saves[key]&&db.saves[key].data;
  if(sv){try{const o=JSON.parse(sv.maus_eco2||'null');if(o){e.cr=num(o.cr,e.cr);e.au=num(o.au,e.au);e.xp=num(o.xp,0);e.own=[...new Set(['ms1',...(o.own||[]).filter(i=>TK[i])])];e.res=[...new Set(['ms1',...(o.res||[]).filter(i=>CHAIN.includes(i))])];
@@ -69,8 +69,18 @@ const server=http.createServer((req,res)=>{
    return send(res,200,session(db.users[nick.toLowerCase()]))}
   if(url=='/api/login'){const k=String(j.login||'').trim().toLowerCase(),u=db.users[k];
    if(!u||hash(String(j.password||''),u.salt)!==u.h)return fail(res,'Неверный ник или пароль',401);return send(res,200,session(u))}
+  if(url=='/api/promo/check'){if(limit('p'+ip,40))return fail(res,'Слишком часто',429);const c=String(j.code||'').trim().toLowerCase(),r=PROMOS[c];if(!r)return fail(res,'Промокод не найден');return send(res,200,{ok:true,code:c,reward:r})}
   const u=auth();if(!u)return fail(res,'Сессия недействительна, войдите заново',401,{relogin:true});
   const key=u.nick.toLowerCase();
+  if(url=='/api/nick'){if(limit('n'+key,10))return fail(res,'Слишком часто',429);const nn=String(j.nick||'').trim(),nk=nn.toLowerCase();
+   if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(nn))return fail(res,'Ник: 3–16 символов, буквы, цифры, _ и -');
+   if(nk==key&&nn==u.nick)return fail(res,'Это ваш текущий ник');if(nk!=key&&db.users[nk])return fail(res,'Ник занят');
+   const e=ecoGet(key);if(e.au<750)return fail(res,'Не хватает золота (нужно 750)');e.au-=750;u.nick=nn;
+   if(nk!=key){for(const c of['users','saves','eco','promos','battles']){if(db[c][key]!==undefined){db[c][nk]=db[c][key];db[c][key]=undefined;mark(c,nk);mark(c,key)}}
+    for(const t in db.sessions)if(String(db.sessions[t]).toLowerCase()==key){db.sessions[t]=nn;mark('sessions',t)}
+    for(const t in db.tickets)if(db.tickets[t].nick==key)db.tickets[t].nick=nk}
+   else{mark('users',key)}
+   mark('eco',nk);await flush();return send(res,200,{ok:true,nick:nn,eco:db.eco[nk]})}
   if(url=='/api/me')return send(res,200,{nick:u.nick,version:VERSION});
   if(url=='/api/save/get'){const sv=db.saves[key],e=ecoGet(key);if(!sv)return send(res,200,{save:null});const d=Object.assign({},sv.data,{maus_eco2:JSON.stringify(e)});return send(res,200,{save:{data:d,ts:sv.ts}})}
   if(url=='/api/save/put'){const d=j.data;if(!d||typeof d!='object')return fail(res,'Нет данных');
