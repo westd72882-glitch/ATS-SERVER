@@ -27,5 +27,5 @@ $('af').onsubmit=async ev=>{ev.preventDefault();er();const nick=$('a_nick').valu
   done(await api('register',{nick,password:pass}));
  }catch(e){er(e.message||'Ошибка сети')}finally{$('a_go').disabled=false}};
 document.querySelectorAll('#af input').forEach(i=>i.addEventListener('focus',()=>setTimeout(()=>{try{i.scrollIntoView({block:'center'})}catch(_){}},350)));
-const s=lsG('maus_session');ui();if(!API_URL)er('Сервер не подключён: аккаунт сохранится только на этом устройстве',true);if(s&&s.nick){const n=$('hnick');if(n)n.textContent=s.nick}else $('auth').classList.add('on');
+let s=lsG('maus_session');if(s&&s.guest){try{localStorage.removeItem('maus_session')}catch(_){}s=null}ui();if(!API_URL)er('Сервер не подключён: аккаунт сохранится только на этом устройстве',true);if(s&&s.nick){const n=$('hnick');if(n)n.textContent=s.nick}else $('auth').classList.add('on');
 })();

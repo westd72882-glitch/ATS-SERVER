@@ -14,7 +14,7 @@ sun.shadow.mapSize.set(1536,1536);Object.assign(sun.shadow.camera,{left:-34,righ
 scene.add(sun,sun.target);{const f=new THREE.DirectionalLight(0xdde8ff,.45);f.position.set(-50,60,-40);scene.add(f)}
 const flash=new THREE.PointLight(0xffa040,0,60);scene.add(flash);
 let PK=1;const ps=[];
-function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();PK=h*R.getPixelRatio()*.5/Math.tan(cam.fov*Math.PI/360);ps.forEach(p=>p.mat.uniforms.k.value=PK)}
+function resize(){if(/^(INPUT|TEXTAREA)$/.test((document.activeElement||{}).tagName))return;const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();PK=h*R.getPixelRatio()*.5/Math.tan(cam.fov*Math.PI/360);ps.forEach(p=>p.mat.uniforms.k.value=PK)}
 const _p=V3(0,0,0);
 function toScreen(v){_p.copy(v).project(cam);return{x:(_p.x*.5+.5)*innerWidth,y:(-_p.y*.5+.5)*innerHeight,vis:_p.z<1}}
 let seed=7;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
