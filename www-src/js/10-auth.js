@@ -5,7 +5,7 @@ const er=(t,ok)=>{const e=$('a_er');e.textContent=t||'';e.className='er'+(ok?' o
 const lsG=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(_){return null}},lsS=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}};
 async function hash(p,s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s+':'+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function api(path,body){
- if(API_URL){const r=await fetch(API_URL+'/api/'+path,{method:'POST',headers:{'Content-Type':'application/json','X-App-Version':window.APP_VERSION||'0'},body:JSON.stringify(body)}).catch(()=>{throw new Error('Нет связи с сервером')});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Ошибка сервера');return j}
+ if(API_URL){er('Подключение к серверу… (первый запрос может занять до минуты)',true);dbg('api '+path);const r=await fetch(API_URL+'/api/'+path,{method:'POST',headers:{'Content-Type':'application/json','X-App-Version':window.APP_VERSION||'0'},body:JSON.stringify(body)}).catch(e=>{throw new Error(e&&e.name=='AbortError'?'Сервер не отвечает (таймаут). Попробуйте ещё раз или играйте гостем':'Нет связи с сервером')});const j=await r.json().catch(()=>({}));er('');if(!r.ok)throw new Error(j.error||'Ошибка сервера ('+r.status+')');return j}
  /* демо-режим */
  const U=lsG('maus_users')||{};
  if(path=='register'){if(U[body.nick.toLowerCase()])throw new Error('Ник занят');U[body.nick.toLowerCase()]={nick:body.nick,h:await hash(body.password,body.nick.toLowerCase())};lsS('maus_users',U);return{nick:body.nick,token:'local'}}

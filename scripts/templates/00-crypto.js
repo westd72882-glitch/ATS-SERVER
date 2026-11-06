@@ -11,12 +11,16 @@ let __nativeKeyPromise = null;
 function __getKeyBytes() {
   if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AssetKey) {
     if (!__nativeKeyPromise) {
-      __nativeKeyPromise = window.Capacitor.Plugins.AssetKey.getKey().then(r => {
+      const __kp = window.Capacitor.Plugins.AssetKey.getKey();
+      const __to = new Promise((_, bad) => setTimeout(() => bad(new Error('AssetKey.getKey таймаут 8с (плагин не отвечает)')), 8000));
+      if (window.dbg) window.dbg('запрос ключа у AssetKey');
+      __nativeKeyPromise = Promise.race([__kp, __to]).then(r => {
+        if (window.dbg) window.dbg('ключ получен');
         const hex = r.key;
         const bytes = new Uint8Array(hex.length / 2);
         for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
         return bytes;
-      });
+      }).catch(e => { __nativeKeyPromise = null; throw e; });
     }
     return __nativeKeyPromise;
   }
