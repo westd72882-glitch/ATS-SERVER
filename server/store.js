@@ -11,6 +11,7 @@ module.exports=function(db){
  async function load(){
   if(!url){try{if(fs.existsSync(FILE))Object.assign(db,JSON.parse(fs.readFileSync(FILE)))}catch(e){console.error('БД-файл повреждён',e);process.exit(1)}COLL.forEach(c=>db[c]=db[c]||{});console.warn('DATABASE_URL не задан: режим файла (только для отладки)');return}
   const {Pool}=require('pg');pool=new Pool({connectionString:url,max:5,ssl:/\.render\.com/.test(url)||process.env.PGSSL=='1'?{rejectUnauthorized:false}:false});
+  if(process.env.RESET_DB==='YES'){await pool.query('DROP TABLE IF EXISTS kv');console.warn('RESET_DB=YES: ВСЕ данные удалены. Удалите эту переменную!')}
   await pool.query('CREATE TABLE IF NOT EXISTS kv(coll text NOT NULL,k text NOT NULL,v jsonb NOT NULL,updated timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(coll,k))');
   const r=await pool.query('SELECT coll,k,v FROM kv');for(const x of r.rows)if(db[x.coll]){db[x.coll][x.k]=x.v;snap[x.coll].add(x.k)}
   console.log('PostgreSQL: загружено записей',r.rowCount)}
