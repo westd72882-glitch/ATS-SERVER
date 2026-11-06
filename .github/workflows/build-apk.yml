@@ -71,7 +71,7 @@ jobs:
           if [ -z "$SECRET_KEYSTORE_BASE64" ]; then
             echo "::warning::Секреты keystore не заданы — сгенерирован одноразовый self-signed keystore (для теста/личной установки; для публикации в сторах сделай постоянный ключ и добавь секреты)."
             STORE_PASS=$(openssl rand -hex 16)
-            KEY_PASS=$(openssl rand -hex 16)
+            KEY_PASS="$STORE_PASS"
             keytool -genkeypair -v -storetype PKCS12 \
               -keystore android/app/release.keystore -alias ephemeral \
               -keyalg RSA -keysize 2048 -validity 10000 \
