@@ -26,7 +26,7 @@ console.log('1/5 копирование исходников...');
 copyDir(SRC, DST);
 
 const VERSION = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf8').trim();
-const API = (process.env.API_URL || '').replace(/\/+$/, '');
+const API = (process.env.API_URL || 'https://ats-server-foza.onrender.com').replace(/\/+$/, '');
 fs.writeFileSync(path.join(DST, 'js', '00-config.js'),
   `window.APP_VERSION=${JSON.stringify(VERSION)};window.API_URL=${JSON.stringify(API)};`);
 console.log('версия', VERSION, 'API', API || '(демо-режим)');
