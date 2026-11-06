@@ -20,7 +20,7 @@ function ui(){const up=mode=='up';for(const[i,v]of[['a_mail',false],['a_pass2',u
 document.querySelectorAll('#auth .at button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;step=0;er();ui()});
 async function sendCode(){const r=await api('register',pend);er(r.demoCode?'Демо-режим: ваш код '+r.demoCode:'Код отправлен на '+pend.email,true)}
 $('a_sw').onclick=()=>{mode=mode=='in'?'up':'in';step=0;er();ui()};
-$('auth').addEventListener('click',e=>{const A=$('auth');if(A.classList.contains('sp')&&!e.target.closest('#a_lic'))A.classList.remove('sp')});
+$('auth').addEventListener('click',e=>{const A=$('auth');if(A.classList.contains('sp')&&!e.target.closest('#a_lic,#a_back'))A.classList.remove('sp')});
 const eu=$('eula');$('a_lic').addEventListener('click',e=>{if(e.target.closest('u')){e.stopPropagation();eu.classList.add('on')}});$('e_ok').onclick=()=>eu.classList.remove('on');
 {const l=document.createElement('label');l.id='a_agw';l.innerHTML='<input type="checkbox" id="a_ag"> Я принимаю <u id="a_agl">пользовательское соглашение</u>';$('a_go').parentNode.insertBefore(l,$('a_go'));$('a_agl').onclick=e=>{e.preventDefault();eu.classList.add('on')}}
 $('a_back').onclick=()=>{er();$('auth').classList.add('sp')};

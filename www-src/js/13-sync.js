@@ -13,7 +13,8 @@ function block(v){if(document.getElementById('vblock'))return;const d=document.c
  d.style.cssText='position:fixed;inset:0;z-index:99999;background:#0b0f14;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font:18px sans-serif;text-align:center;padding:24px';
  d.innerHTML='<h2>Требуется обновление</h2><p>Версия игры '+VER+', сервер '+(v||'новее')+'.<br>Скачайте новую версию APK.</p>';document.body.appendChild(d)}
 /* проверка версии при запуске */
-fetch(API+'/api/version').then(r=>r.json()).then(j=>{if(j.version&&j.version!==VER)block(j.version)}).catch(()=>{});
+{const L=document.getElementById('ltxt');if(L&&!(window.loadProg&&loadProg.n))L.textContent='Подключение к серверу…'}
+fetch(API+'/api/version').then(r=>r.json()).then(j=>{if(j.version&&j.version!==VER)block(j.version)}).catch(()=>{const L=document.getElementById('ltxt');if(L&&!(window.loadProg&&loadProg.n))L.textContent='Сервер недоступен, офлайн-режим'});
 /* пуш сохранения (дебаунс) */
 let tm=null,applying=false;
 const snap=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(OK(k))o[k]=localStorage.getItem(k)}return o};
@@ -24,12 +25,13 @@ Storage.prototype.setItem=function(k,v){si.call(this,k,v);if(OK(k))sched()};
 Storage.prototype.removeItem=function(k){ri.call(this,k);if(OK(k))sched()};
 addEventListener('pagehide',()=>{const s=gs();if(s&&s.token&&tm){try{fetch(API+'/api/save/put',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json','X-App-Version':VER,Authorization:'Bearer '+s.token},body:JSON.stringify({data:snap()})})}catch(_){}}});
 /* пулл при старте/после входа: сервер главнее; если отличается — применить и перезагрузить */
+const HG=()=>typeof inHangar!='undefined'&&inHangar&&window.ldStatus;
 window.mausPull=async function(){const s=gs();if(!s||!s.token)return;
- try{const r=await call('save/get');const sv=r.save;
+ try{if(HG())ldStatus('Синхронизация с сервером…',40);else{const L=document.getElementById('ltxt');if(L&&!(window.loadProg&&loadProg.n))L.textContent='Синхронизация с сервером…'}const r=await call('save/get');const sv=r.save;
   if(!sv){push();return}
   const loc=snap(),d=sv.data;let diff=false;for(const k of Object.keys(d))if(loc[k]!==d[k])diff=true;for(const k of Object.keys(loc))if(!(k in d))diff=true;
   if(diff){applying=true;for(const k of Object.keys(loc))if(!(k in d))ri.call(localStorage,k);for(const k of Object.keys(d))si.call(localStorage,k,d[k]);
    if(!sessionStorage.getItem('maus_rl')){sessionStorage.setItem('maus_rl','1');location.reload();return}applying=false}
-  sessionStorage.removeItem('maus_rl')}catch(e){}};
+  sessionStorage.removeItem('maus_rl');if(HG()){ldStatus('Синхронизация завершена',100);setTimeout(()=>{try{hideLoader()}catch(_){}},400)}}catch(e){if(HG()){ldStatus('Не удалось синхронизироваться, продолжаем офлайн',100);setTimeout(()=>{try{hideLoader()}catch(_){}},1200)}}};
 mausPull();
 })();

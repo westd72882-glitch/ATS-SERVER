@@ -125,10 +125,11 @@ function addIcons(){document.querySelectorAll('.hc').forEach(b=>{const u=ICONS[b
 const _ldi=$('ldb').firstChild;
 const ART=['img/load1.jpg','img/load2.jpg'];function pickArt(){const a=ART[Math.random()*ART.length|0],b=ART.find(x=>x!=a);$('lart').src=a;$('blbg').src=b}
 function showLoader(t,s){pickArt();$('ltxt').textContent=s;$('ltxt').style.display='';$('ldr').style.display='flex'}
+window.ldStatus=function(t,p){try{showLoader('',t);if(p!=null)setBar(p)}catch(_){}};
 function hideLoader(){$('ldr').style.display='none'}
 function setBar(p,ms){_ldi.style.transition=ms?`width ${ms}ms linear`:'none';_ldi.style.width=p+'%'}
-function loadProg(total){loadProg.n=(loadProg.n||0)+1;setBar(loadProg.n/total*80);$('ltxt').textContent='Загрузка игры… '+Math.round(loadProg.n/total*100)+'%'}
-function prepHangar(){showLoader('Подготовка ангара','Рендер иконок танков…');setBar(85);setTimeout(()=>{makeIcons();setBar(100);enterHangar()},50)}
+function loadProg(total){loadProg.n=(loadProg.n||0)+1;setBar(loadProg.n/total*80);$('ltxt').textContent='Загрузка моделей: '+loadProg.n+' из '+total+' ('+Math.round(loadProg.n/total*100)+'%)'}
+function prepHangar(){showLoader('','Подготовка ангара и иконок техники…');setBar(85);setTimeout(()=>{makeIcons();setBar(100);enterHangar()},50)}
 let _bl=0;
 const NICK=['Wolf_88','TankDad','Kuzya','Panzer_X','Ivan_T','Gnom','StaliNick','Rex','Viking','Shturm','Barsik','Orel','Tigr','NightFox','Zeus','Mamont','Sapper','Kolya','Hawk','Bison'];
 const TIPS=['Чем ярче красная подсветка в снайперском режиме, тем ниже шанс пробития.','Бейте в борт и корму: там броня тоньше, а под острым углом снаряд рикошетит.','Цвет прицела показывает шанс пробития: зелёный — пробьёте, красный — нет.','Перед выстрелом дождитесь полной перезарядки: тяжёлые танки стреляют редко, но больно.','Используйте аптечку, когда прочность упала ниже половины.'];

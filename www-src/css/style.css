@@ -861,3 +861,5 @@ input,textarea{user-select:text;-webkit-user-select:text;touch-action:manipulati
 #e_ok{margin-top:1.6vh;height:7vh;border:0;border-radius:6px;background:#c8281c;color:#fff;font:700 2.8vh system-ui}
 #a_agw{display:block;margin:1vh 0;font-size:2.4vh;color:#dfe5ea}#a_agw input{width:2.6vh;height:2.6vh;vertical-align:middle;margin-right:1vh}#a_agw u{text-decoration:underline;cursor:pointer}
 #auth.sp{cursor:pointer}
+
+@keyframes tapPulse{0%,100%{opacity:1}50%{opacity:.3}}#a_tap{animation:tapPulse 2.2s ease-in-out infinite}#ldr{z-index:200!important}
