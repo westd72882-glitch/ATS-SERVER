@@ -1,9 +1,9 @@
-name: Build signed & obfuscated APK
+name: Build signed APK
 
 # Жми "Run workflow" (вкладка Actions) — соберётся APK даже без единого секрета:
-# если ASSET_KEY / keystore-секреты не заданы, пайплайн сгенерирует их сам на лету
+# если keystore-секреты не заданы, пайплайн сгенерирует их сам на лету
 # (ключ шифрования эфемерный, подпись — самоподписанный keystore, только для теста/личной установки).
-# Для официального релиза в Releases добавь секреты ASSET_KEY, KEYSTORE_BASE64,
+# Для официального релиза в Releases добавь секреты KEYSTORE_BASE64,
 # KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD — тогда будет использован твой постоянный ключ/подпись.
 
 on:
@@ -36,18 +36,7 @@ jobs:
       - name: Install npm deps
         run: npm install
 
-      - name: Resolve ASSET_KEY (use secret, or generate ephemeral)
-        env:
-          SECRET_ASSET_KEY: ${{ secrets.ASSET_KEY }}
-        run: |
-          if [ -z "$SECRET_ASSET_KEY" ]; then
-            echo "::warning::ASSET_KEY secret не задан — сгенерирован одноразовый ключ (ок для теста, для релиза добавь свой секрет)."
-            echo "ASSET_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
-          else
-            echo "ASSET_KEY=$SECRET_ASSET_KEY" >> "$GITHUB_ENV"
-          fi
-
-      - name: Build obfuscated & encrypted web bundle
+      - name: Build web bundle
         env:
           API_URL: ${{ vars.API_URL || secrets.API_URL }}
         run: npm run build:web
@@ -58,7 +47,7 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Configure signing + R8/ProGuard + native key plugin
+      - name: Configure signing + R8/ProGuard
         run: node scripts/configure-android.js
 
       - name: Resolve signing keystore (use secret, or generate self-signed)
