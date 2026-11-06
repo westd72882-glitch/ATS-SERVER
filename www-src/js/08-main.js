@@ -31,7 +31,7 @@ function hud(dt){
  minimap();
  fo=Math.max(0,fo-dt*2.5);$('flash').style.opacity=fo;const dg=$('dmg');dg.style.opacity=Math.max(0,dg.style.opacity-dt*1.5)}
 let paused=true;
-const ANDROID=/Android/i.test(navigator.userAgent),inFS=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+const NATIVE=!!(window.Capacitor&&(Capacitor.isNativePlatform?Capacitor.isNativePlatform():(Capacitor.getPlatform&&Capacitor.getPlatform()!='web'))),ANDROID=/Android/i.test(navigator.userAgent)&&!NATIVE,inFS=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
 /* полный экран только на Android: входим при первом касании и возвращаемся сразу после случайного выхода */
 function goFull(){if(!ANDROID||inFS())return;const d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;try{const r=f&&f.call(d,{navigationUI:'hide'});r&&r.then&&r.then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(_){}}).catch(()=>{})}catch(_){}}
 if(ANDROID){['pointerup','touchend','click','keydown'].forEach(n=>addEventListener(n,()=>goFull(),true));['fullscreenchange','webkitfullscreenchange'].forEach(n=>document.addEventListener(n,()=>{if(!inFS())goFull()}));document.addEventListener('visibilitychange',()=>{if(!document.hidden)goFull()});
@@ -52,5 +52,14 @@ function loop(ts){requestAnimationFrame(loop);_fc++;if(!_fl)_fl=ts;if(_lt)_fm=Ma
  updatePlayer(dt);ENEMIES.forEach(e=>{if(e.net){if(e.alive)netTick(e,dt)}else if(CDN<=0)aiUpdate(e,dt);if(!e.alive)wreckFx(e,dt)});if(!P.alive)wreckFx(P,dt);
  updateShells(dt);flash.intensity*=Math.pow(.0004,dt);smoke.update(dt);fire.update(dt);hud(dt);R.render(scene,cam)}
 addEventListener('resize',resize);resize();
-const _lp=[loadModel(),...CATALOG.filter(c=>c.id!='maus').map(c=>loadGlb(c.id))];_lp.forEach(p=>p.then(()=>loadProg(_lp.length),()=>{}));Promise.all(_lp).then(([items])=>{ITEMS=items;buildHangar();setPlayer(ECO.own[0]||'maus');if(typeof applyGfx=='function')applyGfx();prepHangar();
+/* модели грузим по 2 штуки, а не все 16 сразу (иначе на телефоне кончается память и загрузка встаёт на 94%); сбойная/зависшая модель выкидывается из каталога, а не вешает игру */
+const _ids=CATALOG.filter(c=>c.id!='maus').map(c=>c.id),_tot=_ids.length+1;
+const _tmo=(p,ms,id)=>new Promise((ok,bad)=>{const t=setTimeout(()=>bad(new Error('таймаут '+id)),ms);p.then(v=>{clearTimeout(t);ok(v)},e=>{clearTimeout(t);bad(e)})});
+async function loadAll(){const items=await loadModel();loadProg(_tot);const q=_ids.slice(),bad=[];
+ const wk=async()=>{while(q.length){const id=q.shift();try{await _tmo(loadGlb(id),40000,id)}catch(e){console.warn('model fail',id,e);bad.push(id)}loadProg(_tot)}};
+ await Promise.all([wk(),wk()]);
+ bad.forEach(id=>{const x=CATALOG.findIndex(c=>c.id==id);if(x>=0)CATALOG.splice(x,1)});
+ if(bad.length){try{ECO.own=ECO.own.filter(id=>CATALOG.some(c=>c.id==id))}catch(_){}}
+ return items}
+loadAll().then(items=>{ITEMS=items;buildHangar();setPlayer(ECO.own[0]||'maus');if(typeof applyGfx=='function')applyGfx();prepHangar();
  $('ltxt').style.display='none';$('play').style.display='block';$('go').style.display='flex';updatePlayer(.016);requestAnimationFrame(loop)}).catch(e=>{$('ltxt').textContent='Ошибка загрузки модели: '+e.message});
