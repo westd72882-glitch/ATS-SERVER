@@ -36,8 +36,11 @@ gradle = gradle.replace(
   /buildTypes\s*\{\s*release\s*\{([^}]*)\}/s,
   (m, inner) => {
     let body = inner;
-    if (!body.includes('minifyEnabled')) body += '\n            minifyEnabled true';
-    if (!body.includes('shrinkResources')) body += '\n            shrinkResources true';
+    // Capacitor по умолчанию пишет "minifyEnabled false" — принудительно заменяем на true
+    if (/minifyEnabled\s+\w+/.test(body)) body = body.replace(/minifyEnabled\s+\w+/, 'minifyEnabled true');
+    else body += '\n            minifyEnabled true';
+    if (/shrinkResources\s+\w+/.test(body)) body = body.replace(/shrinkResources\s+\w+/, 'shrinkResources true');
+    else body += '\n            shrinkResources true';
     if (!body.includes('signingConfig')) body += '\n            signingConfig signingConfigs.release';
     if (!body.includes('proguardFiles')) {
       body += "\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'";
