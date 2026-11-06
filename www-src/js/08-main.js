@@ -56,10 +56,10 @@ addEventListener('resize',resize);resize();
 const _ids=CATALOG.filter(c=>c.id!='maus').map(c=>c.id),_tot=_ids.length+1;
 const _tmo=(p,ms,id)=>new Promise((ok,bad)=>{const t=setTimeout(()=>bad(new Error('таймаут '+id)),ms);p.then(v=>{clearTimeout(t);ok(v)},e=>{clearTimeout(t);bad(e)})});
 async function loadAll(){dbg('загрузка: maus (основная модель)');const _w=setTimeout(()=>{const l=$('ltxt');if(l&&loadProg.n==null)l.textContent='Загрузка идёт долго… подождите'},15000);let items;try{items=await _tmo(loadModel(),45000,'maus')}finally{clearTimeout(_w)}dbg('maus загружен');loadProg(_tot);const q=_ids.slice(),bad=[];
- const wk=async()=>{while(q.length){const id=q.shift();try{dbg('модель '+id+'…');await _tmo(loadGlb(id),40000,id);dbg('модель '+id+' ок')}catch(e){console.warn('model fail',id,e);bad.push(id)}loadProg(_tot)}};
- await Promise.all([wk(),wk()]);
+ const wk=async()=>{while(q.length){const id=q.shift();try{dbg('модель '+id+'…');{let er;for(let t=0;t<3;t++){try{await _tmo(loadGlb(id),120000,id);er=null;break}catch(e){er=e}}if(er)throw er};dbg('модель '+id+' ок')}catch(e){console.warn('model fail',id,e);bad.push(id)}loadProg(_tot)}};
+ await Promise.all([wk(),wk(),wk()]);
  bad.forEach(id=>{const x=CATALOG.findIndex(c=>c.id==id);if(x>=0)CATALOG.splice(x,1)});
- if(bad.length){try{ECO.own=ECO.own.filter(id=>CATALOG.some(c=>c.id==id))}catch(_){}}
+ 
  return items}
 loadAll().then(items=>{dbg('все модели загружены, строю ангар');ITEMS=items;buildHangar();setPlayer(ECO.own[0]||'maus');if(typeof applyGfx=='function')applyGfx();prepHangar();
  $('ltxt').style.display='none';$('play').style.display='block';$('go').style.display='flex';updatePlayer(.016);requestAnimationFrame(loop)}).catch(e=>{console.error('loadAll',e);$('ltxt').textContent='Ошибка загрузки: '+e.message+' '});

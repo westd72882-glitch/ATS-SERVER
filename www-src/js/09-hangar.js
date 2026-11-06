@@ -97,7 +97,7 @@ function makeIcons(){let r;const W=800,H=440;try{r=new THREE.WebGLRenderer({anti
  r.setPixelRatio(1);r.setSize(W,H,false);r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.05;
  const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xdfe8f2,0x3a3630,1.15));const dl=new THREE.DirectionalLight(0xfff2e0,1.8);dl.position.set(-8,10,-6);sc.add(dl);const dl2=new THREE.DirectionalLight(0x9fb8d8,.5);dl2.position.set(8,4,6);sc.add(dl2);
  const ic=new THREE.PerspectiveCamera(24,W/H,.1,400),oc=document.createElement('canvas'),tc=document.createElement('canvas');oc.width=W;oc.height=H;tc.width=W;tc.height=H;
- CATALOG.forEach(c=>{let T;try{r.toneMappingExposure=1.05;T=buildTank(c.id);sc.add(T.root);T.root.updateMatrixWorld(true);
+ [...CATALOG,...CATALOG].forEach(c=>{if(ICONS[c.id])return;let T;try{r.toneMappingExposure=1.05;T=buildTank(c.id);sc.add(T.root);T.root.updateMatrixWorld(true);
   const b=new THREE.Box3();T.root.traverse(m=>{if(m.isMesh&&!m.isSprite&&m.visible&&m.geometry&&!(m.userData&&m.userData.hl)&&!(m.material&&m.material.transparent&&m.material.opacity<.6)){m.geometry.boundingBox||m.geometry.computeBoundingBox();b.union(m.geometry.boundingBox.clone().applyMatrix4(m.matrixWorld))}});
   const ct=b.getCenter(new THREE.Vector3()),dir=new THREE.Vector3(-.85,.28,-.5).normalize(),cr=[];
   for(let i=0;i<8;i++)cr.push(new THREE.Vector3(i&1?b.max.x:b.min.x,i&2?b.max.y:b.min.y,i&4?b.max.z:b.min.z));
@@ -150,7 +150,7 @@ const isPrem=c=>!!c&&c.nat!='СССР';                                        /
 const RCOST={1:400,2:1200,3:4500,4:9500,5:25000,6:70000,7:200000,8:800000,9:2500000,10:8000000};   /* цена исследования по уровню */
 const GPRICE={5:1500,6:2000,7:2800,8:4500,9:6500,10:9000};               /* цена премиум-танка в золоте по уровню */
 CATALOG.forEach(c=>{if(isPrem(c))c.gold=c.gold||GPRICE[c.tier]||9000;c.rc=RCOST[c.tier]});
-const ECO=Object.assign({cr:500,au:0,xp:0,own:['ms1'],res:['ms1']},jl('maus_eco2'));
+const ECO=Object.assign({cr:500,au:0,xp:0,own:['ms1'],res:['ms1']},jl('maus_eco2'));if(!((jl('maus_session')||{}).nick))ECO.au=0;;
 ECO.own=ECO.own.filter(id=>CATALOG.some(c=>c.id==id));if(!ECO.own.includes('ms1'))ECO.own.unshift('ms1');
 ECO.res=ECO.res.filter(id=>SOVB.includes(id));if(!ECO.res.includes('ms1'))ECO.res.unshift('ms1');
 const fmt=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');

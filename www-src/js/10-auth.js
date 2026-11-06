@@ -14,18 +14,22 @@ async function api(path,body){
 function bootLoad(){try{const l=$('ldr');if(!l||l.style.display!='none')return;showLoader('','Загрузка профиля…');setBar(0);setTimeout(()=>setBar(100,2300),60);setTimeout(()=>{$('ltxt').textContent='Вход в ангар…'},1500);setTimeout(hideLoader,2500)}catch(_){}}
 function done(r){lsS('maus_session',{nick:r.nick,token:r.token});bootLoad();if(window.mausPull)setTimeout(window.mausPull,50);$('auth').classList.remove('on');$('auth').classList.add('sp');const n=$('hnick');if(n)n.textContent=r.nick}
 function ui(){const up=mode=='up';for(const[i,v]of[['a_mail',false],['a_pass2',up],['a_code',false],['a_nick',!step],['a_pass',!step]]){$(i).style.display=$('l_'+i).style.display=v?'':'none'}
- $('a_re').style.display='none';
+ $('a_re').style.display='none';$('a_agw').style.display=up?'':'none';
  $('a_go').textContent=up?'Зарегистрироваться':'Войти';$('a_h').textContent=up?'РЕГИСТРАЦИЯ В ATS BLITZ':'ВОЙТИ В ATS BLITZ';$('a_sw').textContent=up?'Уже есть аккаунт? Войти':'Нет аккаунта? Регистрация';$('a_pass').autocomplete=up?'new-password':'current-password';
  $('a_nick').placeholder='Никнейм';document.querySelectorAll('#auth .at button').forEach(b=>b.classList.toggle('on',b.dataset.m==mode))}
 document.querySelectorAll('#auth .at button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;step=0;er();ui()});
 async function sendCode(){const r=await api('register',pend);er(r.demoCode?'Демо-режим: ваш код '+r.demoCode:'Код отправлен на '+pend.email,true)}
 $('a_sw').onclick=()=>{mode=mode=='in'?'up':'in';step=0;er();ui()};
-$('a_enter').onclick=()=>$('auth').classList.remove('sp');$('a_back').onclick=()=>{er();$('auth').classList.add('sp')};
+$('auth').addEventListener('click',e=>{const A=$('auth');if(A.classList.contains('sp')&&!e.target.closest('#a_lic'))A.classList.remove('sp')});
+const eu=$('eula');$('a_lic').addEventListener('click',e=>{if(e.target.closest('u')){e.stopPropagation();eu.classList.add('on')}});$('e_ok').onclick=()=>eu.classList.remove('on');
+{const l=document.createElement('label');l.id='a_agw';l.innerHTML='<input type="checkbox" id="a_ag"> Я принимаю <u id="a_agl">пользовательское соглашение</u>';$('a_go').parentNode.insertBefore(l,$('a_go'));$('a_agl').onclick=e=>{e.preventDefault();eu.classList.add('on')}}
+$('a_back').onclick=()=>{er();$('auth').classList.add('sp')};
 $('a_re').onclick=async()=>{try{await sendCode()}catch(e){er(e.message)}};
 $('af').onsubmit=async ev=>{ev.preventDefault();er();const nick=$('a_nick').value.trim(),pass=$('a_pass').value;$('a_go').disabled=true;
  try{
   if(mode=='in'){if(!nick||!pass)throw new Error('Введите ник и пароль');done(await api('login',{login:nick,password:pass}));return}
   if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(nick))throw new Error('Ник: 3–16 символов, буквы, цифры, _ и -');
+  if(!$('a_ag').checked)throw new Error('Примите пользовательское соглашение');try{localStorage.setItem('maus_eula','7.11.2026')}catch(_){}
   if(pass.length<6)throw new Error('Пароль минимум 6 символов');if(pass!==$('a_pass2').value)throw new Error('Пароли не совпадают');
   done(await api('register',{nick,password:pass}));
  }catch(e){er(e.message||'Ошибка сети')}finally{$('a_go').disabled=false}};
