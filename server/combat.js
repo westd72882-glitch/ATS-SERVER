@@ -56,7 +56,7 @@ function fire(w,now){const r=w.room,st=w.st;
  if(!best)return;const{t,h,p}=best,b=h.b;
  if(h.ly<b.y0+(b.y1-b.y0)*.36&&Math.abs(h.lx)>b.hx*.55&&Math.abs(h.lz)>b.hz*.6){t.tk=now+TRK;bc(r,{t:'hit',v:t.id,by:w.id,d:0,hp:t.hp,r:'trk',side:Math.sign(h.lx)||1,end:Math.sign(h.lz)||1});return}
  const ai=armor(t.st,b,h,h.dl),pn=st.pen*(.85+Math.random()*.3);
- if(ai.ric||ai.eff>pn){bc(r,{t:'hit',v:t.id,by:w.id,d:0,hp:t.hp,r:ai.ric?'r':'n'});return}
+ if(ai.ric||ai.eff>pn){bc(r,{t:'hit',v:t.id,by:w.id,d:0,hp:t.hp,r:ai.ric?'r':'n',e:Math.round(ai.eff),p:Math.round(pn)});return}
  const dm=Math.round(st.dmg*(.85+Math.random()*.3)),real=Math.min(dm,t.hp);t.hp-=real;w.dmg+=real;
  bc(r,{t:'hit',v:t.id,by:w.id,d:real,hp:t.hp,r:'p'});
  if(t.hp<=0){t.alive=false;w.kills++;bc(r,{t:'dead',id:t.id,by:w.id});check(r)}}

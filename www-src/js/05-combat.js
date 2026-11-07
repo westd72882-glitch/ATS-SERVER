@@ -40,6 +40,12 @@ const SV=(id)=>`<svg class="fi"><use href="#${id}"/></svg>`;
 function feedK(a,b){const d=document.createElement('div'),n=t=>{const e=document.createElement('span');e.textContent=t;return e.outerHTML};d.innerHTML=n(a)+SV('i-arrow')+n(b)+SV('i-boom');$('feed').appendChild(d);setTimeout(()=>d.remove(),4000)}
 function feed(t){const d=document.createElement('div');d.textContent=t;$('feed').appendChild(d);setTimeout(()=>d.remove(),4000)}
 function say(t){const b=$('big');b.textContent=t;b.style.opacity=1;clearTimeout(say.t);say.t=setTimeout(()=>b.style.opacity=0,1800)}
+/* индикатор попадания по игроку: красная дуга со стороны стрелявшего — пробитие, чёрная — не пробили */
+function hitArc(from,pen){if(!from||from.x==null)return;const f=new THREE.Vector3();cam.getWorldDirection(f);const dx=from.x-P.x,dz=from.z-P.z,l=Math.hypot(f.x,f.z)||1,fx=f.x/l,fz=f.z/l,ang=Math.atan2(dx*(-fz)+dz*fx,dx*fx+dz*fz)*180/Math.PI;
+ const e=document.createElement('div');e.className='hita '+(pen?'p':'b');e.style.setProperty('--a',(ang-26)+'deg');document.body.appendChild(e);setTimeout(()=>e.remove(),1700)}
+function noPen(eff,pn,ric){if(ric){popup('Рикошет',innerWidth/2-40,innerHeight*.62,false);feed('Рикошет');return}
+ const k=Math.max(1,Math.round(eff-pn));popup('Не пробито: +'+k+' мм',innerWidth/2-70,innerHeight*.62,false);feed('Не пробито: не хватило '+k+' мм (броня '+Math.round(eff)+' / пробитие '+Math.round(pn)+')')}
+function clearFx(){const d=$('dmg');if(d)d.style.opacity=0;fo=0;const f=$('flash');if(f)f.style.opacity=0;const t=$('trk');if(t)t.style.display='none';document.querySelectorAll('.hita,.pop').forEach(x=>x.remove())}
 function impact(s,h){
  const p=s.p;
  if(h.k=='tank'){const T=h.T,n=V3(0,0,0),ax=Math.abs(h.lx/T.box.hx),az=Math.abs(h.lz/T.box.hz),ay=Math.abs((h.ly-(T.box.y0+T.box.y1)/2)/((T.box.y1-T.box.y0)/2));
@@ -47,9 +53,9 @@ function impact(s,h){
   tankDecal(T,V3(h.lx+T.box.cx,h.ly,h.lz+T.box.cz),n);boom(p,false);if(window.NET&&NET.on)return;   /* сетевой бой: урон/броню/гусеницы считает сервер */
   {const bh=T.box.y1-T.box.y0;if(h.ly<T.box.y0+bh*.36&&Math.abs(h.lx)>T.box.hx*.55&&Math.abs(h.lz)>T.box.hz*.6){trackHit(T,Math.sign(h.lx)||1,Math.sign(h.lz)||1,p);return}}
   const ai=armorInfo(T,h,s.v),pn=s.o.cat.pen*(.85+Math.random()*.3);
-  if(ai.ric||ai.eff>pn){const tx=ai.ric?'Рикошет':'Не пробил';if(T===P)popup(tx,innerWidth/2-40,innerHeight*.62,false);else if(s.o===P){const q=toScreen(p);popup(tx,q.x,q.y)}return}
+  if(ai.ric||ai.eff>pn){const tx=ai.ric?'Рикошет':'Не пробил';if(T===P){hitArc(s.o,false);noPen(ai.eff,pn,ai.ric)}else if(s.o===P){const q=toScreen(p);popup(tx,q.x,q.y)}return}
   const dmg=Math.round(s.o.cat.dmg*(.85+Math.random()*.3));if(T.net&&s.o!==P)return;T.hp=Math.max(0,T.hp-dmg);if(s.o===P&&T.team!==P.team)DMG+=dmg;
-  if(T===P){$('dmg').style.opacity=1;S.shake=.7;const q=toScreen(p);popup('-'+dmg,innerWidth/2-20,innerHeight*.62,true)}
+  if(T===P){hitArc(s.o,true);$('dmg').style.opacity=1;S.shake=.7;const q=toScreen(p);popup('-'+dmg,innerWidth/2-20,innerHeight*.62,true)}
   else if(s.o===P){const q=toScreen(p);popup('-'+dmg,q.x,q.y);$('ret').animate([{transform:$('ret').style.transform+' scale(1.7)'},{transform:$('ret').style.transform+' scale(1)'}],160)}
   if(T.hp<=0)kill(T,s.o)}
  else{const n=h.k=='ground'?V3(0,1,0):V3(-s.v.x,0,-s.v.z).normalize();if(h.k=='ground')p.y=0;worldDecal(p,n,.2+Math.random()*.12);boom(p,true)}}

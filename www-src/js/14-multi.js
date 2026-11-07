@@ -37,8 +37,8 @@ function onMsg(m){
  else if(m.t=='hit'){const T=m.v==NET.me?P:NET.px[m.v];if(!T)return;const mine=m.by==NET.me,pos=T.root.position;
   if(m.r=='trk'){trackHit(T,m.side,m.end,V3(pos.x,1,pos.z));return}
   if(m.r=='p'){T.hp=m.hp;if(mine)DMG+=m.d;
-   if(T===P){$('dmg').style.opacity=1;S.shake=.7;popup('-'+m.d,innerWidth/2-20,innerHeight*.62,true)}else if(mine)popup('-'+m.d,innerWidth/2+30,innerHeight*.42)}
-  else if(T===P||mine){const tx=m.r=='r'?'Рикошет':'Не пробил';popup(tx,innerWidth/2-40,T===P?innerHeight*.62:innerHeight*.42,false)}}
+   if(T===P){hitArc(NET.px[m.by],true);$('dmg').style.opacity=1;S.shake=.7;popup('-'+m.d,innerWidth/2-20,innerHeight*.62,true)}else if(mine)popup('-'+m.d,innerWidth/2+30,innerHeight*.42)}
+  else if(T===P){hitArc(NET.px[m.by],false);noPen(m.e||0,m.p||0,m.r=='r')}else if(mine){popup(m.r=='r'?'Рикошет':'Не пробил',innerWidth/2-40,innerHeight*.42,false)}}
  else if(m.t=='dead'){const T=m.id==NET.me?P:NET.px[m.id];if(T&&T.alive){T.hp=0;kill(T,m.by==NET.me?P:(m.by==m.id?T:(NET.px[m.by]||T)))}}
  else if(m.t=='corr'){P.x=m.x;P.z=m.z;if(m.h!=null)P.h=m.h;P.v=0}
  else if(m.t=='end'){NET.res=m;if(m.eco)applyEco(m.eco)}
