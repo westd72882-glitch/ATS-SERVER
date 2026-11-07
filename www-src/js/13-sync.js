@@ -40,16 +40,16 @@ window.srvGateFn=async function(){const s=gs();if(!(s&&s.token&&!s.guest))return
  const say=t=>{if(L){L.style.display='';L.textContent=t}};
  while(!off){const sec=Math.round((Date.now()-t0)/1000);
   say(navigator.onLine===false?'Нет подключения к интернету…':sec<5?'Подключение к серверу…':'Сервер запускается, подождите… '+sec+' с');
-  if(sec>=20&&!btn&&ld){btn=document.createElement('button');btn.textContent='Играть офлайн';btn.style.cssText='position:absolute;left:50%;bottom:9vh;transform:translateX(-50%);padding:1.6vh 5vh;border:1px solid #fff5;border-radius:.6vh;background:#0008;color:#fff;font:700 2.6vh system-ui';btn.onclick=()=>{off=true;window.OFFLINE_MODE=true};ld.appendChild(btn)}
+  
   if(await ping(8000))break;await new Promise(r=>setTimeout(r,1500))}
  if(btn)btn.remove();if(off)return;
  say('Синхронизация данных…');try{await window.mausPull()}catch(_){}};
 /* Потеря связи: отключаем от игры */
-(function(){let bad=0,shown=false;const lost=()=>{if(shown||window.OFFLINE_MODE)return;shown=true;try{if(window.NET&&NET.ws)NET.ws.close()}catch(_){}
+(function(){let bad=0,shown=false;const lost=()=>{if(shown)return;shown=true;try{if(window.NET&&NET.ws)NET.ws.close()}catch(_){}
   const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:99998;background:#000d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh;font:700 3.4vh system-ui;text-align:center';
   d.innerHTML='<div>Соединение с сервером потеряно</div><button style="padding:2vh 7vh;border:0;border-radius:.6vh;background:#d9482a;color:#fff;font:800 3vh system-ui">Переподключиться</button>';
   d.querySelector('button').onclick=()=>location.reload();document.body.appendChild(d)};
  addEventListener('offline',()=>{if(gs()&&gs().token)lost()});
- let pinging=false;setInterval(async()=>{if(pinging)return;const s=gs();if(!(s&&s.token&&!s.guest)||window.OFFLINE_MODE||document.hidden)return;pinging=true;try{if(await ping(6000))bad=0;else if(++bad>=2)lost()}finally{pinging=false}},15000)})();
+ let pinging=false;setInterval(async()=>{if(pinging)return;const s=gs();if(!(s&&s.token&&!s.guest)||document.hidden)return;pinging=true;try{if(await ping(6000))bad=0;else if(++bad>=2)lost()}finally{pinging=false}},15000)})();
 if(!(gs()&&gs().token))mausPull();
 })();

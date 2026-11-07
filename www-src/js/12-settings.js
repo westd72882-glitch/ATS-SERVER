@@ -11,8 +11,8 @@ $('pava').onclick=open;$('avx').onclick=()=>$('avp').classList.remove('on');
 /* кнопка профиля в ангаре открывает профиль (11-profile уже вешает onclick) */
 paint();
 /* сеть */
-const SRV=[{id:'local',n:'Локальный (оффлайн)',r:'Это устройство'},{id:'ru',n:'RU-1 Москва',r:'Онлайн'},{id:'eu',n:'EU-1 Франкфурт',r:'Онлайн'}];
-let cur=L('maus_srv')||'local',off=L('maus_off')=='1';
+const SRV=[{id:'ru',n:'RU-1 Москва',r:'Онлайн'},{id:'eu',n:'EU-1 Франкфурт',r:'Онлайн'}];
+let cur=L('maus_srv')||'ru',off=L('maus_off')=='1';
 const api=()=>window.API_URL||'';
 async function ping(){if(!api())return null;const t=performance.now();try{const c=new AbortController(),to=setTimeout(()=>c.abort(),3000);await fetch(api()+'/api/login',{method:'OPTIONS',signal:c.signal});clearTimeout(to);return Math.round(performance.now()-t)}catch(_){return -1}}
 async function render(){

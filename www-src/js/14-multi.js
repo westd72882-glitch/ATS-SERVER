@@ -67,14 +67,14 @@ function render(){
  bp.querySelectorAll('#bpt button').forEach(b=>b.classList.toggle('sel',b.dataset.k==kind));
  bp.querySelectorAll('#bpm button').forEach(b=>b.classList.toggle('sel',+b.dataset.n==mode));
  const t=(typeof P!='undefined'&&P&&P.cat)?'Ваш танк: <b>'+RM[P.tier]+' '+P.cat.name+'</b>':'',i=$('bpi'),g=$('bpg');
- if(bots()){i.innerHTML=t+'<br>'+(G()?'Гостевой режим (оффлайн): ':'')+'бой против ботов '+mode+' на '+mode+'.';g.textContent='В БОЙ!';g.className='go';return}
+ if(bots()){i.innerHTML=t+'<br>'+'бой против ботов '+mode+' на '+mode+'.';g.textContent='В БОЙ!';g.className='go';return}
  if(!API||!tok()){i.innerHTML=t+'<br>Мультиплеер недоступен: нет сервера или вы не вошли.';g.textContent='Нет сервера';g.className='go c';return}
  const q=NET.q[mode]||{n:0,need:mode*2,tiers:[]},c=!!NET.ws;
  i.innerHTML=t+'<br>Игроков в сети: <b>'+(c?NET.online:'…')+'</b>'+
   (queued?'<br>Поиск боя '+mode+' на '+mode+': <b>'+q.n+' / '+q.need+'</b>':'<br>В очереди '+mode+' на '+mode+': <b>'+q.n+' / '+q.need+'</b>')+
   '<br>Танки в очереди: '+(q.tiers.length?q.tiers.map(x=>RM[x]).join(', '):'—');
  g.textContent=!c?'Подключение…':queued?'Отмена':'Искать бой';g.className='go'+(queued?' c':'')}
-function open(){kind=G()?'bot':'mp';bp.querySelectorAll('#bpt button').forEach(b=>b.style.display=(b.dataset.k=='bot')==G()?'':'none');render();bp.classList.add('on');connect()}
+function open(){kind='mp';bp.querySelectorAll('#bpt button').forEach(b=>b.style.display='');render();bp.classList.add('on');connect()}
 $('play').onclick=open;$('bpx').onclick=()=>{if(queued){send({t:'cancel'});queued=false}bp.classList.remove('on')};
 $('bpt').onclick=e=>{const b=e.target.closest('button');if(!b||queued)return;kind=b.dataset.k;render()};
 $('bpm').onclick=e=>{const b=e.target.closest('button');if(!b||queued)return;mode=+b.dataset.n;render()};

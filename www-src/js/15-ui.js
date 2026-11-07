@@ -167,5 +167,5 @@ const hp=$('hprof');if(hp)hp.addEventListener('click',()=>{if(ONL())window.mausC
 const nc=$('nco');if(nc){const n=nc.cloneNode(true);nc.replaceWith(n);n.textContent='Отключиться';
  n.onclick=()=>{try{if(window.NET&&NET.ws)NET.ws.close()}catch(_){}try{localStorage.removeItem('maus_session')}catch(_){}location.reload()}}
 /* ---------- ГОСТЬ ---------- */
-const g=$('a_guest');if(g)g.onclick=()=>{try{localStorage.setItem('maus_session',JSON.stringify({nick:'Гость',token:'',guest:true}))}catch(_){}window.OFFLINE_MODE=true;$('auth').classList.remove('on');if(window.startGame)startGame();const n=$('hnick');if(n)n.textContent='Гость'};
+/* офлайн/гостевой режим удалён: игра только онлайн (боты — через серверный билет) */
 })();

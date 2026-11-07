@@ -1,6 +1,8 @@
 /* ===== танк: загрузка GLB (текстуры внутри) и сборка экземпляров ===== */
 let ITEMS=null;const BOX={cx:0,cz:0,hx:1.9,hz:5,y0:0,y1:3};      /* габариты корпуса, уточняются после загрузки */
-const getGlb=id=>fetch('models/'+id+'.glb').then(r=>{if(!r.ok)throw new Error('models/'+id+'.glb: '+r.status);return r.arrayBuffer()});
+const GLB_C={};const getGlb=id=>{if(!GLB_C[id]){let s=null;try{s=JSON.parse(localStorage.getItem('maus_session'))}catch(_){}
+ GLB_C[id]=(window.API_URL&&s&&s.token&&!s.guest)?fetch(window.API_URL+'/api/model/'+id,{headers:{Authorization:'Bearer '+s.token,'X-App-Version':window.APP_VERSION||'0'}}).then(r=>{if(!r.ok)throw new Error('model '+id+': '+r.status);return r.arrayBuffer()}):Promise.reject(new Error('Нужен вход в аккаунт'));
+ GLB_C[id].catch(()=>{delete GLB_C[id]})}return GLB_C[id].then(b=>b.slice(0))};
 function loadModel(){
  return getGlb('maus').then(buf=>new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',g=>{g.scene.updateMatrixWorld(true);const items=[];
   g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();items.push({g:gm,bb:gm.boundingBox,n:gm.attributes.position.count,mat:o.material})});
