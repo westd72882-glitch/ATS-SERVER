@@ -61,5 +61,6 @@ async function loadAll(){dbg('загрузка: maus (основная моде�
  bad.forEach(id=>{const x=CATALOG.findIndex(c=>c.id==id);if(x>=0)CATALOG.splice(x,1)});
  
  return items}
+window.startGame=function(){if(startGame.on)return;startGame.on=1;try{showLoader('','Загрузка игры…');setBar(0)}catch(_){}
 loadAll().then(async items=>{if(window.srvGateFn)await window.srvGateFn();dbg('все модели загружены, строю ангар');ITEMS=items;buildHangar();setPlayer(ECO.own[0]||'maus');if(typeof applyGfx=='function')applyGfx();prepHangar();
- $('ltxt').style.display='none';$('play').style.display='block';$('go').style.display='flex';updatePlayer(.016);requestAnimationFrame(loop)}).catch(e=>{console.error('loadAll',e);$('ltxt').textContent='Ошибка загрузки: '+e.message+' '});
+ $('ltxt').style.display='none';$('play').style.display='block';$('go').style.display='flex';updatePlayer(.016);requestAnimationFrame(loop)}).catch(e=>{console.error('loadAll',e);$('ltxt').textContent='Ошибка загрузки: '+e.message+' '});};

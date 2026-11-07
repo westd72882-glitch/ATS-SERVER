@@ -297,7 +297,7 @@ let mTab='u',sTab='i';
 /* общая шапка как на референсе: кнопка ангара, заголовок, вкладки справа, оранжевая линия */
 function navHead(title,tabs,act){return `<div class="nhd"><button class="nhb" aria-label="Ангар">${NI.home}</button><b class="nht">${title}</b><div class="nts">${tabs.map(t=>`<button class="ntb${t[0]==act?' on':''}${t[3]?' off':''}" data-t="${t[0]}">${NI[t[2]]||''}<span>${t[1]}</span></button>`).join('')}</div></div>`}
 function infoPanel(){qInit();const sh=$('shop'),M=panel=='m',sl='<svg class="gi"><use href="#c-silv"/></svg>';
- if(M){const tabs=[['n','НОВОСТИ','mail'],['u','УВЕДОМЛЕНИЯ','warn'],['x','ТУРНИРЫ','cup',1]];
+ if(M){const tabs=[['n','НОВОСТИ','mail'],['u','УВЕДОМЛЕНИЯ','warn']];
   const rows=mTab=='u'?(ECO.mail.length?ECO.mail.map(x=>`<div class="nrw${x.rd?'':' new'}"><div class="nri">${chest('#b8892a')}</div><div class="nrt"><span>${x.t}</span><p>${x.b.replace(/\n/g,'<br>')}</p></div>${x.r?`<button class="mqb" data-m="${x.id}" ${x.c?'disabled':''}>${x.c?'Получено':'Забрать '+sl+fmt(x.r)}</button>`:''}</div>`).join(''):'<div class="emp2">Уведомлений нет</div>'):'<div class="emp2">Новостей пока нет</div>';
   sh.innerHTML=navHead(tabs.find(t=>t[0]==mTab)[1],tabs,mTab)+'<div class="nbd">'+rows+'</div>';
   if(mTab=='u'){ECO.mail.forEach(x=>x.rd=1);js('maus_eco2',ECO)}
