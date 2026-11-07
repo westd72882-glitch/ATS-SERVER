@@ -880,17 +880,17 @@ input,textarea{user-select:text;-webkit-user-select:text;touch-action:manipulati
 #rs.lose .st{border-left-color:#b02a22!important}
 
 /* панели: нормальные размеры, кнопка выхода всегда справа сверху */
-.nhd{height:8.6vh!important}
-.nhb{order:9;width:7.6vh!important;height:6vh!important;margin:0 1.6vh 0 auto!important}.nhb svg{width:3.8vh!important;height:3.8vh!important}
-.nht{font:700 2.8vh system-ui!important;margin-left:2.4vh;align-self:center}
+.nhd{height:10.5vh!important}
+.nhb{order:9;width:9vh!important;height:7.2vh!important;margin:0 2vh 0 auto!important}.nhb svg{width:4.6vh!important;height:4.6vh!important}
+.nht{font:700 3.6vh system-ui!important;margin-left:2.4vh;align-self:center}
 .nts{display:flex;margin-left:2vh}
-.ntb{width:17vh!important;font:600 2.2vh system-ui!important;gap:.2vh!important}.ntb svg{width:3.4vh!important;height:3.4vh!important}
+.ntb{width:21vh!important;font:600 2.8vh system-ui!important;gap:.3vh!important}.ntb svg{width:4.4vh!important;height:4.4vh!important}
 .ntb.on{background:#d9482a33!important;box-shadow:inset 0 -.4vh #d9482a}
-.nrw{font:500 2.2vh system-ui!important;gap:2vh!important;padding:1.4vh 2vh!important}
-.nrw .nri{width:9vh!important}.nrt span{font-size:2.4vh}.nrt p{font-size:2vh;color:#aeb8be}
-.mqb{width:auto!important;min-width:15vh;padding:0 2vh;height:5.2vh!important;font-size:2.1vh!important;flex:none}
-.tqr{font:600 2.1vh system-ui!important}
-.emp2{font-size:2vh!important}
+.nrw{font:500 2.8vh system-ui!important;gap:2.4vh!important;padding:1.8vh 2.4vh!important}
+.nrw .nri{width:11vh!important}.nrt span{font-size:3vh}.nrt p{font-size:2.5vh;color:#aeb8be}
+.mqb{width:auto!important;min-width:18vh;padding:0 2.4vh;height:6.4vh!important;font-size:2.6vh!important;flex:none}
+.tqr{font:600 2.6vh system-ui!important;padding:1.6vh 2.4vh!important}
+.emp2{font-size:2.6vh!important}
 #rs .tb .hb{order:9;margin:0 1.6vh 0 auto!important}
 #a_back{left:auto!important;right:2vh!important}
 #a_off{display:block;width:100%;margin-top:1.2vh;height:6vh;border:1px solid #ffffff33;border-radius:.6vh;background:#ffffff0d;color:#dfe5ea;font:600 2.4vh system-ui}
