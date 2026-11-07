@@ -4,7 +4,7 @@
   "private": true,
   "description": "ATS BLITZ — сборка APK через Capacitor и GitHub Actions",
   "scripts": {
-    "build:web": "node scripts/build.js",
+    "build:web": "node scripts/build.js && node scripts/obfuscate.js",
     "cap:add": "cap add android",
     "cap:sync": "cap sync android"
   },
@@ -14,6 +14,7 @@
     "@capacitor/core": "^6.1.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.1.2"
+    "@capacitor/cli": "^6.1.2",
+    "terser": "^5.51.2"
   }
 }

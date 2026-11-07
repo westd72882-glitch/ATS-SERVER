@@ -135,6 +135,20 @@ if (fs.existsSync(stylesPath)) {
   }
 }
 
+// 10. Защита: выключаем WebView remote-debugging в релизе (иначе ресурсы и JS
+//     можно открыть через chrome://inspect на подключённом по USB телефоне)
+{
+  let ma = fs.readFileSync(mainActivityPath, 'utf8');
+  if (!/setWebContentsDebugging/.test(ma)) {
+    ma = ma.replace(
+      /public class MainActivity extends BridgeActivity \{/,
+      m => m + '\n  static { android.webkit.WebView.setWebContentsDebugging(false); }'
+    );
+    fs.writeFileSync(mainActivityPath, ma);
+    console.log('MainActivity.java: WebView debugging отключён в релизе.');
+  }
+}
+
 // 9. иконка приложения (ATS BLITZ) + имя
 {
   const resDir = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res');

@@ -894,3 +894,5 @@ input,textarea{user-select:text;-webkit-user-select:text;touch-action:manipulati
 #rs .tb .hb{order:9;margin:0 1.6vh 0 auto!important}
 #a_back{left:auto!important;right:2vh!important}
 #a_off{display:block;width:100%;margin-top:1.2vh;height:6vh;border:1px solid #ffffff33;border-radius:.6vh;background:#ffffff0d;color:#dfe5ea;font:600 2.4vh system-ui}
+
+*{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}input,textarea{-webkit-user-select:text;user-select:text}

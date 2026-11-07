@@ -3,6 +3,7 @@
   "appName": "ATS BLITZ",
   "webDir": "www",
   "bundledWebRuntime": false,
+  "webContentsDebuggingEnabled": false,
   "android": {
     "buildOptions": {
       "minifyEnabled": true,
