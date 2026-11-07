@@ -51,6 +51,20 @@ const AK=process.env.ASSET_KEY||(process.env.DATABASE_URL?crypto.createHash('sha
 if(!AK)console.warn('ASSET_KEY не задан и нет DATABASE_URL: модели выдаваться НЕ будут');
 const mkey=id=>crypto.createHmac('sha256',AK).update('key:'+id).digest();
 const miv=id=>{const v=crypto.createHmac('sha256',AK).update('iv:'+id).digest().subarray(0,16);v.fill(0,8);return Buffer.from(v)}; // младшие 8 байт = 0: счётчик не переполнится (совместимо с WebCrypto length:64)
+// ===== игровой клиент (server/game) раздаётся ПОДПИСАННЫМ манифестом; клиент в APK проверяет подпись и хэши файлов =====
+// Ключ подписи (ECDSA P-256) выводится из ASSET_KEY — стабилен между перезапусками; публичная часть: GET /api/pubkey (её вшивает сборка APK).
+const GAME=path.join(__dirname,'game'),LOADER_MIN=1,GF={};
+const b64u=b=>Buffer.from(b).toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const SIGNK=(()=>{if(!AK)return null;const N=0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
+ const d=BigInt('0x'+crypto.createHmac('sha256',AK).update('sign-key').digest('hex'))%(N-1n)+1n,db=Buffer.from(d.toString(16).padStart(64,'0'),'hex');
+ const e=crypto.createECDH('prime256v1');e.setPrivateKey(db);const pu=e.getPublicKey();
+ const priv=crypto.createPrivateKey({key:{kty:'EC',crv:'P-256',d:b64u(db),x:b64u(pu.subarray(1,33)),y:b64u(pu.subarray(33,65))},format:'jwk'});
+ return{priv,pub:crypto.createPublicKey(priv).export({type:'spki',format:'der'}).toString('base64')}})();
+const BUNDLE=(()=>{try{if(!SIGNK)return null;const boot=JSON.parse(fs.readFileSync(path.join(GAME,'boot.json'),'utf8')),files={};
+ const walk=(dir,rel)=>{for(const f of fs.readdirSync(dir,{withFileTypes:true})){const r=rel?rel+'/'+f.name:f.name;if(f.isDirectory())walk(path.join(dir,f.name),r);else if(r!='boot.json'){const buf=fs.readFileSync(path.join(dir,f.name));GF[r]=buf;files[r]={h:crypto.createHash('sha256').update(buf).digest('hex'),s:buf.length}}}};walk(GAME,'');
+ for(const p of boot.parts){const f=p.s||p.c||p.h;if(!files[f])throw new Error('нет файла '+f)}
+ const body=JSON.stringify({v:VERSION,minLoader:LOADER_MIN,boot,files}),sig=crypto.sign('sha256',Buffer.from(body),{key:SIGNK.priv,dsaEncoding:'ieee-p1363'}).toString('base64');
+ console.log('Игровой клиент: файлов',Object.keys(files).length,'| публичный ключ',SIGNK.pub.slice(-12));return{body,sig}}catch(e){console.error('Игровой клиент (server/game) не готов — запустите node scripts/pack-game.js:',e.message);return null}})();
 const META=(async()=>{const o={};if(!AK)return o;for(const f of fs.existsSync(MODELS)?fs.readdirSync(MODELS):[]){if(!/\.glb$/i.test(f))continue;const id=f.slice(0,-4);
  const h=await new Promise((ok,bad)=>{const x=crypto.createHash('sha256');fs.createReadStream(path.join(MODELS,f)).on('data',d=>x.update(d)).on('end',()=>ok(x.digest('hex'))).on('error',bad)});
  o[id]={h:crypto.createHmac('sha256',AK).update('h:'+h).digest('hex').slice(0,16),s:fs.statSync(path.join(MODELS,f)).size}}console.log('Моделей в манифесте:',Object.keys(o).length);return o})().catch(e=>{console.error('manifest',e);return{}});
@@ -65,6 +79,13 @@ const server=http.createServer((req,res)=>{
  if(req.method=='OPTIONS')return send(res,204,{});
  const url=req.url.split('?')[0];
  if(url=='/'||url=='/health'||url=='/api/version')return send(res,200,{ok:true,version:VERSION});
+ // публичные: ключ проверки подписи, манифест и файлы игры (код не секрет; модели и ключи к ним — только по токену)
+ if(url=='/api/pubkey'||url=='/api/bundle'||url.startsWith('/api/game/')){const ip0=String(req.headers['x-forwarded-for']||req.socket.remoteAddress);if(limit('g'+ip0,900))return fail(res,'Слишком часто',429);
+  if(url=='/api/pubkey'){if(!SIGNK)return fail(res,'Ключ не настроен (задайте ASSET_KEY)',503);res.writeHead(200,{'Content-Type':'text/plain','Access-Control-Allow-Origin':'*','Cache-Control':'no-cache'});return res.end(SIGNK.pub)}
+  if(!BUNDLE)return fail(res,'Игровые файлы не готовы на сервере',503);
+  if(url=='/api/bundle'){res.writeHead(200,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Cache-Control':'no-cache'});return res.end(JSON.stringify(BUNDLE))}
+  let rel='';try{rel=decodeURIComponent(url.slice(10))}catch(_){}const f=Object.prototype.hasOwnProperty.call(GF,rel)?GF[rel]:null;if(!f)return fail(res,'Не найдено',404);
+  res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':f.length,'Access-Control-Allow-Origin':'*','Cache-Control':'no-cache'});return res.end(f)}
  let b='';req.on('data',d=>{b+=d;if(b.length>3e5)req.destroy()});req.on('end',async()=>{try{
   // ЖЁСТКАЯ проверка версии для всех остальных запросов
   const cv=String(req.headers['x-app-version']||'');

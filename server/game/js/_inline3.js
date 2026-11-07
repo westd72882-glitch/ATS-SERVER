@@ -1,0 +1,1 @@
+!function(){function n(){screen.orientation&&screen.orientation.lock&&screen.orientation.lock("landscape").catch(function(){})}document.addEventListener("DOMContentLoaded",n),document.addEventListener("click",n,{once:!0})}();

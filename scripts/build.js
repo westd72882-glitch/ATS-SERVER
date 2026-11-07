@@ -1,30 +1,20 @@
 /**
- * Сборка www/ из www-src/ (простое копирование + 00-config.js).
- * Шифрования моделей и обфускации JS больше нет.
+ * Сборка www/ для APK. В APK кладётся ТОЛЬКО загрузчик (scripts/loader) и картинки (www-src/img).
+ * Код игры и 3D-модели в APK не попадают: код раздаёт сервер (server/game, подписанный манифест), модели — по токену.
+ * ENV: API_URL — адрес сервера; SIGN_PUB — публичный ключ проверки подписи (base64 SPKI, его отдаёт сервер: GET /api/pubkey).
  */
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
-const SRC = path.join(ROOT, 'www-src');
 const DST = path.join(ROOT, 'www');
-
-function copyDir(src, dst) {
-  fs.rmSync(dst, { recursive: true, force: true });
-  fs.mkdirSync(dst, { recursive: true });
-  fs.cpSync(src, dst, { recursive: true });
-}
-
-console.log('1/1 копирование исходников...');
-copyDir(SRC, DST);
-// в APK не должно попадать ничего лишнего (dev-сервер, заметки)
-for (const f of ['serve.py', 'start.bat', 'start.sh', 'README.txt']) fs.rmSync(path.join(DST, f), { force: true });
-
-const VERSION = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf8').trim();
 const API = (process.env.API_URL || 'https://ats-server-foza.onrender.com').replace(/\/+$/, '');
-fs.writeFileSync(path.join(DST, 'js', '00-config.js'),
-  `window.APP_VERSION=${JSON.stringify(VERSION)};window.API_URL=${JSON.stringify(API)};`);
-console.log('версия', VERSION, 'API', API || '(демо-режим)');
+const PUB = (process.env.SIGN_PUB || '').trim();
+if (!PUB) { console.error('build: не задан SIGN_PUB (публичный ключ проверки подписи). Его отдаёт сервер: GET ' + API + '/api/pubkey'); process.exit(1); }
 
-console.log('\nСборка www/ готова к упаковке через Capacitor.');
+fs.rmSync(DST, { recursive: true, force: true });
+fs.mkdirSync(DST, { recursive: true });
+fs.cpSync(path.join(__dirname, 'loader'), DST, { recursive: true });
+fs.cpSync(path.join(ROOT, 'www-src', 'img'), path.join(DST, 'img'), { recursive: true });
+fs.writeFileSync(path.join(DST, 'config.js'), 'window.ATS_CFG=' + JSON.stringify({ api: API, pub: PUB }) + ';');
+console.log('www/ готов: загрузчик + картинки; API', API);
