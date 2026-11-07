@@ -56,11 +56,11 @@ addEventListener('resize',resize);resize();
 const _ids=CATALOG.filter(c=>c.id!='maus').map(c=>c.id),_tot=_ids.length+1;
 const _tmo=(p,ms,id)=>new Promise((ok,bad)=>{const t=setTimeout(()=>bad(new Error('таймаут '+id)),ms);p.then(v=>{clearTimeout(t);ok(v)},e=>{clearTimeout(t);bad(e)})});
 async function loadAll(){dbg('загрузка: maus (основная модель)');const _w=setTimeout(()=>{const l=$('ltxt');if(l&&loadProg.n==null)l.textContent='Загрузка идёт долго… подождите'},15000);let items;try{items=await _tmo(loadModel(),45000,'maus')}finally{clearTimeout(_w)}dbg('maus загружен');loadProg(_tot);const q=_ids.slice(),bad=[];
- const wk=async()=>{while(q.length){const id=q.shift();try{dbg('модель '+id+'…');{let er;for(let t=0;t<3;t++){try{await _tmo(loadGlb(id),120000,id);er=null;break}catch(e){er=e}}if(er)throw er};dbg('модель '+id+' ок')}catch(e){console.warn('model fail',id,e);bad.push(id)}loadProg(_tot)}};
+ const wk=async()=>{while(q.length){const id=q.shift();try{dbg('модель '+id+'…');{let er;for(let t=0;t<3;t++){try{await _tmo(loadGlb(id),120000,id);er=null;break}catch(e){er=e}}if(er)throw er};dbg('модель '+id+' ок')}catch(e){console.warn('model fail',id,e);bad.push(id)}loadProg(_tot);await new Promise(r=>setTimeout(r,25))}};
  await Promise.all([wk(),wk(),wk()]);
  bad.forEach(id=>{const x=CATALOG.findIndex(c=>c.id==id);if(x>=0)CATALOG.splice(x,1)});
  
  return items}
 window.startGame=function(){if(startGame.on)return;startGame.on=1;try{showLoader('','Загрузка игры…');setBar(0)}catch(_){}
-loadAll().then(async items=>{if(window.srvGateFn)await window.srvGateFn();dbg('все модели загружены, строю ангар');ITEMS=items;buildHangar();setPlayer(ECO.own[0]||'maus');if(typeof applyGfx=='function')applyGfx();prepHangar();
+new Promise(r=>requestAnimationFrame(()=>setTimeout(r,80))).then(()=>loadAll()).then(async items=>{if(window.srvGateFn)await window.srvGateFn();dbg('все модели загружены, строю ангар');ITEMS=items;buildHangar();setPlayer(ECO.own[0]||'maus');if(typeof applyGfx=='function')applyGfx();prepHangar();
  $('ltxt').style.display='none';$('play').style.display='block';$('go').style.display='flex';updatePlayer(.016);requestAnimationFrame(loop)}).catch(e=>{console.error('loadAll',e);$('ltxt').textContent='Ошибка загрузки: '+e.message+' '});};
