@@ -875,9 +875,6 @@ input,textarea{user-select:text;-webkit-user-select:text;touch-action:manipulati
 .tkt i,.wkp i{background:linear-gradient(90deg,#d9482a,#f2704a)!important}
 #toast{background:#10161cf2!important;border:1px solid #ffffff1a!important;border-left:.5vh solid #d9482a!important;border-radius:.6vh!important;color:#fff!important;font-weight:600!important}
 /* итоги боя: упрощённый экран */
-#rs .st{top:44vh!important;border:0!important;background:#ffffff0d!important;border-left:.5vh solid #d9482a!important;border-radius:.6vh}
-#rs .st>div{border-left:.2vh solid #ffffff1f!important}
-#rs.lose .st{border-left-color:#b02a22!important}
 
 /* панели: нормальные размеры, кнопка выхода всегда справа сверху */
 .nhd{height:10.5vh!important}
@@ -891,7 +888,6 @@ input,textarea{user-select:text;-webkit-user-select:text;touch-action:manipulati
 .mqb{width:auto!important;min-width:18vh;padding:0 2.4vh;height:6.4vh!important;font-size:2.6vh!important;flex:none}
 .tqr{font:600 2.6vh system-ui!important;padding:1.6vh 2.4vh!important}
 .emp2{font-size:2.6vh!important}
-#rs .tb .hb{order:9;margin:0 1.6vh 0 auto!important}
 #a_back{left:auto!important;right:2vh!important}
 #a_off{display:block;width:100%;margin-top:1.2vh;height:6vh;border:1px solid #ffffff33;border-radius:.6vh;background:#ffffff0d;color:#dfe5ea;font:600 2.4vh system-ui}
 
@@ -921,3 +917,22 @@ input,textarea{user-select:text;-webkit-user-select:text;touch-action:manipulati
 #nsl .ns small{display:block;margin-top:.5vh;font-weight:500}
 #nsl .ns i{font-size:3vh;color:#e8892a;flex:none}
 #pn .nb{min-width:20vh}
+
+/* ===== правки: ангар, ник, аватар, фильтр, наблюдение ===== */
+#hg #hnick{top:.6vh!important}
+#hg #hmods{gap:2.2vh!important}
+#go #mpb,#go #mb,#hban{display:none!important}
+.av,.av.big,#hprof .av{border-radius:0!important}
+#hfilt.act{background:#2b3a2a}#hfilt.act svg{color:#f0961c}
+#hfp{position:absolute;right:calc(env(safe-area-inset-right,0px) + 10.6vh);bottom:2vh;display:none;flex-direction:column;gap:.4vh;padding:.8vh;background:#10161dee;border:1px solid #ffffff1c;z-index:6}
+#hfp.on{display:flex}
+#hfp button{all:unset;box-sizing:border-box;min-width:11vh;padding:1.1vh 2vh;text-align:center;font:700 2.2vh system-ui;color:#cfd6dc;background:#ffffff0d;cursor:pointer}
+#hfp button.on{background:#f0961c;color:#111}
+#hg.shop #hfp{display:none!important}
+/* наблюдение за союзником — в стиле полоски HP, без скруглений */
+#spec{gap:.6vh!important}
+#spec button{border-radius:0!important;border:2px solid #000!important;background:#2b2e2a!important;width:6vh!important;height:4.4vh!important;line-height:4.4vh!important;font-size:2.8vh!important}
+#spec div{border-radius:0!important;border:2px solid #000;background:#2b2e2a!important;min-width:26vh;padding:.3vh 2vh .5vh!important;position:relative}
+#spec small{font-size:1.5vh!important;letter-spacing:.2vh;text-transform:uppercase}
+#spec b{font-size:2.3vh;font-weight:700}
+#spec div:after{content:'';position:absolute;left:0;right:0;bottom:0;height:.5vh;background:var(--grn,#4caf50)}

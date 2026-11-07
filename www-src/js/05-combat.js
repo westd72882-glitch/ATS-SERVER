@@ -26,10 +26,10 @@ function shoot(T,spread){if(CDN>0)return;
  if(T===P)P.disp=Math.min(.04,(P.disp||.0045)+.01);
  shells.push({p:p.clone(),v:d.clone().multiplyScalar(T.cat.vel),o:T,m:null});
  const dist=T===P?0:p.distanceTo(P.root.position);
- if(T===P){flash.position.copy(p);flash.intensity=70;S.shake=.5;S.bpv-=1.2;fo=.3}
+ if(T===P){flash.position.copy(p);flash.intensity=18;S.shake=.4;S.bpv-=1.2;fo=.06}
  bang(T===P?.9:cl(40/(dist+15),0,.7),1600);
- for(let i=0;i<14;i++)fire.emit(p.x,p.y,p.z,R2()*7+d.x*(10+Math.random()*22),R2()*7+d.y*(10+Math.random()*22),R2()*7+d.z*(10+Math.random()*22),.3+Math.random()*.2,3+Math.random()*3.5,6,[1,.7,.3],1);
- for(let i=0;i<8;i++)smoke.emit(p.x,p.y,p.z,R2()*5+d.x*9,R2()*3+d.y*9+1,R2()*5+d.z*9,2.4,1.8,4,[.72,.72,.72],.55)}
+ for(let i=0;i<7;i++)fire.emit(p.x,p.y,p.z,R2()*4+d.x*(8+Math.random()*14),R2()*4+d.y*(8+Math.random()*14),R2()*4+d.z*(8+Math.random()*14),.2+Math.random()*.12,1+Math.random()*1.4,3,[1,.72,.35],.7);
+ for(let i=0;i<5;i++)smoke.emit(p.x,p.y,p.z,R2()*4+d.x*8,R2()*3+d.y*9+1,R2()*5+d.z*9,2.4,1.8,4,[.72,.72,.72],.55)}
 const shellGlow=new THREE.SpriteMaterial({map:flareTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false}),shellGeo=new THREE.CylinderGeometry(.11,.11,1.6,6).rotateX(Math.PI/2),shellMat=new THREE.MeshBasicMaterial({color:0xfff0b0,fog:false});
 function boom(p,big){const dist=Math.hypot(p.x-P.x,p.z-P.z);const n=big?4:3;
  for(let i=0;i<n;i++)fire.emit(p.x,p.y+.5,p.z,R2()*5,Math.random()*3,R2()*4,.3,.4+Math.random()*.6,1.2,[1,.55,.2],.8);
@@ -79,7 +79,7 @@ function trackTick(T,dt){T.tk-=dt;T.tkt=(T.tkt||0)+dt;
  const e=x=>x*x*(3-2*x),k=e(Math.min(1,T.tkt/.35,T.tk/.5));if(Math.abs(k-(T.tkk||0))>.004)trkWarp(T,k)}
 function kill(T,by){T.alive=false;T.dead=7;T.flare.material.opacity=0;if(T.tag)T.tag.style.display='none';
  const c=T.root.position;for(let i=0;i<2;i++)boom(V3(c.x+R2()*3,c.y+1+i,c.z+R2()*3),true);T.tur.rotation.y+=R2()*.8;T.gunG.rotation.x=-.12;
- if(T===P){P.dead=4;say('Подбит!')}
+ if(T===P){P.dead=4;say('Уничтожен!')}
  else if(by===P){kills++;$('kills').textContent=kills;say('Уничтожен!')}
  feedK(by===P?'Вы':by.name,T===P?'Вы':T.name);if(typeof battleCheck=='function')battleCheck(T)}
 function updateShells(dt){

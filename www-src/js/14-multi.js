@@ -1,4 +1,4 @@
-/* Панель выбора боя: мультиплеер (онлайн-очередь 1x1/5x5/10x10) или бой с ботами; заглушки GAGROS / AERO */
+/* Панель выбора боя: мультиплеер (онлайн-очередь 1x1/5x5/10x10) или бой с ботами */
 (function(){
 const API=window.API_URL||'',VER=window.APP_VERSION||'0',$=id=>document.getElementById(id);
 const RM=['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
@@ -83,9 +83,6 @@ $('bpg').onclick=()=>{
  if(bots()){MODE=mode;bp.classList.remove('on');startBattle();return}
  if(!NET.ws)return;
  if(queued){send({t:'cancel'});queued=false}else{send({t:'queue',mode,tank:P.cat.id,tier:P.tier});queued=true}render()};
-/* --- заглушки вместо боковых кнопок --- */
-for(const[id,txt]of[['mpb','GAGROS'],['mb','AERO']]){const o=$(id);if(!o)continue;const n=o.cloneNode(true);o.replaceWith(n);
- n.querySelectorAll('svg,span').forEach(x=>x.style.display='none');const s=document.createElement('span');s.textContent=txt;s.style.cssText='position:static;transform:none;display:block;font:800 2.2vh system-ui;color:#fff;opacity:1;text-shadow:0 .1vh .3vh #000';n.appendChild(s)}
 /* --- промокоды (вкладка «Сеть»), работают и без сервера; использованные хранятся в maus_promo (при онлайне уходят в облако) --- */
 const pb=$('prb');if(pb)pb.onclick=()=>{const c=$('pri').value.trim().toLowerCase(),T=m=>{if(typeof toast=='function')toast(m)};if(!c)return;
  if(ONL()){ecoOp('promo',{code:c},r=>{buildHangar();if(typeof buildShop=='function')buildShop();$('pri').value='';T(r.msg)});return}

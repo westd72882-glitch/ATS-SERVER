@@ -223,7 +223,7 @@ $('mb').addEventListener('click',()=>$('maps').classList.remove('open'));
 
 /* ===== кнопки интерфейса ангара (v39) ===== */
 $('mup').onclick=()=>{const i=$('hinfo');i.classList.toggle('show');$('mup').classList.toggle('on',i.classList.contains('show'))};
-document.querySelectorAll('#hside .sb,#hmods .mod[data-t],#hchat,#hfilt').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.t||'Пока недоступно')));
+document.querySelectorAll('#hside .sb,#hmods .mod[data-t],#hchat').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.t||'Пока недоступно')));
 document.querySelectorAll('#hcur .pl').forEach(b=>b.addEventListener('click',()=>toast('Пополнение пока недоступно')));
 
 /* ===== конец боя ===== */
@@ -277,7 +277,7 @@ function buildShop(){
  cols.forEach(a=>{while(a.length<4)a.push(undefined)});/* 4 ряда веток, свободные — запас */
  const card=(id,ti)=>{if(id===undefined)return `<div class="nd resn"></div>`;if(!id)return `<div class="nd stubn"><span class="kic">${KI('ЛТ')}</span>?<small>скоро</small></div>`;const c=CATALOG.find(c=>c.id==id),own=ECO.own.includes(id),pv=chainPrev(id),can=!own&&SOVB.includes(id)&&(!pv||ECO.own.includes(pv)),pr=isPrem(c);
   return `<button class="nd ${own?'own':''}${can?' can':''}${!own&&!can&&!pr?' lock':''}${pr?' prem':''}" data-id="${id}"><i class="nfl"><svg viewBox="0 0 60 30" preserveAspectRatio="none"><use href="#f-${FLG[c.nat]||'su'}"/></svg></i><span class="ti2">${KI(c.cls)} ${ROM[c.tier]}</span>${ICONS[id]?'<img src="'+ICONS[id]+'">':''}<b>${c.name}</b>${own?'<i class="ck">✓</i>':pr?'<em class="rs gold">Магазин</em>':can?'<em class="rs">'+sl+fmt(c.rc)+'</em>':'<em class="rs dim">'+sl+fmt(c.rc)+'</em>'}</button>`};
- sh.innerHTML=`<div class="sth"><b class="ptl">Дерево танков / ${treeNat}</b><button class="sx2" aria-label="Назад">←</button></div><div class="tw"><div class="nl">${NATS.map(n=>`<button class="nf ${n[1]}${n[0]==treeNat?' on':''}" data-n="${n[0]}" aria-label="${n[0]}"><svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice"><use href="#f-${FLG[n[0]]||'su'}"/></svg></button>`).join('')}</div><div class="tt">${cols.map((a,i)=>`<div class="tc"><div class="tcb">${a.map(card).join('')}</div><div class="tcl">${ROM[i+1]}</div></div>`).join('')}</div></div>`;
+ sh.innerHTML=`<div class="sth"><b class="ptl">Дерево танков / ${treeNat}</b><button class="sx2" aria-label="Назад">←</button></div><div class="tw"><div class="tt">${cols.map((a,i)=>`<div class="tc"><div class="tcb">${a.map(card).join('')}</div><div class="tcl">${ROM[i+1]}</div></div>`).join('')}</div></div>`;
  sh.querySelector('.sx2').onclick=()=>showPanel('h');
  treePan(sh.querySelector('.tt'));
  sh.querySelectorAll('.nf').forEach(b=>b.onclick=()=>{treeNat=b.dataset.n;buildShop()});
@@ -311,3 +311,12 @@ function infoPanel(){qInit();const sh=$('shop'),M=panel=='m',sl='<svg class="gi"
  sh.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const d=QDEF.find(d=>d[0]==b.dataset.q);if(!d||ECO.q.c.includes(d[0])||ECO.q[d[2]]<d[3])return;if(ONL()){ecoOp('claimQuest',{id:d[0]},r=>{toast(r.msg);infoPanel()});return}ECO.q.c.push(d[0]);ECO.cr+=d[4];js('maus_eco2',ECO);hCredits();toast('Награда: +'+fmt(d[4])+' кр.');infoPanel()});
  badges()}
 badges();
+
+/* ===== фильтр техники в ангаре (по классу) ===== */
+let HFC=null;
+function applyHF(){document.querySelectorAll('#hangar .hc').forEach(b=>{b.style.display=(!HFC||b.dataset.cls==HFC)?'':'none'});const f=$('hfilt');if(f)f.classList.toggle('act',!!HFC)}
+(function(){const f=$('hfilt'),p=$('hfp');if(!f||!p)return;
+ const draw=()=>{p.querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.c||'')==(HFC||'')))};
+ f.addEventListener('click',e=>{e.stopPropagation();p.classList.toggle('on');draw()});
+ p.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;HFC=b.dataset.c||null;applyHF();draw();p.classList.remove('on');const h=$('hangar');if(h)h.scrollLeft=0});
+ document.addEventListener('pointerdown',e=>{if(p.classList.contains('on')&&!e.target.closest('#hfp,#hfilt'))p.classList.remove('on')},true)})();

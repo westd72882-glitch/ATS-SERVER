@@ -125,20 +125,20 @@ addEventListener('error',function(e){show((e.message||'error')+' @'+String(e.fil
 <div class="cu"><svg><use href="#c-silv"/></svg><b id="crv">500</b></div>
 </div>
 <button id="hshop" class="ui" aria-label="Магазин"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
-<div id="hban"><svg viewBox="0 0 40 92"><use href="#p-ban"/></svg><svg viewBox="0 0 40 92"><use href="#p-ban"/></svg><svg viewBox="0 0 40 92"><use href="#p-ban"/></svg></div>
+
 <div id="go" style="display:none"><button id="mpb" aria-label="Карта"><svg><use href="#i-map"/></svg><span id="mpt">Полигон</span></button><button id="play" style="display:none">В БОЙ!</button><button id="mb" aria-label="Режим боя"><svg viewBox="0 0 24 24"><use href="#i-tank"/></svg><span id="mbt">1×1</span></button><div id="maps"><button class="mpi sel" data-m="poly">Полигон<small>ровное поле, бетон</small></button><button class="mpi" data-m="meadow">Луга и поля<small>рощи, хутор, стога</small></button><button class="mpi" data-m="himmel">Химмельсдорф<small>городские улицы</small></button></div><div id="modes"><button class="md sel" data-n="1">1 на 1<small>2 танка</small></button><button class="md" data-n="5">5 на 5<small>10 танков</small></button><button class="md" data-n="10">10 на 10<small>20 танков</small></button></div></div>
 <div id="hmods" class="ui">
 <button class="mod cr" data-t="Экипаж уже на борту"><em>ЭКИПАЖ</em><span class="mi"><svg><use href="#i-crew"/></svg>50%</span></button>
 <button class="mod" id="mup"><em>ХАРАКТЕРИСТИКИ</em><span class="mi"><svg><use href="#i-upg"/></svg></span></button>
 <button class="mod off" data-t="Камуфляж пока недоступен"><em>КАМУФЛЯЖ</em><span class="mi"><svg class="lk"><use href="#i-lock"/></svg></span></button>
-<button class="mod" data-t="Снаряжение пока недоступно"><em>СНАРЯЖЕНИЕ</em><span class="mi"><svg class="pp"><use href="#i-plus"/></svg></span></button>
 <button class="mod" data-t="Боекомплект пока недоступен"><em>БОЕКОМПЛЕКТ</em><span class="mi"><svg class="pp"><use href="#i-plus"/></svg><svg class="sh"><use href="#i-shell"/></svg></span></button>
 <button class="mod off" data-t="Оборудование пока недоступно"><em>ОБОРУДОВАНИЕ</em><span class="mi"><svg class="lk"><use href="#i-lock"/></svg></span></button>
 </div>
 
 <div id="hinfo" class="ui"></div>
 <div id="hangar"></div>
-<button id="hfilt" class="ui" aria-label="Фильтр" data-t="Фильтры пока недоступны"><svg><use href="#i-filter"/></svg></button>
+<button id="hfilt" class="ui" aria-label="Фильтр"><svg><use href="#i-filter"/></svg></button>
+<div id="hfp" class="ui"><button data-c="" class="on">Все</button><button data-c="ТТ">ТТ</button><button data-c="СТ">СТ</button><button data-c="ЛТ">ЛТ</button><button data-c="ПТ">ПТ</button></div>
 <div id="hsb"><i></i></div>
 <div id="shop"></div><div id="toast"></div>
 </div></div>

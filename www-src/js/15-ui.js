@@ -14,42 +14,23 @@ let lastTok=null;setInterval(()=>{const s=sess(),t=s&&s.token||'';if(t===lastTok
 
 const css=document.createElement('style');css.textContent=`
 #rs,#up{position:fixed;inset:0;display:none;color:#fff;font-family:system-ui,sans-serif;overflow:hidden}
-#rs{z-index:45;background:#2a2a24 radial-gradient(ellipse at 50% 60%,#4a4a40,#16160f)}#rs.on{display:block}
-#rs .tb{position:absolute;left:0;right:0;top:0;height:12.4vh;background:#050505;display:flex;align-items:center}
-#rs .hb{width:12.4vh;height:12.4vh;margin:0 1.4vh 0 calc(env(safe-area-inset-left,0px) + 1vh);background:#2b2b2b;border:0;display:flex;align-items:center;justify-content:center}
-#rs .hb svg{width:6vh;height:6vh;fill:none;stroke:#cfd3d6;stroke-width:2.2}
-#rs .tt small{display:block;font:800 3.2vh Impact,'Arial Narrow',system-ui;letter-spacing:.2vh}#rs .tt b{font:700 4.6vh Impact,'Arial Narrow',system-ui;color:#d8d8d0;letter-spacing:.2vh}
-#rs .tabs{margin-left:auto;display:flex;height:100%;padding-right:calc(env(safe-area-inset-right,0px) + 1vh)}
-#rs .tabs button{all:unset;width:19vh;text-align:center;font:700 2.6vh Impact,'Arial Narrow',system-ui;color:#aaa;letter-spacing:.1vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6vh}
-#rs .tabs button.on{background:#383838;color:#ddd}#rs .tabs svg{width:7vh;height:7vh;fill:#cfd3d6}
-#rs .bn{position:absolute;left:0;right:0;top:12.4vh;height:16vh;text-align:center;overflow:hidden;
- background:linear-gradient(#0003,#0005),radial-gradient(ellipse 22vh 9vh at 12% 60%,#7f8f3a,#0000 70%),radial-gradient(ellipse 18vh 8vh at 28% 40%,#c9b54a,#0000 70%),radial-gradient(ellipse 30vh 12vh at 70% 70%,#3d6a3a,#0000 70%),radial-gradient(ellipse 24vh 10vh at 90% 30%,#6f8f55,#0000 70%),linear-gradient(90deg,#4d6a3c,#5b7d46 40%,#6a8a4e 70%,#3f5a3a)}
-#rs .bn:before{content:'';position:absolute;inset:0;background:url(img/load2.jpg) center/cover;opacity:.35;mix-blend-mode:luminosity}
-#rs .bn svg.tk{position:absolute;bottom:-2vh;width:30vh;height:30vh;opacity:.55;fill:#18240f}
-#rs .bn h1{position:relative;margin:1.6vh 0 0;font:900 8.6vh Impact,'Arial Narrow',system-ui;letter-spacing:.2vh;text-shadow:0 .5vh 1.4vh #000c,0 0 .4vh #000}
-#rs .bn p{position:relative;margin:0;font:800 3.6vh Impact,'Arial Narrow',system-ui;letter-spacing:.1vh;text-shadow:0 .3vh .8vh #000}
-#rs.lose .bn{filter:hue-rotate(-70deg) saturate(.7) brightness(.85)}
-#rs .rib{position:absolute;left:0;right:0;top:28.4vh;height:10.6vh;background:repeating-linear-gradient(90deg,#0000 0 .5vh,#0001 .5vh 1vh),linear-gradient(#c2191a,#8e0b0c 50%,#b01415);box-shadow:0 .3vh .6vh #000a,inset 0 .3vh .5vh #f66a;display:flex;justify-content:center;align-items:center;gap:4.4vh}
-#rs .rib svg{width:9.4vh;height:9.4vh;filter:drop-shadow(0 .4vh .5vh #000a)}
-#rs .got{position:absolute;left:0;right:0;top:39.6vh;text-align:center;font:800 3.4vh Impact,'Arial Narrow',system-ui}
-#rs .bx{position:absolute;top:44.4vh;width:35vh;height:18.6vh;border:.25vh solid #6d6d66;background:#0003}
-#rs .bx.a{left:calc(50% - 35vh)}#rs .bx.b{left:50%;opacity:.35}
-#rs .bx h4{margin:0;height:6vh;line-height:6vh;text-align:center;font:500 3.2vh system-ui;border-bottom:.25vh solid #6d6d66}
-#rs .bx div{display:flex;justify-content:flex-end;align-items:center;gap:1vh;padding:0 1.8vh;height:6.2vh;font:800 4.6vh Impact,'Arial Narrow',system-ui;letter-spacing:.2vh}
-#rs .bx div svg{width:4.6vh;height:4.6vh}
-#rs .cart{position:absolute;top:47.8vh;left:calc(50% + 36.8vh);width:13vh;height:10vh;border:0;border-radius:.6vh;background:linear-gradient(#4cbf3a,#2a8a1e);box-shadow:0 .3vh .8vh #000a;display:flex;align-items:center;justify-content:center}
-#rs .cart svg{width:6.4vh;height:6.4vh;fill:none;stroke:#fff;stroke-width:2}
-#rs .st{position:absolute;top:65.6vh;left:calc(50% - 45vh);width:90vh;height:12.6vh;display:flex;border:.25vh solid #6d6d66;background:#0003}
-#rs .st>div{flex:1;text-align:center;border-left:.25vh solid #6d6d66;padding-top:1.4vh;font:500 3.2vh system-ui;color:#ddd}#rs .st>div:first-child{border:0}
-#rs .st b{display:flex;justify-content:center;align-items:center;gap:1vh;margin-top:.8vh;font:800 5vh Impact,'Arial Narrow',system-ui;color:#fff}#rs .st b svg{width:5.4vh;height:5.4vh}
-#rs .bt{position:absolute;left:0;right:0;bottom:0;height:14vh;background:#1e1e1c;border-top:.2vh solid #0008;display:flex;align-items:center;padding:0 calc(env(safe-area-inset-right,0px) + 1vh) 0 calc(env(safe-area-inset-left,0px) + 5vh)}
-#rs .bt .m b{display:block;font:800 4.4vh Impact,'Arial Narrow',system-ui;color:#fff}#rs .bt .m span{font:500 3.4vh system-ui;color:#999}
-#rs .bt .t{position:absolute;left:50%;top:0;height:100%;display:flex;align-items:center;transform:translateX(-62%)}
-#rs .bt .t i{font:800 3.4vh system-ui;font-style:normal;color:#ccc;margin-right:1vh;align-self:flex-start;margin-top:2.2vh;letter-spacing:.2vh}
-#rs .bt .t svg.tn{width:13vh;height:11vh;fill:#6f7a62;margin-right:2vh}
-#rs .bt .t b{display:block;font:800 4.6vh Impact,'Arial Narrow',system-ui}#rs .bt .t span{font:500 3.4vh system-ui;color:#999}
-#rs .bt .d{margin-left:auto;text-align:right;margin-right:2.4vh}#rs .bt .d b{display:block;font:800 4.4vh Impact,'Arial Narrow',system-ui}#rs .bt .d span{font:500 3.4vh system-ui;color:#999}
-#rs .bt button{all:unset;width:12vh;height:10vh;background:#3a4650;display:flex;align-items:center;justify-content:center;border-radius:.4vh}#rs .bt button svg{width:7vh;height:7vh;fill:#e8edf0}
+#rs{z-index:45;background:#0c1117}#rs.on{display:block}
+#rs:before{content:'';position:absolute;inset:0;background:linear-gradient(112deg,#0c1117 0 46%,var(--ra) 46% 46.5%,#141c24 46.5% 100%)}
+#rs.win{--ra:#37d58a;--rb:#0f3a2a}#rs.lose{--ra:#ff5a4d;--rb:#3d1512}
+#rs .rl{position:absolute;left:calc(env(safe-area-inset-left,0px) + 6vh);top:9vh;width:46vh}
+#rs .rl small{display:block;font:600 2.4vh system-ui;letter-spacing:.5vh;color:#7f8c97}
+#rs .rl .nk{display:block;margin-top:.6vh;font:700 3.4vh system-ui;color:#e8edf0}
+#rs .rl h1{margin:7vh 0 0;font:900 12vh/1 system-ui;letter-spacing:-.3vh;color:var(--ra);text-transform:uppercase}
+#rs .rl p{margin:2vh 0 0;padding-left:2vh;border-left:.6vh solid var(--ra);font:500 2.8vh/1.3 system-ui;color:#b9c4cd}
+#rs .rr3{position:absolute;left:calc(50% + 4vh);right:calc(env(safe-area-inset-right,0px) + 6vh);top:9vh;display:flex;flex-direction:column;gap:1.6vh}
+#rs .sc{display:flex;align-items:center;justify-content:space-between;height:15vh;padding:0 4vh;background:linear-gradient(90deg,var(--rb),#1b242d);clip-path:polygon(0 0,100% 0,100% 70%,96% 100%,0 100%);border-top:.4vh solid var(--ra)}
+#rs .sc span{font:600 2.8vh system-ui;letter-spacing:.3vh;color:#aab6c0;text-transform:uppercase}
+#rs .sc b{display:flex;align-items:center;gap:1.2vh;font:800 7vh system-ui;color:#fff;font-variant-numeric:tabular-nums}
+#rs .sc b svg{width:5.6vh;height:5.6vh}
+#rs .inf{position:absolute;left:calc(env(safe-area-inset-left,0px) + 6vh);bottom:5vh;display:flex;gap:5vh;align-items:flex-end}
+#rs .inf div b{display:block;font:700 3.2vh system-ui;color:#e8edf0}#rs .inf div span{font:500 2.4vh system-ui;color:#7f8c97}
+#rs .hb{position:absolute;right:calc(env(safe-area-inset-right,0px) + 6vh);bottom:5vh;all:unset;box-sizing:border-box;position:absolute;right:calc(env(safe-area-inset-right,0px) + 6vh);bottom:5vh;padding:2.2vh 7vh 2.2vh 8vh;background:var(--ra);color:#07100c;font:800 3.4vh system-ui;letter-spacing:.4vh;clip-path:polygon(4vh 0,100% 0,100% 100%,0 100%);cursor:pointer}
+#rs .hb:active{filter:brightness(.88)}
 /* улучшения */
 #up{z-index:46;background:#0d0f10 radial-gradient(ellipse at 50% 60%,#2b2a24,#0b0c0c)}#up.on{display:block}
 #up .hd{position:absolute;left:calc(env(safe-area-inset-left,0px) + 3vh);right:calc(env(safe-area-inset-right,0px) + 3vh);top:2vh;display:flex;align-items:center;font-size:2.8vh}
@@ -100,11 +81,10 @@ const MED=[
  ['Мастер',k=>k.dmg>=3000,'#b6bcc4','M32 14l4 10h10l-8 6 3 10-9-6-9 6 3-10-8-6h10z']];
 function medal(m){return`<svg viewBox="0 0 64 64"><defs><linearGradient id="mg${m[0].length}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${m[2]}"/></linearGradient></defs><circle cx="32" cy="32" r="27" fill="#2b2f2a" stroke="url(#mg${m[0].length})" stroke-width="3.500"/><path d="M10 38c-2-12 4-22 14-26M54 38c2-12-4-22-14-26" fill="none" stroke="${m[2]}" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3"/><path d="${m[3]}" fill="${m[2]}" stroke="#111" stroke-width="1.500" stroke-linejoin="round"/></svg>`}
 const rs=document.createElement('div');rs.id='rs';
-rs.innerHTML=`<div class="tb"><button class="hb" id="rs_h"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg></button><div class="tt"><small>РЕЗУЛЬТАТЫ БОЯ</small><b id="rs_n"></b></div>
-</div>
-<div class="bn"><svg class="tk" style="left:-4vh" viewBox="0 0 24 24"><use href="#i-tank"/></svg><svg class="tk" style="right:-3vh;transform:scaleX(-1)" viewBox="0 0 24 24"><use href="#i-tank"/></svg><h1 id="rs_t"></h1><p id="rs_s"></p></div>
-<div class="st"><div>Урон<b><span id="rs_d"></span><svg viewBox="0 0 24 24" fill="none" stroke="#e8edf0" stroke-width="1.800"><path d="M3 12h13M12 6l6 6-6 6M19 4v16"/></svg></b></div><div>Итого кредитов<b><span id="rs_ct"></span><svg><use href="#c-silv"/></svg></b></div><div>Уничтожено<b><span id="rs_k"></span><svg viewBox="0 0 24 24" fill="none" stroke="#e8edf0" stroke-width="1.800"><path d="M2 14l8-8 6 3-2 3 6 5M4 18h16M5 10l11 4"/></svg></b></div></div>
-<div class="bt"><div class="m"><b id="rs_map"></b><span>Встречный бой</span></div><div class="t"><i id="rs_tr"></i><svg class="tn" viewBox="0 0 24 24"><use href="#i-tank"/></svg><div><b id="rs_tn"></b><span id="rs_ts"></span></div></div><div class="d"><b id="rs_dt"></b><span id="rs_tm"></span></div></div>`;
+rs.innerHTML=`<div class="rl"><small>РЕЗУЛЬТАТЫ БОЯ</small><b class="nk" id="rs_n"></b><h1 id="rs_t"></h1><p id="rs_s"></p></div>
+<div class="rr3"><div class="sc"><span>Нанесено урона</span><b><span id="rs_d" style="font:inherit;color:inherit;letter-spacing:0;text-transform:none"></span></b></div><div class="sc"><span>Уничтожено</span><b><span id="rs_k" style="font:inherit;color:inherit;letter-spacing:0;text-transform:none"></span></b></div><div class="sc"><span>Кредиты</span><b><span id="rs_ct" style="font:inherit;color:inherit;letter-spacing:0;text-transform:none"></span><svg><use href="#c-silv"/></svg></b></div></div>
+<div class="inf"><div><b id="rs_map"></b><span>Карта</span></div><div><b><span id="rs_tr" style="font:inherit;color:inherit"></span> <span id="rs_tn" style="font:inherit;color:inherit"></span></b><span id="rs_ts"></span></div><div><b id="rs_dt"></b><span id="rs_tm"></span></div></div>
+<button class="hb" id="rs_h">В АНГАР</button>`;
 document.body.appendChild(rs);
 const p2=n=>String(n).padStart(2,'0');
 const oEnd=window.endBattle;
