@@ -139,10 +139,10 @@ if (fs.existsSync(stylesPath)) {
 //     можно открыть через chrome://inspect на подключённом по USB телефоне)
 {
   let ma = fs.readFileSync(mainActivityPath, 'utf8');
-  if (!/setWebContentsDebugging/.test(ma)) {
+  if (!/setWebContentsDebuggingEnabled/.test(ma)) {
     ma = ma.replace(
       /public class MainActivity extends BridgeActivity \{/,
-      m => m + '\n  static { android.webkit.WebView.setWebContentsDebugging(false); }'
+      m => m + '\n  static { android.webkit.WebView.setWebContentsDebuggingEnabled(false); }'
     );
     fs.writeFileSync(mainActivityPath, ma);
     console.log('MainActivity.java: WebView debugging отключён в релизе.');
