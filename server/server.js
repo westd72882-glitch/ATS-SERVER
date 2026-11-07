@@ -7,7 +7,7 @@ const store=require('./store')(db),mark=store.mark,flush=store.flush;
 setInterval(flush,2000);for(const s of['SIGTERM','SIGINT'])process.on(s,async()=>{await flush();process.exit(0)});
 const tries={};
 // Промокоды берутся ТОЛЬКО из переменной окружения PROMOS_JSON (Render → Environment), в публичный репозиторий их класть нельзя.
-// Формат: {"mycode":{"gold":1000,"silver":50000,"msg":"Текст"},"tankcode":{"tank":"govnotank","msg":"..."}}
+// Формат: {"mycode":{"gold":1000,"silver":50000,"msg":"Текст"}}
 const PROMOS=(()=>{try{const o=JSON.parse(process.env.PROMOS_JSON||'{}'),r={};for(const k of Object.keys(o))if(o[k]&&typeof o[k]=='object')r[String(k).trim().toLowerCase()]=o[k];return r}catch(e){console.error('PROMOS_JSON некорректен:',e.message);return{}}})();
 const hash=(p,s)=>crypto.scryptSync(p,s,32).toString('hex');
 const H={'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type,Authorization,X-App-Version','Access-Control-Allow-Methods':'GET,POST,PUT,OPTIONS'};
