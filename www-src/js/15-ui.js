@@ -101,14 +101,10 @@ const MED=[
 function medal(m){return`<svg viewBox="0 0 64 64"><defs><linearGradient id="mg${m[0].length}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${m[2]}"/></linearGradient></defs><circle cx="32" cy="32" r="27" fill="#2b2f2a" stroke="url(#mg${m[0].length})" stroke-width="3.500"/><path d="M10 38c-2-12 4-22 14-26M54 38c2-12-4-22-14-26" fill="none" stroke="${m[2]}" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3"/><path d="${m[3]}" fill="${m[2]}" stroke="#111" stroke-width="1.500" stroke-linejoin="round"/></svg>`}
 const rs=document.createElement('div');rs.id='rs';
 rs.innerHTML=`<div class="tb"><button class="hb" id="rs_h"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg></button><div class="tt"><small>РЕЗУЛЬТАТЫ БОЯ</small><b id="rs_n"></b></div>
-<div class="tabs"><button class="on"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.500 9-8 11-4.500-2-8-6-8-11V5z"/></svg>ЛИЧНЫЕ</button><button><svg viewBox="0 0 24 24"><path d="M8 3l6 2v5c0 4-3 7-6 8-3-1-6-4-6-8V5zM17 8l5 2v4c0 3-2 5-5 6z"/></svg>КОМАНДНЫЕ</button><button><svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zM3 11h12v2H3zM3 17h18v2H3z"/></svg>ДЕТАЛЬНЫЕ</button><button><svg viewBox="0 0 24 24"><path d="M6 3h12v4a6 6 0 01-12 0zM9 15h6v3h3v3H6v-3h3z"/></svg>НАГРАДЫ</button></div></div>
+</div>
 <div class="bn"><svg class="tk" style="left:-4vh" viewBox="0 0 24 24"><use href="#i-tank"/></svg><svg class="tk" style="right:-3vh;transform:scaleX(-1)" viewBox="0 0 24 24"><use href="#i-tank"/></svg><h1 id="rs_t"></h1><p id="rs_s"></p></div>
-<div class="rib" id="rs_m"></div><div class="got">Получено за бой</div>
-<div class="bx a"><h4>Без премиума</h4><div><span id="rs_x1"></span><svg viewBox="0 0 24 24"><path d="M12 2.500l2.900 6.100 6.600.8-4.900 4.600 1.300 6.600L12 17.300 6.100 20.600l1.300-6.600L2.500 9.400l6.600-.8z" fill="none" stroke="#6bb7ff" stroke-width="1.800"/></svg></div><div><span id="rs_c1"></span><svg><use href="#c-silv"/></svg></div></div>
-<div class="bx b"><h4>С премиумом</h4><div><span id="rs_x2"></span><svg viewBox="0 0 24 24"><path d="M12 2.500l2.900 6.100 6.600.8-4.900 4.600 1.300 6.600L12 17.300 6.100 20.600l1.300-6.600L2.500 9.400l6.600-.8z" fill="none" stroke="#6bb7ff" stroke-width="1.800"/></svg></div><div><span id="rs_c2"></span><svg><use href="#c-silv"/></svg></div></div>
-<button class="cart" id="rs_cart"><svg viewBox="0 0 24 24"><path d="M2 3h3l2.500 12h11l2-8H6.500M9 20h.1M17 20h.1"/></svg></button>
 <div class="st"><div>Урон<b><span id="rs_d"></span><svg viewBox="0 0 24 24" fill="none" stroke="#e8edf0" stroke-width="1.800"><path d="M3 12h13M12 6l6 6-6 6M19 4v16"/></svg></b></div><div>Итого кредитов<b><span id="rs_ct"></span><svg><use href="#c-silv"/></svg></b></div><div>Уничтожено<b><span id="rs_k"></span><svg viewBox="0 0 24 24" fill="none" stroke="#e8edf0" stroke-width="1.800"><path d="M2 14l8-8 6 3-2 3 6 5M4 18h16M5 10l11 4"/></svg></b></div></div>
-<div class="bt"><div class="m"><b id="rs_map"></b><span>Встречный бой</span></div><div class="t"><i id="rs_tr"></i><svg class="tn" viewBox="0 0 24 24"><use href="#i-tank"/></svg><div><b id="rs_tn"></b><span id="rs_ts"></span></div></div><div class="d"><b id="rs_dt"></b><span id="rs_tm"></span></div><button id="rs_rp"><svg viewBox="0 0 24 24"><path d="M3 4h18v16H3zM8 4v16M16 4v16M3 9h5M3 15h5M16 9h5M16 15h5M10 9l5 3-5 3z"/></svg></button></div>`;
+<div class="bt"><div class="m"><b id="rs_map"></b><span>Встречный бой</span></div><div class="t"><i id="rs_tr"></i><svg class="tn" viewBox="0 0 24 24"><use href="#i-tank"/></svg><div><b id="rs_tn"></b><span id="rs_ts"></span></div></div><div class="d"><b id="rs_dt"></b><span id="rs_tm"></span></div></div>`;
 document.body.appendChild(rs);
 const p2=n=>String(n).padStart(2,'0');
 const oEnd=window.endBattle;
@@ -118,23 +114,19 @@ if(typeof oEnd=='function')window.endBattle=function(win){
  const cr=ECO.cr-cr0,xp=(ECO.xp||0)-xp0,cat=P&&P.cat||{},now=new Date(),s=(()=>{try{return JSON.parse(localStorage.getItem('maus_session'))}catch(_){return null}})();
  rs.className='on '+(win?'win':'lose');$('rs_n').textContent=s&&s.nick||'Игрок';
  $('rs_t').textContent=win?'Победа!':'Поражение';$('rs_s').textContent=win?'Вся техника противника уничтожена':'Вся ваша техника уничтожена';
- const ms=MED.filter(m=>m[1]({kills:kl,dmg,alive,win})).slice(0,6);$('rs_m').innerHTML=ms.length?ms.map(medal).join(''):'';$('rs_m').style.visibility=ms.length?'visible':'hidden';
- $('rs_x1').textContent=$('rs_x2').textContent=F(xp);$('rs_c1').textContent=$('rs_c2').textContent=F(cr);
  $('rs_d').textContent=F(dmg);$('rs_ct').textContent=F(cr);$('rs_k').textContent=kl;
  const mp=(typeof MAPS!='undefined'&&MAPS.find(m=>m.id==curMap))||{name:'Полигон'};$('rs_map').textContent=mp.name;
  $('rs_tr').textContent=ROM[cat.tier||P&&P.tier||1];$('rs_tn').textContent=cat.name||'Maus';$('rs_ts').textContent=alive?'Выжил':'Уничтожен';
  $('rs_dt').textContent=p2(now.getDate())+'.'+p2(now.getMonth()+1)+'.'+now.getFullYear();$('rs_tm').textContent=p2(now.getHours())+':'+p2(now.getMinutes())+':'+p2(now.getSeconds());
  if(ONL()){const o=JSON.parse(sn);Object.keys(ECO).forEach(k=>delete ECO[k]);Object.assign(ECO,o);hCredits();   /* онлайн: награду и исход считает сервер */
   const show=r=>{applyEco(r.eco);window.SRV_STATS=r.stats;const R=r.reward||{};$('rs_t').textContent=r.win===undefined?$('rs_t').textContent:(r.win?'Победа!':'Поражение');
-   rs.className='on '+((r.win===undefined?win:r.win)?'win':'lose');$('rs_x1').textContent=$('rs_x2').textContent=F(R.xp||0);$('rs_c1').textContent=$('rs_c2').textContent=$('rs_ct').textContent=F(R.cr||0);
+   rs.className='on '+((r.win===undefined?win:r.win)?'win':'lose');$('rs_ct').textContent=F(R.cr||0);
    $('rs_d').textContent=F(r.dmg!=null?r.dmg:dmg);$('rs_k').textContent=r.kills!=null?r.kills:kl},fail=()=>tst('Нет связи с сервером: награда не начислена');
   if(window.NET&&NET.on){let n=0;const w=()=>{if(NET.res){const r=NET.res;if(r.err)return fail();show(r);return}if(++n>40)return fail();setTimeout(w,250)};w()}
   else if(window.BT){const t=window.BT;window.BT=null;window.mausCall('battle/end',{ticket:t,win:!!win,dmg,kills:kl,map:mp.id||''}).then(show).catch(e=>tst(e.message||'Нет связи с сервером'))}
   else fail()}};
 const oRB=window.rewardBattle;if(typeof oRB=='function')window.rewardBattle=function(k){if(ONL())return;return oRB(k)};
 $('rs_h').onclick=()=>{rs.className='';$('rgo').click()};
-$('rs_rp').onclick=$('rs_cart').onclick=()=>{if(typeof toast=='function')toast('Недоступно')};
-rs.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{if(typeof toast=='function'&&!b.classList.contains('on'))toast('Скоро')});
 
 /* ---------- ХАРАКТЕРИСТИКИ / УЛУЧШЕНИЯ ---------- */
 const up=document.createElement('div');up.id='up';document.body.appendChild(up);

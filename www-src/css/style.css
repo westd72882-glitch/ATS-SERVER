@@ -863,3 +863,18 @@ input,textarea{user-select:text;-webkit-user-select:text;touch-action:manipulati
 #auth.sp{cursor:pointer}
 
 @keyframes tapPulse{0%,100%{opacity:1}50%{opacity:.3}}#a_tap{animation:tapPulse 2.2s ease-in-out infinite}#ldr{z-index:200!important}
+
+/* ===== единый стиль заданий / уведомлений / тостов ===== */
+.mqb{background:linear-gradient(#f2704a,#d9482a)!important;border:.25vh solid #ffb09a66!important;letter-spacing:.2vh}
+.mqb:disabled{background:#2a3038!important;border-color:#ffffff14!important;color:#7d8791!important}
+.tqr,.nrw{background:#ffffff0d;border:0;border-left:.5vh solid #d9482a;border-radius:.6vh;margin:.6vh 1.2vh}
+.nrw.new{background:#d9482a22}
+.nrw .chs,.tqr .chs{width:9vh;flex:none}
+.chs{filter:drop-shadow(0 .5vh .8vh #000b)}
+.mqp{background:#0006;border-radius:.4vh}.mqp i{background:linear-gradient(90deg,#d9482a,#f2704a)!important}
+.tkt i,.wkp i{background:linear-gradient(90deg,#d9482a,#f2704a)!important}
+#toast{background:#10161cf2!important;border:1px solid #ffffff1a!important;border-left:.5vh solid #d9482a!important;border-radius:.6vh!important;color:#fff!important;font-weight:600!important}
+/* итоги боя: упрощённый экран */
+#rs .st{top:44vh!important;border:0!important;background:#ffffff0d!important;border-left:.5vh solid #d9482a!important;border-radius:.6vh}
+#rs .st>div{border-left:.2vh solid #ffffff1f!important}
+#rs.lose .st{border-left-color:#b02a22!important}
