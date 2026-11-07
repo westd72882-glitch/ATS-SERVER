@@ -46,6 +46,14 @@ function ecoOp(key,j){const e=ecoGet(key),id=String(j.id||''),op=j.op;let msg=''
  mark('eco',key);return{msg}}
 const TANKS=require('./tanks.json');
 const MODELS=path.join(__dirname,'models');
+// Ключ моделей: ASSET_KEY (Render → Environment). Запасной вариант — производная от DATABASE_URL (стабильна между перезапусками). Без обоих выдача моделей отключена.
+const AK=process.env.ASSET_KEY||(process.env.DATABASE_URL?crypto.createHash('sha256').update('ats-assets:'+process.env.DATABASE_URL).digest('hex'):'');
+if(!AK)console.warn('ASSET_KEY не задан и нет DATABASE_URL: модели выдаваться НЕ будут');
+const mkey=id=>crypto.createHmac('sha256',AK).update('key:'+id).digest();
+const miv=id=>{const v=crypto.createHmac('sha256',AK).update('iv:'+id).digest().subarray(0,16);v.fill(0,8);return Buffer.from(v)}; // младшие 8 байт = 0: счётчик не переполнится (совместимо с WebCrypto length:64)
+const META=(async()=>{const o={};if(!AK)return o;for(const f of fs.existsSync(MODELS)?fs.readdirSync(MODELS):[]){if(!/\.glb$/i.test(f))continue;const id=f.slice(0,-4);
+ const h=await new Promise((ok,bad)=>{const x=crypto.createHash('sha256');fs.createReadStream(path.join(MODELS,f)).on('data',d=>x.update(d)).on('end',()=>ok(x.digest('hex'))).on('error',bad)});
+ o[id]={h:crypto.createHmac('sha256',AK).update('h:'+h).digest('hex').slice(0,16),s:fs.statSync(path.join(MODELS,f)).size}}console.log('Моделей в манифесте:',Object.keys(o).length);return o})().catch(e=>{console.error('manifest',e);return{}});
 async function applyBattle(key,r){const e=ecoGet(key),dmg=Math.max(0,Math.min(60000,Math.round(r.dmg||0))),kills=Math.max(0,Math.min(30,r.kills|0)),win=!!r.win;
  const cr=Math.round(dmg*1.2+kills*1000+(win?6000:1500)),xp=Math.round(cr/2);e.cr+=cr;e.xp+=xp;e.q.k+=kills;e.q.b++;e.q.d+=dmg;if(win)e.q.w++;
  mailPush(e,(win?'Победа':'Поражение')+': отчёт о бое','Урон: '+fmt(dmg)+'\nУничтожено: '+kills+'\nНаграда: '+fmt(cr)+' кр.',0);
@@ -86,12 +94,15 @@ const server=http.createServer((req,res)=>{
    else{mark('users',key)}
    mark('eco',nk);await flush();return send(res,200,{ok:true,nick:nn,eco:db.eco[nk]})}
   if(url=='/api/me')return send(res,200,{nick:u.nick,version:VERSION});
-  // 3D-модели лежат ТОЛЬКО на сервере и отдаются по токену сессии (в APK их нет, ключа в APK нет)
-  if(url.startsWith('/api/model/')){if(limit('m'+key,300))return fail(res,'Слишком часто',429);const id=url.slice(11);
+  // 3D-модели лежат на сервере в открытом виде, клиенту уходят ЗАШИФРОВАННЫМИ (AES-256-CTR); ключи выдаются только по токену сессии
+  if(url=='/api/assets'){if(limit('s'+key,60))return fail(res,'Слишком часто',429);if(!AK)return fail(res,'Ключ моделей не настроен на сервере (задайте ASSET_KEY)',503);
+   const meta=await META;const m={},k={};for(const id in meta){m[id]={h:meta[id].h,s:meta[id].s};k[id]=mkey(id).toString('hex')}return send(res,200,{m,k})}
+  if(url.startsWith('/api/model/')){if(limit('m'+key,300))return fail(res,'Слишком часто',429);if(!AK)return fail(res,'Ключ моделей не настроен на сервере',503);const id=url.slice(11);
    if(!/^[a-z0-9_]+$/i.test(id)||!TK[id])return fail(res,'Не найдено',404);const f=path.join(MODELS,id+'.glb');
    let st;try{st=fs.statSync(f)}catch(_){return fail(res,'Нет модели',404)}
-   res.writeHead(200,{'Content-Type':'model/gltf-binary','Content-Length':st.size,'Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});
-   return fs.createReadStream(f).on('error',()=>res.destroy()).pipe(res)}
+   const iv=miv(id),c=crypto.createCipheriv('aes-256-ctr',mkey(id),iv);
+   res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':st.size+16,'Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.write(iv);
+   return fs.createReadStream(f).on('error',()=>res.destroy()).pipe(c).pipe(res)}
   if(url=='/api/save/get'){const sv=db.saves[key],e=ecoGet(key);if(!sv)return send(res,200,{save:null});const d=Object.assign({},sv.data,{maus_eco2:JSON.stringify(e)});return send(res,200,{save:{data:d,ts:sv.ts}})}
   if(url=='/api/save/put'){const d=j.data;if(!d||typeof d!='object')return fail(res,'Нет данных');
    ecoGet(key);const out={};let n=0;for(const k of Object.keys(d)){if(!KEYOK(k)||typeof d[k]!='string'||d[k].length>5e4||++n>60)continue;if(k=='maus_eco2'||k=='maus_stats'||k=='maus_promo'||k=='maus_avown')continue;out[k]=d[k]}

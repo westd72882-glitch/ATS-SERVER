@@ -1,8 +1,20 @@
 /* ===== танк: загрузка GLB (текстуры внутри) и сборка экземпляров ===== */
 let ITEMS=null;const BOX={cx:0,cz:0,hx:1.9,hz:5,y0:0,y1:3};      /* габариты корпуса, уточняются после загрузки */
-const GLB_C={};const getGlb=id=>{if(!GLB_C[id]){let s=null;try{s=JSON.parse(localStorage.getItem('maus_session'))}catch(_){}
- GLB_C[id]=(window.API_URL&&s&&s.token&&!s.guest)?fetch(window.API_URL+'/api/model/'+id,{headers:{Authorization:'Bearer '+s.token,'X-App-Version':window.APP_VERSION||'0'}}).then(r=>{if(!r.ok)throw new Error('model '+id+': '+r.status);return r.arrayBuffer()}):Promise.reject(new Error('Нужен вход в аккаунт'));
- GLB_C[id].catch(()=>{delete GLB_C[id]})}return GLB_C[id].then(b=>b.slice(0))};
+/* Модели: хранятся на устройстве ЗАШИФРОВАННЫМИ (IndexedDB), ключи выдаёт сервер по токену сессии; расшифровка в памяти при загрузке танка */
+const GLB_SES=()=>{try{return JSON.parse(localStorage.getItem('maus_session'))}catch(_){return null}};
+const GLB_H=()=>{const s=GLB_SES();if(!(window.API_URL&&s&&s.token&&!s.guest))throw new Error('Нужен вход в аккаунт');return{Authorization:'Bearer '+s.token,'X-App-Version':window.APP_VERSION||'0'}};
+const GLB_DB=()=>GLB_DB.p||(GLB_DB.p=new Promise((ok,bad)=>{const r=indexedDB.open('ats_assets',1);r.onupgradeneeded=()=>r.result.createObjectStore('m');r.onsuccess=()=>ok(r.result);r.onerror=()=>bad(r.error)}));
+const GLB_IDB=(mode,fn)=>GLB_DB().then(d=>new Promise((ok,bad)=>{const t=d.transaction('m',mode),q=fn(t.objectStore('m'));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>bad(t.error);t.onabort=()=>bad(t.error)}));
+let GLB_A=null;const GLB_DL={};
+const glbAssets=()=>GLB_A||(GLB_A=fetch(window.API_URL+'/api/assets',{headers:GLB_H()}).then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||('assets: '+r.status));return j})).catch(e=>{GLB_A=null;throw e}));
+const glbBlob=(id,m)=>GLB_DL[id]||(GLB_DL[id]=(async()=>{let rec=null;try{rec=await GLB_IDB('readonly',s=>s.get(id))}catch(_){}
+ if(rec&&rec.h===m.h&&rec.b&&rec.b.byteLength===m.s+16)return rec.b;
+ const r=await fetch(window.API_URL+'/api/model/'+id,{headers:GLB_H()});if(!r.ok)throw new Error('model '+id+': '+r.status);
+ const b=await r.arrayBuffer();if(b.byteLength!==m.s+16)throw new Error('model '+id+': повреждена загрузка');
+ try{await GLB_IDB('readwrite',s=>s.put({h:m.h,b},id))}catch(_){}return b})().finally(()=>{delete GLB_DL[id]}));
+const getGlb=async id=>{const A=await glbAssets(),m=A.m[id],k=A.k[id];if(!m||!k)throw new Error('model '+id+': нет в манифесте');
+ const b=await glbBlob(id,m),key=await crypto.subtle.importKey('raw',new Uint8Array(k.match(/../g).map(x=>parseInt(x,16))),'AES-CTR',false,['decrypt']);
+ return crypto.subtle.decrypt({name:'AES-CTR',counter:new Uint8Array(b,0,16),length:64},key,new Uint8Array(b,16))};
 function loadModel(){
  return getGlb('maus').then(buf=>new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',g=>{g.scene.updateMatrixWorld(true);const items=[];
   g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();items.push({g:gm,bb:gm.boundingBox,n:gm.attributes.position.count,mat:o.material})});
