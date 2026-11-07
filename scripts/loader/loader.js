@@ -30,6 +30,27 @@
     }
   }
 
+  /* Подтягиваем облачное сохранение ДО запуска кода игры: игра читает localStorage один раз при старте,
+   * поэтому раньше приходилось перезагружать страницу после синхронизации (второй экран загрузки). */
+  async function preSync(ver) {
+    var s = null; try { s = JSON.parse(localStorage.getItem('maus_session')); } catch (e) { }
+    if (!s || !s.token || s.guest) return;
+    say('Синхронизация данных…', 1);
+    var t = null;
+    try {
+      var c = new AbortController(); t = setTimeout(function () { c.abort(); }, 12000);
+      var r = await fetch(C.api + '/api/save/get', { method: 'POST', signal: c.signal, headers: { 'Content-Type': 'application/json', 'X-App-Version': ver, Authorization: 'Bearer ' + s.token }, body: '{}' });
+      if (!r.ok) return;
+      var j = await r.json(), d = j && j.save && j.save.data;
+      if (!d) { window.ATS_SYNCED = 1; return; }
+      var OK = function (k) { return /^maus_/.test(k) && !/^maus_(session|users|pend_)/.test(k); }, del = [], i, k;
+      for (i = 0; i < localStorage.length; i++) { k = localStorage.key(i); if (OK(k) && !(k in d)) del.push(k); }
+      del.forEach(function (x) { localStorage.removeItem(x); });
+      Object.keys(d).forEach(function (x) { if (OK(x)) localStorage.setItem(x, d[x]); });
+      window.ATS_SYNCED = 1;
+    } catch (e) { /* нет связи — игра попробует синхронизироваться сама */ } finally { if (t) clearTimeout(t); }
+  }
+
   async function load() {
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { }
     if (!C.api || !C.pub) fatal('Приложение собрано без адреса сервера или ключа проверки');
@@ -55,6 +76,7 @@
       }
       got += f.s; data[n] = dec.decode(buf);
     }
+    await preSync(m.v);
     say('Запуск…', 1);
     return { m: m, data: data };
   }

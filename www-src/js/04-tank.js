@@ -12,7 +12,7 @@ const glbBlob=(id,m)=>GLB_DL[id]||(GLB_DL[id]=(async()=>{let rec=null;try{rec=aw
  const r=await fetch(window.API_URL+'/api/model/'+id,{headers:GLB_H()});if(!r.ok)throw new Error('model '+id+': '+r.status);
  const b=await r.arrayBuffer();if(b.byteLength!==m.s+16)throw new Error('model '+id+': повреждена загрузка');
  try{await GLB_IDB('readwrite',s=>s.put({h:m.h,b},id))}catch(_){}return b})().finally(()=>{delete GLB_DL[id]}));
-const getGlb=async id=>{const A=await glbAssets(),m=A.m[id],k=A.k[id];if(!m||!k)throw new Error('model '+id+': нет в манифесте');
+const getGlb=async id=>{if(window.ATS_LOCAL){const r=await fetch('models/'+id+'.glb');if(!r.ok)throw new Error('model '+id+': '+r.status);return r.arrayBuffer()}const A=await glbAssets(),m=A.m[id],k=A.k[id];if(!m||!k)throw new Error('model '+id+': нет в манифесте');
  const b=await glbBlob(id,m),key=await crypto.subtle.importKey('raw',new Uint8Array(k.match(/../g).map(x=>parseInt(x,16))),'AES-CTR',false,['decrypt']);
  return crypto.subtle.decrypt({name:'AES-CTR',counter:new Uint8Array(b,0,16),length:64},key,new Uint8Array(b,16))};
 function loadModel(){

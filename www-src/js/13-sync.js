@@ -29,8 +29,8 @@ const HG=()=>typeof inHangar!='undefined'&&inHangar&&window.ldStatus;
 window.mausPull=async function(){const s=gs();if(!s||!s.token)return;
  try{if(HG())ldStatus('Синхронизация с сервером…',40);else{const L=document.getElementById('ltxt');if(L&&!(window.loadProg&&loadProg.n))L.textContent='Синхронизация с сервером…'}const r=await call('save/get');const sv=r.save;
   if(!sv){push();return}
-  const loc=snap(),d=sv.data;let diff=false;for(const k of Object.keys(d))if(loc[k]!==d[k])diff=true;for(const k of Object.keys(loc))if(!(k in d))diff=true;
-  if(diff){applying=true;for(const k of Object.keys(loc))if(!(k in d))ri.call(localStorage,k);for(const k of Object.keys(d))si.call(localStorage,k,d[k]);
+  const loc=snap(),d=sv.data;let diff=false;/* maus_eco2 сервер всегда отдаёт в своём формате (серверная экономика, её подтягивает eco/get) — в сравнении не участвует, иначе страница перезагружалась при каждом запуске */for(const k of Object.keys(d))if(k!='maus_eco2'&&loc[k]!==d[k])diff=true;for(const k of Object.keys(loc))if(k!='maus_eco2'&&!(k in d))diff=true;
+  if(diff&&window.ATS_SYNCED){sched()}else if(diff){applying=true;for(const k of Object.keys(loc))if(!(k in d))ri.call(localStorage,k);for(const k of Object.keys(d))si.call(localStorage,k,d[k]);
    if(!sessionStorage.getItem('maus_rl')){sessionStorage.setItem('maus_rl','1');location.reload();return}applying=false}
   sessionStorage.removeItem('maus_rl');if(HG()){ldStatus('Синхронизация завершена',100);setTimeout(()=>{try{hideLoader()}catch(_){}},400)}}catch(e){if(HG()){ldStatus('Не удалось синхронизироваться, продолжаем офлайн',100);setTimeout(()=>{try{hideLoader()}catch(_){}},1200)}}};
 /* Ожидание сервера перед входом в игру (Render «просыпается» до ~60 с) */

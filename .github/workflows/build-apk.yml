@@ -1,16 +1,33 @@
 name: Build signed APK
 
-# Жми "Run workflow" (вкладка Actions) — соберётся APK даже без единого секрета:
-# если keystore-секреты не заданы, пайплайн сгенерирует их сам на лету
-# (ключ шифрования эфемерный, подпись — самоподписанный keystore, только для теста/личной установки).
-# Для официального релиза в Releases добавь секреты KEYSTORE_BASE64,
-# KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD — тогда будет использован твой постоянный ключ/подпись.
+# В APK лежит ТОЛЬКО маленький загрузчик и картинки. Код игры раздаёт сервер (server/game, подписанный манифест),
+# 3D-модели — тоже сервер (зашифрованные, по токену). Всё скачивается один раз и хранится на устройстве в кэше.
+# Нужно: переменная API_URL (адрес сервера на Render) и секреты подписи APK: KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD.
+# Публичный ключ проверки подписи сборка сама берёт у сервера (GET /api/pubkey); можно зафиксировать переменной SIGN_PUB.
+# Если секреты подписи APK не заданы — соберётся с одноразовым self-signed keystore (для теста).
+#
+# Run workflow → build_type:
+#   global — как раньше: в APK загрузчик, код игры и модели тянутся с сервера (нужен API_URL).
+#   local  — игра ЦЕЛИКОМ внутри APK (код + 3D-модели), сервер не нужен, всё идёт локально на телефоне.
+#            Ставится отдельным приложением (com.ats.tanks.local) рядом с глобальной, прогресс у них раздельный.
+# Пуш тега v* всегда собирает глобальную сборку и публикует её в Releases.
 
 on:
   push:
     tags:
       - "v*"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: "Тип сборки: global — с сервером, local — всё вшито в APK, без сервера"
+        type: choice
+        options:
+          - global
+          - local
+        default: global
+
+env:
+  BUILD_TYPE: ${{ inputs.build_type || 'global' }}
 
 permissions:
   contents: write
@@ -36,10 +53,51 @@ jobs:
       - name: Install npm deps
         run: npm install
 
-      - name: Build web bundle
+      - name: Check API_URL (без сервера игра не работает)
+        if: env.BUILD_TYPE == 'global'
         env:
-          API_URL: ${{ vars.API_URL || secrets.API_URL }}
-        run: npm run build:web
+          API_URL: ${{ vars.API_URL || secrets.API_URL || 'https://ats-server-foza.onrender.com' }}
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "::error::Не задана переменная API_URL (Settings → Secrets and variables → Actions → Variables). Офлайн-режима больше нет, без сервера APK бесполезен."
+            exit 1
+          fi
+
+      - name: Get server signing public key
+        if: env.BUILD_TYPE == 'global'
+        env:
+          API_URL: ${{ vars.API_URL || secrets.API_URL || 'https://ats-server-foza.onrender.com' }}
+          SIGN_PUB_VAR: ${{ vars.SIGN_PUB }}
+        run: |
+          if [ -n "$SIGN_PUB_VAR" ]; then
+            PUB="$SIGN_PUB_VAR"
+          else
+            PUB=$(curl -fsS --retry 12 --retry-delay 10 --retry-all-errors "${API_URL%/}/api/pubkey")
+          fi
+          if [ -z "$PUB" ]; then
+            echo "::error::Не удалось получить публичный ключ. Сервер должен работать (в Render задан ASSET_KEY) и отдавать /api/pubkey."
+            exit 1
+          fi
+          echo "SIGN_PUB=$PUB" >> "$GITHUB_ENV"
+
+      - name: Build web bundle — GLOBAL (загрузчик + картинки)
+        if: env.BUILD_TYPE == 'global'
+        env:
+          API_URL: ${{ vars.API_URL || secrets.API_URL || 'https://ats-server-foza.onrender.com' }}
+        run: |
+          npm run build:web
+          # страховка: ни моделей, ни кода игры в APK попасть не должно
+          if find www -iname "*.glb" | grep -q .; then echo "::error::В www попали .glb"; exit 1; fi
+          if [ -d www/js ] || [ -d www/libs ]; then echo "::error::В www попал код игры"; exit 1; fi
+
+      - name: Build web bundle — LOCAL (игра + модели внутри APK, без сервера)
+        if: env.BUILD_TYPE == 'local'
+        run: |
+          npm run build:local
+          test -f www/index.html && test -f www/js/01-core.js && test -f www/models/maus.glb
+          grep -q "ATS_LOCAL=true" www/js/00-config.js
+          # отдельное приложение, чтобы ставилось рядом с глобальной сборкой
+          node -e "const f='capacitor.config.json',c=JSON.parse(require('fs').readFileSync(f));c.appId='com.ats.tanks.local';c.appName='ATS BLITZ Local';require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
 
       - name: Add Android platform
         run: npx cap add android
@@ -94,14 +152,30 @@ jobs:
           APK_PATH=$(find android/app/build/outputs/apk/release -name "*.apk" | head -n1)
           echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
 
+      - name: Verify APK has no models or game code (global)
+        if: env.BUILD_TYPE == 'global'
+        run: |
+          if unzip -l "${{ steps.apk.outputs.path }}" | grep -qiE "\.glb|public/js/01-core"; then
+            echo "::error::В APK найдены модели или код игры — они должны быть только на сервере"; exit 1
+          fi
+          echo "OK: в APK нет моделей и кода игры"
+
+      - name: Verify APK contains the game and models (local)
+        if: env.BUILD_TYPE == 'local'
+        run: |
+          LIST=$(unzip -l "${{ steps.apk.outputs.path }}")
+          echo "$LIST" | grep -q "public/js/01-core.js" || { echo "::error::В APK нет кода игры"; exit 1; }
+          echo "$LIST" | grep -qi "public/models/maus.glb" || { echo "::error::В APK нет 3D-моделей"; exit 1; }
+          echo "OK: локальная сборка — игра и модели внутри APK"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ats-release-apk
+          name: ats-release-apk-${{ env.BUILD_TYPE }}
           path: ${{ steps.apk.outputs.path }}
 
       - name: Publish GitHub Release (on tag push)
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') && env.BUILD_TYPE == 'global'
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.apk.outputs.path }}

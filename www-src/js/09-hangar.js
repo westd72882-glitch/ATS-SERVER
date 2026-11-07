@@ -299,7 +299,7 @@ function navHead(title,tabs,act){return `<div class="nhd"><button class="nhb" ar
 function infoPanel(){qInit();const sh=$('shop'),M=panel=='m',sl='<svg class="gi"><use href="#c-silv"/></svg>';
  if(M){const tabs=[['n','НОВОСТИ','mail'],['u','УВЕДОМЛЕНИЯ','warn']];
   const rows=mTab=='u'?(ECO.mail.length?ECO.mail.map(x=>`<div class="nrw${x.rd?'':' new'}"><div class="nri">${chest('#b8892a')}</div><div class="nrt"><span>${x.t}</span><p>${x.b.replace(/\n/g,'<br>')}</p></div>${x.r?`<button class="mqb" data-m="${x.id}" ${x.c?'disabled':''}>${x.c?'Получено':'Забрать '+sl+fmt(x.r)}</button>`:''}</div>`).join(''):'<div class="emp2">Уведомлений нет</div>'):'<div class="emp2">Новостей пока нет</div>';
-  sh.innerHTML=navHead(tabs.find(t=>t[0]==mTab)[1],tabs,mTab)+'<div class="nbd">'+rows+'</div>';
+  sh.innerHTML=navHead('СООБЩЕНИЯ',tabs,mTab)+'<div class="nbd">'+rows+'</div>';
   if(mTab=='u'){ECO.mail.forEach(x=>x.rd=1);js('maus_eco2',ECO)}
   sh.querySelectorAll('.ntb').forEach(b=>b.onclick=()=>{if(b.classList.contains('off'))return;mTab=b.dataset.t;infoPanel()})}
  else{const pts=ECO.q.c.length*30,TH=[30,70,100,120],mx=120,dn=Math.floor(Date.now()/864e5),di=(dn+3)%7,now=new Date(),hl=23-now.getHours(),ml=59-now.getMinutes();
