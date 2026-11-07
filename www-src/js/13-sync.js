@@ -50,6 +50,6 @@ window.srvGateFn=async function(){const s=gs();if(!(s&&s.token&&!s.guest))return
   d.innerHTML='<div>Соединение с сервером потеряно</div><button style="padding:2vh 7vh;border:0;border-radius:.6vh;background:#d9482a;color:#fff;font:800 3vh system-ui">Переподключиться</button>';
   d.querySelector('button').onclick=()=>location.reload();document.body.appendChild(d)};
  addEventListener('offline',()=>{if(gs()&&gs().token)lost()});
- setInterval(async()=>{const s=gs();if(!(s&&s.token&&!s.guest)||window.OFFLINE_MODE||document.hidden)return;if(await ping(6000))bad=0;else if(++bad>=2)lost()},8000)})();
+ let pinging=false;setInterval(async()=>{if(pinging)return;const s=gs();if(!(s&&s.token&&!s.guest)||window.OFFLINE_MODE||document.hidden)return;pinging=true;try{if(await ping(6000))bad=0;else if(++bad>=2)lost()}finally{pinging=false}},15000)})();
 if(!(gs()&&gs().token))mausPull();
 })();
