@@ -86,8 +86,14 @@ manifest = manifest.replace(/<activity\b[^>]*android:name="\.MainActivity"[^>]*>
   tag = tag.replace(/\s+android:configChanges="[^"]*"/, '');
   return tag.replace(/<activity/, '<activity\n            android:screenOrientation="sensorLandscape"\n            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|keyboard|uiMode|locale"');
 });
+// защита: запрет adb backup (иначе локальные данные приложения можно вытащить без root) и запрет HTTP без TLS
+manifest = manifest.replace(/<application\b[^>]*>/, tag => {
+  tag = tag.replace(/\s+android:allowBackup="[^"]*"/, '').replace(/\s+android:usesCleartextTraffic="[^"]*"/, '');
+  return tag.replace(/<application/, '<application\n        android:allowBackup="false"\n        android:usesCleartextTraffic="false"');
+});
 fs.writeFileSync(manifestPath, manifest);
 console.log('AndroidManifest.xml: MainActivity зафиксирована в sensorLandscape.');
+console.log('AndroidManifest.xml: allowBackup=false, cleartext запрещён.');
 
 // 7. полный экран без чёрной рамки у фронтальной камеры (вырез): рисуем под вырезом
 const stylesPath = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res', 'values', 'styles.xml');

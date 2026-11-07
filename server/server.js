@@ -6,7 +6,9 @@ const db={users:{},sessions:{},saves:{},eco:{},promos:{},battles:{},tickets:{}};
 const store=require('./store')(db),mark=store.mark,flush=store.flush;
 setInterval(flush,2000);for(const s of['SIGTERM','SIGINT'])process.on(s,async()=>{await flush();process.exit(0)});
 const tries={};
-const PROMOS={anode65:{tank:'govnotank',msg:'Получен танк GOVNOTANK AERO!'},viva672:{gold:100000,silver:1000000,msg:'Получено 100 000 золота и 1 000 000 серебра!'}};
+// Промокоды берутся ТОЛЬКО из переменной окружения PROMOS_JSON (Render → Environment), в публичный репозиторий их класть нельзя.
+// Формат: {"mycode":{"gold":1000,"silver":50000,"msg":"Текст"},"tankcode":{"tank":"govnotank","msg":"..."}}
+const PROMOS=(()=>{try{const o=JSON.parse(process.env.PROMOS_JSON||'{}'),r={};for(const k of Object.keys(o))if(o[k]&&typeof o[k]=='object')r[String(k).trim().toLowerCase()]=o[k];return r}catch(e){console.error('PROMOS_JSON некорректен:',e.message);return{}}})();
 const hash=(p,s)=>crypto.scryptSync(p,s,32).toString('hex');
 const H={'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type,Authorization,X-App-Version','Access-Control-Allow-Methods':'GET,POST,PUT,OPTIONS'};
 const send=(res,c,o)=>{res.writeHead(c,H);res.end(JSON.stringify(o))};
@@ -62,13 +64,14 @@ const server=http.createServer((req,res)=>{
   const auth=()=>{const t=String(req.headers.authorization||'').replace('Bearer ','');const n=db.sessions[t];return n&&db.users[n.toLowerCase()]?db.users[n.toLowerCase()]:null};
   if(url=='/api/register'||url=='/api/login'){if(limit('a'+ip,20))return fail(res,'Слишком много попыток, подождите',429)}
   if(url=='/api/register'){const nick=String(j.nick||'').trim(),pw=String(j.password||'');
-   if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(nick)||pw.length<6)return fail(res,'Неверные данные');
+   if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(nick)||pw.length<6||pw.length>128)return fail(res,'Неверные данные');
    if(db.users[nick.toLowerCase()])return fail(res,'Ник занят');
    const salt=crypto.randomBytes(8).toString('hex');
    db.users[nick.toLowerCase()]={nick,salt,h:hash(pw,salt),created:Date.now()};mark('users',nick.toLowerCase());
    return send(res,200,session(db.users[nick.toLowerCase()]))}
   if(url=='/api/login'){const k=String(j.login||'').trim().toLowerCase(),u=db.users[k];
-   if(!u||hash(String(j.password||''),u.salt)!==u.h)return fail(res,'Неверный ник или пароль',401);return send(res,200,session(u))}
+   if((tries['f'+k]||0)>=8)return fail(res,'Слишком много неудачных попыток входа, подождите 10 минут',429);
+   if(!u||hash(String(j.password||'').slice(0,128),u.salt)!==u.h){limit('f'+k,1e9);return fail(res,'Неверный ник или пароль',401)}return send(res,200,session(u))}
   if(url=='/api/promo/check'){if(limit('p'+ip,40))return fail(res,'Слишком часто',429);const c=String(j.code||'').trim().toLowerCase(),r=PROMOS[c];if(!r)return fail(res,'Промокод не найден');return send(res,200,{ok:true,code:c,reward:r})}
   const u=auth();if(!u)return fail(res,'Сессия недействительна, войдите заново',401,{relogin:true});
   const key=u.nick.toLowerCase();

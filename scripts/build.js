@@ -18,6 +18,8 @@ function copyDir(src, dst) {
 
 console.log('1/1 копирование исходников...');
 copyDir(SRC, DST);
+// в APK не должно попадать ничего лишнего (dev-сервер, заметки)
+for (const f of ['serve.py', 'start.bat', 'start.sh', 'README.txt']) fs.rmSync(path.join(DST, f), { force: true });
 
 const VERSION = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf8').trim();
 const API = (process.env.API_URL || 'https://ats-server-foza.onrender.com').replace(/\/+$/, '');
