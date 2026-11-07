@@ -23,7 +23,6 @@ $('a_sw').onclick=()=>{mode=mode=='in'?'up':'in';step=0;er();ui()};
 $('auth').addEventListener('click',e=>{const A=$('auth');if(A.classList.contains('sp')&&!e.target.closest('#a_lic,#a_back'))A.classList.remove('sp')});
 const eu=$('eula');$('a_lic').addEventListener('click',e=>{if(e.target.closest('u')){e.stopPropagation();eu.classList.add('on')}});$('e_ok').onclick=()=>eu.classList.remove('on');
 {const l=document.createElement('label');l.id='a_agw';l.innerHTML='<input type="checkbox" id="a_ag"> Я принимаю <u id="a_agl">пользовательское соглашение</u>';$('a_go').parentNode.insertBefore(l,$('a_go'));$('a_agl').onclick=e=>{e.preventDefault();eu.classList.add('on')}}
-{const o=document.createElement('button');o.id='a_off';o.type='button';o.textContent='Играть офлайн';$('a_go').parentNode.appendChild(o);o.onclick=()=>{er();window.OFFLINE_MODE=true;$('auth').classList.remove('on');$('auth').classList.add('sp');if(window.startGame)startGame()}}
 $('a_back').onclick=()=>{er();$('auth').classList.add('sp')};
 $('a_re').onclick=async()=>{try{await sendCode()}catch(e){er(e.message)}};
 $('af').onsubmit=async ev=>{ev.preventDefault();er();const nick=$('a_nick').value.trim(),pass=$('a_pass').value;$('a_go').disabled=true;
