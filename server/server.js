@@ -119,7 +119,7 @@ const server=http.createServer((req,res)=>{
   if(url=='/api/assets'){if(limit('s'+key,60))return fail(res,'Слишком часто',429);if(!AK)return fail(res,'Ключ моделей не настроен на сервере (задайте ASSET_KEY)',503);
    const meta=await META;const m={},k={};for(const id in meta){m[id]={h:meta[id].h,s:meta[id].s};k[id]=mkey(id).toString('hex')}return send(res,200,{m,k})}
   if(url.startsWith('/api/model/')){if(limit('m'+key,300))return fail(res,'Слишком часто',429);if(!AK)return fail(res,'Ключ моделей не настроен на сервере',503);const id=url.slice(11);
-   if(!/^[a-z0-9_]+$/i.test(id)||!TK[id])return fail(res,'Не найдено',404);const f=path.join(MODELS,id+'.glb');
+   if(!/^[a-z0-9_]+$/i.test(id)||(!TK[id]&&id!='protok_map'))return fail(res,'Не найдено',404);const f=path.join(MODELS,id+'.glb');
    let st;try{st=fs.statSync(f)}catch(_){return fail(res,'Нет модели',404)}
    const iv=miv(id),c=crypto.createCipheriv('aes-256-ctr',mkey(id),iv);
    res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':st.size+16,'Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.write(iv);

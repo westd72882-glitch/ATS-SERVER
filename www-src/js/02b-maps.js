@@ -104,10 +104,46 @@ function buildProtok(){const R_=mapRng(31),G=GRND.material,K=.78;
  const T=[];for(let n=0;n<5000&&T.length<150;n++){const x=(R_()-.5)*376,z=(R_()-.5)*376;if(rdist(x,z)<17)continue;const dl=(x-bxg)*t0+(z-bzg)*t1,al=(x-bxg)*nx+(z-bzg)*nz;if(Math.abs(dl)<8&&Math.abs(al)<75)continue;if(spots.some(p=>Math.hypot(p[0]-x,p[1]-z)<9))continue;const cl=.5+.5*Math.sin(x/37)*Math.sin(z/29+1);if(R_()>.3+.7*cl)continue;T.push([x,z])}
  trees(T,[0x2f5a24,0x3a6a2b,0x2a4f22,0x436f2e],1.1)}
 
-function loadMap(id){const M=MAPS.find(m=>m.id==id)||MAPS[0];if(curMap==M.id)return;curMap=M.id;clearMap();const G=GRND.material;
+/* ===== Проток из GLB-модели (protok_map): рельеф, мост, вода, подбитые танки, деревья, трава ===== */
+let MAPTOK=0;
+async function buildProtokGLB(tok){
+ const buf=await getGlb('protok_map'),gl=await new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',ok,bad)),sc=gl.scene;sc.updateMatrixWorld(true);
+ const meshes=[];sc.traverse(o=>{if(o.isMesh)meshes.push(o)});
+ let terr=null,water=null;const anc=o=>{for(let a=o;a;a=a.parent)if(a.name&&/^(terrain|water|bridge_|wreck\d|tree)/.test(a.name))return a.name;return''};
+ /* высоты: сетка рельефа 257x257 */
+ meshes.forEach(m=>{if(anc(m)=='terrain')terr=m;else if(anc(m)=='water')water=m});
+ if(!terr)throw new Error('в protok_map нет terrain');
+ const pa=terr.geometry.attributes.position,n=pa.count,N=Math.round(Math.sqrt(n)),HT=new Float32Array(n),v=new THREE.Vector3();let x0=0,z0=0,dx=1,dz=1;
+ for(let i=0;i<n;i++){v.fromBufferAttribute(pa,i).applyMatrix4(terr.matrixWorld);HT[i]=v.y;if(i==0){x0=v.x;z0=v.z}if(i==1)dx=v.x-x0;if(i==N)dz=v.z-z0}
+ const BR={x0:19,x1:41,z:27,y:3.9};
+ const terH=(x,z)=>{let fx=(x-x0)/dx,fz=(z-z0)/dz;fx=Math.max(0,Math.min(N-1.001,fx));fz=Math.max(0,Math.min(N-1.001,fz));const ix=fx|0,iz=fz|0,tx=fx-ix,tz=fz-iz,a=HT[iz*N+ix],b=HT[iz*N+ix+1],c=HT[(iz+1)*N+ix],d=HT[(iz+1)*N+ix+1];return(a*(1-tx)+b*tx)*(1-tz)+(c*(1-tx)+d*tx)*tz};
+ const hf=(x,z)=>{const t=terH(x,z);if(x>BR.x0&&x<BR.x1){const k=Math.max(0,Math.min(1,(BR.z-Math.abs(z))/6));if(k>0)return Math.max(t,BR.y*k)}return t};
+ /* материалы -> Lambert (легче для телефона) */
+ const MC=new Map(),lam=m=>{let r=MC.get(m);if(!r){r=new THREE.MeshLambertMaterial({map:m.map||null,color:m.color?m.color.clone():0xffffff,side:m.side,transparent:m.transparent,opacity:m.opacity,alphaTest:m.alphaTest||0,vertexColors:!!m.vertexColors});MC.set(m,r)}return r};
+ const wcols=[],out=[],groups=new Map(),box=new THREE.Box3(),wr={};
+ meshes.forEach(m=>{const a=anc(m);
+  if(a=='water'){const wm=new THREE.MeshLambertMaterial({color:m.material.color?m.material.color.clone():0x3d6b78,transparent:true,opacity:.82,depthWrite:false});m.material=wm;m.castShadow=false;m.receiveShadow=false;m.renderOrder=1;out.push(m);return}
+  if(a=='terrain'){m.material=lam(m.material);m.receiveShadow=true;m.castShadow=false;out.push(m);return}
+  if(/^wreck/.test(a)){m.material=lam(m.material);m.castShadow=m.receiveShadow=true;(wr[a]=wr[a]||new THREE.Box3()).union(box.setFromObject(m));out.push(m);return}
+  if(/^bridge_/.test(a)){m.material=lam(m.material);m.castShadow=m.receiveShadow=true;out.push(m);return}
+  /* деревья и трава: одинаковые меши -> InstancedMesh */
+  const k=m.geometry.uuid+'|'+m.material.uuid;let g=groups.get(k);if(!g)groups.set(k,g={m,list:[],tree:a=='tree'});g.list.push(m.matrixWorld.clone())});
+ const IM=[];
+ groups.forEach(g=>{const im=new THREE.InstancedMesh(g.m.geometry,lam(g.m.material),g.list.length);g.list.forEach((mx,i)=>im.setMatrixAt(i,mx));im.castShadow=g.tree;im.receiveShadow=false;im.frustumCulled=false;IM.push(im);
+  if(g.tree){g.m.geometry.computeBoundingBox();const bb=g.m.geometry.boundingBox,p=new THREE.Vector3(),s=new THREE.Vector3(),q=new THREE.Quaternion();
+   g.list.forEach(mx=>{mx.decompose(p,q,s);const ht=(bb.max.y-bb.min.y)*s.y,r=Math.max(.45,Math.min(1.3,ht*.035));wcols.push({x:p.x,z:p.z,r,h:p.y+ht*.85})})}});
+ /* подбитые танки: круглые коллайдеры вдоль корпуса */
+ Object.keys(wr).forEach(k=>{const b=wr[k],sx=b.max.x-b.min.x,sz=b.max.z-b.min.z,r=Math.max(1,Math.min(sx,sz)/2),L=Math.max(sx,sz),cn=Math.max(1,Math.round(L/(r*1.6))),cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;
+  for(let i=0;i<cn;i++){const t=cn==1?0:(i/(cn-1)-.5)*(L-2*r);wcols.push({x:sx>=sz?cx+t:cx,z:sx>=sz?cz:cz+t,r,h:b.max.y})}});
+ if(tok!==MAPTOK)return;                      /* карту успели сменить */
+ out.forEach(o=>MAPG.attach(o));IM.forEach(o=>MAPG.add(o));wcols.forEach(c=>cols.push(c));
+ MAPHF=hf;GRND.visible=false;window.SPAWN_SPAN=40;
+ }
+
+function loadMap(id){const M=MAPS.find(m=>m.id==id)||MAPS[0];if(curMap==M.id)return;curMap=M.id;clearMap();MAPHF=null;GRND.visible=true;window.SPAWN_SPAN=75;const tok=++MAPTOK,G=GRND.material;
  G.map=POLYTEX;window.GTEX=POLYTEX;G.needsUpdate=true;
  scene.background.setHex(M.sky);scene.fog.color.setHex(M.sky);
- if(M.id=='meadow')buildMeadow();else if(M.id=='protok')buildProtok();
+ if(M.id=='meadow')buildMeadow();else if(M.id=='protok')buildProtokGLB(tok).catch(e=>{console.warn('protok GLB:',e);if(tok===MAPTOK&&curMap=='protok'){clearMap();buildProtok()}});
  try{localStorage.setItem('maus_map',M.id)}catch(_){}
  const an=typeof CFG!='undefined'&&CFG.hd?R.capabilities.getMaxAnisotropy():1;if(window.GTEX){GTEX.anisotropy=an;GTEX.needsUpdate=true}
  const b=document.getElementById('mpt');if(b)b.textContent=M.name;document.querySelectorAll('.mpi').forEach(x=>x.classList.toggle('sel',x.dataset.m==M.id))}

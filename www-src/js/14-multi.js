@@ -33,7 +33,7 @@ function onMsg(m){
  else if(m.t=='match'){queued=false;startMatch(m)}
  else if(m.t=='st'){const e=NET.px[m.id];if(!e)return;e.tx=m.x;e.tz=m.z;e.th=m.h;e.tty=m.ty;e.tgp=m.gp;e.tv=m.v;e.tw=m.w;
   if(!e.inited){e.inited=1;e.x=m.x;e.z=m.z;e.h=m.h}}
- else if(m.t=='shot'){const e=NET.px[m.id];if(!e||!e.alive)return;e.tur.rotation.y=e.ty=m.ty;e.gunG.rotation.x=e.gp=m.gp;e.root.position.set(e.x,0,e.z);e.root.rotation.y=e.h;e.root.updateMatrixWorld(true);e.rl=0;shoot(e,.002)}
+ else if(m.t=='shot'){const e=NET.px[m.id];if(!e||!e.alive)return;e.tur.rotation.y=e.ty=m.ty;e.gunG.rotation.x=e.gp=m.gp;e.root.position.set(e.x,H(e.x,e.z),e.z);e.root.rotation.y=e.h;e.root.updateMatrixWorld(true);e.rl=0;shoot(e,.002)}
  else if(m.t=='hit'){const T=m.v==NET.me?P:NET.px[m.v];if(!T)return;const mine=m.by==NET.me,pos=T.root.position;
   if(m.r=='trk'){trackHit(T,m.side,m.end,V3(pos.x,1,pos.z));return}
   if(m.r=='p'){T.hp=m.hp;if(mine)DMG+=m.d;
@@ -50,11 +50,11 @@ const oME=makeEnemies;makeEnemies=function(n){if(!NET.on)return oME(n);P.team='A
  for(const r of NET.roster){const rel=r.team==NET.abs?'A':'B',cat=CATALOG.find(c=>c.id==r.tank)||CATALOG[0],e=buildTank(cat.id);
   e.team=rel;e.net=1;e.name=r.nick;e.nick=r.nick;e.netId=r.id;e.tier=cat.tier;e.tag=document.createElement('div');e.tag.className='tag'+(rel=='A'?' ally':'');
   e.tag.innerHTML=r.nick+' · '+cat.name+'<span class=hpt></span><i><b></b></i>';document.body.appendChild(e.tag);ALL.push(e);ENEMIES.push(e);resetEnemy(e);
-  const sp=spawnPos(r.team);e.x=e.tx=sp.x;e.z=e.tz=sp.z;e.h=e.th=r.team=='B'?Math.PI:0;e.tty=e.tgp=e.tv=e.tw=0;e.root.position.set(e.x,0,e.z);NET.px[r.id]=e}};
+  const sp=spawnPos(r.team);e.x=e.tx=sp.x;e.z=e.tz=sp.z;e.h=e.th=r.team=='B'?Math.PI:0;e.tty=e.tgp=e.tv=e.tw=0;e.root.position.set(e.x,H(e.x,e.z),e.z);NET.px[r.id]=e}};
 const oRP=respawnPlayer;respawnPlayer=function(){oRP();if(NET.on){const p=spawnPos(NET.abs);P.x=p.x;P.z=p.z;P.h=NET.abs=='B'?Math.PI:0;cy=P.h}};
 window.netTick=function(e,dt){if(e.tx==null)return;const k=Math.min(1,dt*10);
  e.x+=(e.tx-e.x)*k;e.z+=(e.tz-e.z)*k;e.h+=wrap(e.th-e.h)*k;e.ty+=wrap(e.tty-e.ty)*k;e.gp+=(e.tgp-e.gp)*k;e.v=e.tv;e.w=e.tw;
- e.root.position.set(e.x,0,e.z);e.root.rotation.y=e.h;e.tur.rotation.y=e.ty;e.gunG.rotation.x=e.gp;animTracks(e,dt)};
+ e.root.position.set(e.x,H(e.x,e.z),e.z);e.root.rotation.y=e.h;e.tur.rotation.y=e.ty;e.gunG.rotation.x=e.gp;animTracks(e,dt)};
 const oSH=shoot;shoot=function(T,s){const r0=T===P?P.rl:0,ok=T===P&&P.alive&&CDN<=0;oSH(T,s);
  if(NET.on&&ok&&r0<=0&&P.rl>0)send({t:'shot',ty:P.tur.rotation.y,gp:P.gunG.rotation.x})};
 setInterval(()=>{if(!NET.on)return;if(!inHangar)NET.began=true;
