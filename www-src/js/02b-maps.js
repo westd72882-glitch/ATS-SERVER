@@ -123,13 +123,17 @@ async function buildProtokGLB(tok){
  const wcols=[],out=[],groups=new Map(),box=new THREE.Box3(),wr={};
  meshes.forEach(m=>{const a=anc(m);
   if(a=='water'){const wm=new THREE.MeshLambertMaterial({color:m.material.color?m.material.color.clone():0x3d6b78,transparent:true,opacity:.82,depthWrite:false});m.material=wm;m.castShadow=false;m.receiveShadow=false;m.renderOrder=1;out.push(m);return}
-  if(a=='terrain'){m.material=lam(m.material);m.receiveShadow=true;m.castShadow=false;out.push(m);return}
+  if(a=='terrain'){const S2=2,M=(N-1)/S2+1,pos=new Float32Array(M*M*3),uv=new Float32Array(M*M*2),ua=m.geometry.attributes.uv,id=[],fl=dz>0;
+   for(let r=0;r<M;r++)for(let c=0;c<M;c++){const o=r*M+c,ii=r*S2*N+c*S2;pos[o*3]=x0+c*S2*dx;pos[o*3+1]=HT[ii];pos[o*3+2]=z0+r*S2*dz;uv[o*2]=ua.getX(ii);uv[o*2+1]=ua.getY(ii)}
+   for(let r=0;r<M-1;r++)for(let c=0;c<M-1;c++){const a0=r*M+c,b0=a0+1,c0=a0+M,d0=c0+1;if(fl)id.push(a0,c0,b0,b0,c0,d0);else id.push(a0,b0,c0,b0,d0,c0)}
+   const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(pos,3));tg.setAttribute('uv',new THREE.BufferAttribute(uv,2));tg.setIndex(id);tg.computeVertexNormals();
+   const tm=new THREE.Mesh(tg,lam(m.material));tm.receiveShadow=true;tm.castShadow=false;out.push(tm);return}
   if(/^wreck/.test(a)){m.material=lam(m.material);m.castShadow=m.receiveShadow=true;(wr[a]=wr[a]||new THREE.Box3()).union(box.setFromObject(m));out.push(m);return}
   if(/^bridge_/.test(a)){m.material=lam(m.material);m.castShadow=m.receiveShadow=true;out.push(m);return}
   /* деревья и трава: одинаковые меши -> InstancedMesh */
   const k=m.geometry.uuid+'|'+m.material.uuid;let g=groups.get(k);if(!g)groups.set(k,g={m,list:[],tree:a=='tree'});g.list.push(m.matrixWorld.clone())});
- const IM=[];
- groups.forEach(g=>{const im=new THREE.InstancedMesh(g.m.geometry,lam(g.m.material),g.list.length);g.list.forEach((mx,i)=>im.setMatrixAt(i,mx));im.castShadow=g.tree;im.receiveShadow=false;im.frustumCulled=false;IM.push(im);
+ const IM=[],hd=typeof CFG!='undefined'&&CFG.hd,TF=hd?.45:.28,GF=hd?.6:.3;
+ groups.forEach(g=>{g.list=g.list.filter((_,i)=>((i*.6180339)%1)<(g.tree?TF:GF));if(!g.list.length)return;const im=new THREE.InstancedMesh(g.m.geometry,lam(g.m.material),g.list.length);g.list.forEach((mx,i)=>im.setMatrixAt(i,mx));im.castShadow=false;im.receiveShadow=false;im.frustumCulled=false;IM.push(im);
   if(g.tree){g.m.geometry.computeBoundingBox();const bb=g.m.geometry.boundingBox,p=new THREE.Vector3(),s=new THREE.Vector3(),q=new THREE.Quaternion();
    g.list.forEach(mx=>{mx.decompose(p,q,s);const ht=(bb.max.y-bb.min.y)*s.y,r=Math.max(.45,Math.min(1.3,ht*.035));wcols.push({x:p.x,z:p.z,r,h:p.y+ht*.85})})}});
  /* подбитые танки: круглые коллайдеры вдоль корпуса */

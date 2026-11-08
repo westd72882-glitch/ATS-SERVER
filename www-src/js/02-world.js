@@ -1,6 +1,6 @@
 /* ===== мир: плоский полигон, бетонные блоки, стены, следы попаданий ===== */
 let MAPHF=null;                                  /* карта высот (GLB-карта), null = ровная земля */
-const H=(x,z)=>MAPHF?MAPHF(x,z):0;
+const H=(x,z)=>MAPHF&&!inHangar?MAPHF(x,z):0;
 const cols=[];                                   /* круглые препятствия {x,z,r,h} */
 (function(){
  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle='#76735f';x.fillRect(0,0,256,256);

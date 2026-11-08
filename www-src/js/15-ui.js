@@ -14,27 +14,35 @@ let lastTok=null;setInterval(()=>{const s=sess(),t=s&&s.token||'';if(t===lastTok
 
 const css=document.createElement('style');css.textContent=`
 #rs,#up{position:fixed;inset:0;display:none;color:#fff;font-family:system-ui,sans-serif;overflow:hidden}
-#rs{z-index:45;background:radial-gradient(ellipse at 50% 40%,#16202bee,#070b10f5);align-items:center;justify-content:center}#rs.on{display:flex}
+#rs{z-index:45;background:radial-gradient(ellipse at 20% 0%,#16202a,#090c10 70%);flex-direction:column;box-sizing:border-box;padding:calc(env(safe-area-inset-top,0px) + 3vh) calc(env(safe-area-inset-right,0px) + 5vh) 2.6vh calc(env(safe-area-inset-left,0px) + 5vh)}
+#rs.on{display:flex;animation:rsin .4s ease-out}@keyframes rsin{from{opacity:0;transform:scale(1.015)}to{opacity:1;transform:none}}
 #rs.win{--ra:#5fcf6a}#rs.lose{--ra:#e0483a}
-#rs .pn{position:relative;width:min(122vh,94vw);background:linear-gradient(#1c2837,#121a25);box-shadow:inset 0 0 0 1px #ffffff14,0 1.4vh 4vh #000a;display:flex;flex-direction:column}
-#rs .pn:before{content:'';position:absolute;left:0;right:0;top:0;height:.9vh;background:var(--ra)}
-#rs .hd2{display:flex;align-items:stretch;height:24vh;margin-top:.9vh;background:linear-gradient(105deg,#0c141d90,#0c141d22 55%,#0c141d70)}
-#rs .tkimg{flex:none;width:40vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(#2b3d52,#17222f);box-shadow:inset -1px 0 0 #ffffff14}
-#rs .tkimg img{max-width:92%;max-height:92%;object-fit:contain;filter:drop-shadow(0 .6vh .8vh #000a)}
-#rs .ti{flex:1;padding:2.4vh 3.4vh;display:flex;flex-direction:column;justify-content:center;min-width:0}
-#rs .ti small{font:600 2vh system-ui;letter-spacing:.3vh;color:#8d9aa6;text-transform:uppercase}
-#rs .ti h1{margin:.4vh 0 .8vh;font:900 9.6vh/1 system-ui;letter-spacing:.2vh;color:var(--ra);text-transform:uppercase;text-shadow:0 .4vh 1.4vh #0008}
-#rs .ti p{margin:0;font:500 2.4vh system-ui;color:#cfd8df}
-#rs .ti .tn2{margin-top:1.2vh;font:700 2.6vh system-ui;color:#fff}#rs .ti .tn2 i{font-style:normal;color:#f0961c;margin-right:1vh}
-#rs .sts{display:flex;gap:.6vh;padding:.6vh}
-#rs .sc{position:relative;flex:1;padding:2.2vh 2.4vh 3vh;background:linear-gradient(#1c2837,#121a25);box-shadow:inset 0 0 0 1px #ffffff10}
-#rs .sc:after{content:'';position:absolute;left:0;right:0;bottom:0;height:.7vh;background:#f0961c}
-#rs .sc span.l{display:flex;align-items:center;gap:1vh;font:700 2vh system-ui;letter-spacing:.2vh;color:#aab6c0;text-transform:uppercase}
-#rs .sc span.l svg{width:3.2vh;height:3.2vh;flex:none}
-#rs .sc b{display:flex;align-items:center;gap:1vh;margin-top:1.2vh;font:800 6.4vh/1 system-ui;color:#fff;font-variant-numeric:tabular-nums}#rs .sc b svg{width:5vh;height:5vh}
-#rs .ft{display:flex;align-items:center;justify-content:space-between;padding:1.4vh 3vh 2.4vh;gap:3vh}
-#rs .ft .inf{display:flex;gap:5vh}#rs .inf b{display:block;font:700 2.6vh system-ui;color:#e8edf0}#rs .inf span{font:500 2vh system-ui;color:#8d9aa6}
-#rs .hb{all:unset;box-sizing:border-box;position:relative;min-width:28.7vh;height:8.7vh;display:flex;align-items:center;justify-content:center;border-radius:.4vh;background:linear-gradient(#f2704a,#d9482a);border:.25vh solid #ffb09a88;color:#fff;font:800 4vh system-ui;letter-spacing:.06em;text-shadow:0 .2vh .5vh #7a1f0a;box-shadow:0 .6vh 1.8vh #0009;cursor:pointer}
+#rs .top{display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:2vh;border-bottom:.2vh solid #ffffff1f;position:relative}
+#rs .top:after{content:'';position:absolute;left:0;bottom:-.2vh;width:16vh;height:.5vh;background:var(--ra)}
+#rs h1{margin:0;font:800 8.4vh/1 system-ui;letter-spacing:.6vh;color:var(--ra);text-transform:uppercase}
+#rs .sub{margin-top:1.1vh;font:600 1.9vh system-ui;color:#8794a0;letter-spacing:.25vh;text-transform:uppercase}
+#rs .who{display:flex;align-items:center;gap:2.2vh;text-align:right}
+#rs .who img{height:9.5vh;max-width:20vh;object-fit:contain;filter:drop-shadow(0 .5vh .7vh #0008)}
+#rs .who b{display:block;font:700 2.8vh system-ui}#rs .who span{font:500 1.9vh system-ui;color:#8794a0;letter-spacing:.15vh}
+#rs .main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1.2fr;gap:6vh;padding-top:2.6vh}
+#rs .cl{display:flex;flex-direction:column;min-height:0}
+#rs .lb{font:700 1.7vh system-ui;letter-spacing:.4vh;color:#6b7884;text-transform:uppercase;margin-bottom:1.4vh}
+#rs .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4vh 2.4vh}
+#rs .kp b{display:block;font:700 5.2vh/1 system-ui;font-variant-numeric:tabular-nums}
+#rs .kp span{display:block;margin-top:.6vh;font:500 1.7vh system-ui;color:#8794a0}
+#rs .rw{display:flex;justify-content:space-between;align-items:baseline;padding:1vh 0;border-bottom:.15vh solid #ffffff14;font:500 2.1vh system-ui;color:#c4cfd8}
+#rs .rw b{font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+#rs .rw.tot{font-size:2.5vh;color:#fff}#rs .rw.tot b{color:var(--ra)}
+#rs .tb{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+#rs table{width:100%;border-collapse:collapse;font:500 2vh system-ui;color:#c4cfd8}
+#rs th{padding:0 0 1vh;text-align:right;font:700 1.5vh system-ui;letter-spacing:.3vh;color:#6b7884;text-transform:uppercase}
+#rs td{padding:.85vh 0;text-align:right;border-bottom:.15vh solid #ffffff10;font-variant-numeric:tabular-nums}
+#rs td:first-child,#rs th:first-child{text-align:left}#rs td:nth-child(2){text-align:left;color:#8794a0;padding-left:2vh}#rs th:nth-child(2){text-align:left;padding-left:2vh}
+#rs tr.sep td{padding:1.6vh 0 .8vh;font:700 1.5vh system-ui;letter-spacing:.35vh;color:#6b7884;text-transform:uppercase;border-bottom:.2vh solid #ffffff22;text-align:left}
+#rs tr.me td{color:var(--ra);font-weight:700}#rs tr.dead td{opacity:.42}
+#rs .ft{display:flex;justify-content:flex-end;align-items:center;gap:3vh;padding-top:1.8vh}
+#rs .ft small{margin-right:auto;font:500 1.7vh system-ui;color:#6b7884}
+#rs .hb{all:unset;box-sizing:border-box;cursor:pointer;height:7vh;padding:0 7vh;display:flex;align-items:center;background:var(--ra);color:#0a0d10;font:800 2.5vh system-ui;letter-spacing:.5vh;border-radius:.6vh}
 #rs .hb:active{filter:brightness(.88);transform:translateY(.15vh)}
 /* улучшения */
 #up{z-index:46;background:#0d0f10 radial-gradient(ellipse at 50% 60%,#2b2a24,#0b0c0c)}#up.on{display:block}
@@ -85,26 +93,49 @@ const MED=[
  ['Разрушитель',k=>k.kills>=3,'#d28a52','M20 40l8-8 4 4 8-10 M20 22l24 20 M44 22L20 42'],
  ['Мастер',k=>k.dmg>=3000,'#b6bcc4','M32 14l4 10h10l-8 6 3 10-9-6-9 6 3-10-8-6h10z']];
 function medal(m){return`<svg viewBox="0 0 64 64"><defs><linearGradient id="mg${m[0].length}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${m[2]}"/></linearGradient></defs><circle cx="32" cy="32" r="27" fill="#2b2f2a" stroke="url(#mg${m[0].length})" stroke-width="3.500"/><path d="M10 38c-2-12 4-22 14-26M54 38c2-12-4-22-14-26" fill="none" stroke="${m[2]}" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3"/><path d="${m[3]}" fill="${m[2]}" stroke="#111" stroke-width="1.500" stroke-linejoin="round"/></svg>`}
+/* ---------- статистика боя ---------- */
+const BS0=()=>({shots:0,hits:0,pens:0,np:0,taken:0,time:0});let BS=BS0();
+{const o=respawnPlayer;respawnPlayer=function(){BS=BS0();ALL.forEach(t=>{t.sd=0;t.sk=0});return o.apply(this,arguments)}}
+{const o=shoot;shoot=function(T,sp){const can=T===P&&P.alive&&T.rl<=0&&!(CDN>0);o(T,sp);if(can&&T.rl>0)BS.shots++}}
+{const o=impact;impact=function(s,h){const tk=h.k=='tank'?h.T:null,hp0=tk?tk.hp:0,d0=DMG;o(s,h);
+ if(tk){const dd=hp0-tk.hp;if(dd>0&&s.o)s.o.sd=(s.o.sd||0)+dd;
+  if(s.o===P&&tk.team!==P.team){BS.hits++;if(DMG>d0)BS.pens++;else BS.np++}
+  if(tk===P&&s.o&&s.o!==P&&dd>0)BS.taken+=dd}}}
+{const o=kill;kill=function(T,by){if(by&&by!==T)by.sk=(by.sk||0)+1;return o(T,by)}}
+{const o=updatePlayer;updatePlayer=function(dt){if(!paused&&!inHangar)BS.time+=dt;return o(dt)}}
+/* ---------- экран итогов боя (на весь экран) ---------- */
 const rs=document.createElement('div');rs.id='rs';
-rs.innerHTML=`<div class="pn"><div class="hd2"><div class="tkimg"><img id="rs_img" alt=""></div><div class="ti"><small>Результаты боя · <span id="rs_n" style="font:inherit;color:inherit"></span></small><h1 id="rs_t"></h1><p id="rs_s"></p><div class="tn2"><i id="rs_tr"></i><span id="rs_tn" style="font:inherit;color:inherit"></span> <span id="rs_ts" style="font:500 2vh system-ui;color:#8d9aa6;margin-left:1vh"></span></div></div></div>
-<div class="sts"><div class="sc"><span class="l"><svg><use href="#i-shell"/></svg>Нанесено урона</span><b id="rs_d"></b></div><div class="sc"><span class="l"><svg><use href="#i-boom"/></svg>Уничтожено</span><b id="rs_k"></b></div><div class="sc"><span class="l"><svg><use href="#c-silv"/></svg>Кредиты</span><b><span id="rs_ct" style="font:inherit;color:inherit"></span><svg><use href="#c-silv"/></svg></b></div></div>
-<div class="ft"><div class="inf"><div><b id="rs_map"></b><span>Карта</span></div><div><b id="rs_dt"></b><span id="rs_tm"></span></div></div><button class="hb" id="rs_h">В АНГАР</button></div></div>`;
+rs.innerHTML=`<div class="top"><div><h1 id="rs_t"></h1><div class="sub" id="rs_s"></div><div class="sub"><span id="rs_map"></span> · <span id="rs_dt"></span> <span id="rs_tm"></span> · <span id="rs_du"></span></div></div><div class="who"><div><b id="rs_tn"></b><span><span id="rs_tr"></span> · <span id="rs_ts"></span></span></div><img id="rs_img" alt=""></div></div>
+<div class="main"><div class="cl"><div class="lb">Результативность</div><div class="kp"><div><b id="rs_d">0</b><span>Нанесено урона</span></div><div><b id="rs_k">0</b><span>Уничтожено</span></div><div><b id="rs_acc">—</b><span>Точность</span></div><div><b id="rs_pn">—</b><span>Пробитий</span></div><div><b id="rs_np">—</b><span>Не пробито</span></div><div><b id="rs_tk">0</b><span>Получено урона</span></div></div>
+<div class="lb" style="margin-top:3.2vh">Награда</div><div id="rs_rw"></div></div>
+<div class="cl"><div class="lb">Таблица боя</div><div class="tb" id="rs_tb"></div></div></div>
+<div class="ft"><small id="rs_nk"></small><button class="hb" id="rs_h">В АНГАР</button></div>`;
 document.body.appendChild(rs);
-const p2=n=>String(n).padStart(2,'0');
+const p2=n=>String(n).padStart(2,'0'),esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const oEnd=window.endBattle;
 if(typeof oEnd=='function')window.endBattle=function(win){
- if(BEND||inHangar)return;const sn=JSON.stringify(ECO),cr0=ECO.cr,xp0=ECO.xp||0,alive=!!(P&&P.alive),dmg=DMG,kl=kills;oEnd(win);
+ if(BEND||inHangar)return;const sn=JSON.stringify(ECO),cr0=ECO.cr,xp0=ECO.xp||0,alive=!!(P&&P.alive),dmg=DMG,kl=kills,bs=Object.assign({},BS),net=!!(window.NET&&NET.on);
+ const s=(()=>{try{return JSON.parse(localStorage.getItem('maus_session'))}catch(_){return null}})(),nick=s&&s.nick||'Игрок';
+ const rows=[P].concat(ENEMIES).filter((t,i,a)=>t&&a.indexOf(t)==i).map(t=>({me:t===P,team:t.team,n:t===P?nick:(t.name||'Бот'),tk:(t.cat&&t.cat.name)||'',d:Math.round(t===P?dmg:(t.sd||0)),k:t===P?kl:(t.sk||0),a:!!t.alive}));
+ oEnd(win);
  const r0=$('res');if(r0){r0.style.display='none';r0.classList.remove('on')}
- const cr=ECO.cr-cr0,xp=(ECO.xp||0)-xp0,cat=P&&P.cat||{},now=new Date(),s=(()=>{try{return JSON.parse(localStorage.getItem('maus_session'))}catch(_){return null}})();
- rs.className='on '+(win?'win':'lose');$('rs_n').textContent=s&&s.nick||'Игрок';
- $('rs_t').textContent=win?'Победа!':'Поражение';$('rs_s').textContent=win?'Вся техника противника уничтожена':'Вся ваша техника уничтожена';
- $('rs_d').textContent=F(dmg);$('rs_ct').textContent=F(cr);$('rs_k').textContent=kl;
- const mp=(typeof MAPS!='undefined'&&MAPS.find(m=>m.id==curMap))||{name:'Полигон'};$('rs_map').textContent=mp.name;
+ const cr=ECO.cr-cr0,xp=(ECO.xp||0)-xp0,cat=P&&P.cat||{},now=new Date();
+ rs.className='on '+(win?'win':'lose');
+ $('rs_t').textContent=win?'Победа':'Поражение';$('rs_s').textContent=win?'Вся техника противника уничтожена':'Вся ваша техника уничтожена';
+ $('rs_d').textContent=F(dmg);$('rs_k').textContent=kl;$('rs_tk').textContent=F(Math.round(bs.taken));
+ $('rs_acc').textContent=bs.shots?Math.round(Math.min(1,bs.hits/bs.shots)*100)+'%':'—';
+ $('rs_pn').textContent=net?'—':bs.pens;$('rs_np').textContent=net?'—':bs.np;
+ const mp=(typeof MAPS!='undefined'&&MAPS.find(m=>m.id==curMap))||{name:'Полигон'},ss=Math.round(bs.time);
+ $('rs_map').textContent=mp.name;$('rs_dt').textContent=p2(now.getDate())+'.'+p2(now.getMonth()+1)+'.'+now.getFullYear();$('rs_tm').textContent=p2(now.getHours())+':'+p2(now.getMinutes());
+ $('rs_du').textContent='Бой '+p2(Math.floor(ss/60))+':'+p2(ss%60);$('rs_nk').textContent=nick;
  $('rs_tr').textContent=ROM[cat.tier||P&&P.tier||1];{const im=$('rs_img');im.src=(typeof ICONS!='undefined'&&ICONS[cat.id])||'';im.style.visibility=im.getAttribute('src')?'visible':'hidden'}$('rs_tn').textContent=cat.name||'Maus';$('rs_ts').textContent=alive?'Выжил':'Уничтожен';
- $('rs_dt').textContent=p2(now.getDate())+'.'+p2(now.getMonth()+1)+'.'+now.getFullYear();$('rs_tm').textContent=p2(now.getHours())+':'+p2(now.getMinutes())+':'+p2(now.getSeconds());
+ const rw=(a,b,c)=>'<div class="rw'+(c?' tot':'')+'"><span>'+a+'</span><b>'+b+'</b></div>';
+ $('rs_rw').innerHTML=(net?'':rw('За нанесённый урон','+'+F(Math.round(dmg*1.2)))+rw('За уничтожение техники','+'+F(kl*1000))+rw(win?'За победу':'За участие','+'+F(win?6000:1500)))+rw('Кредиты','<span id="rs_ct">'+F(cr)+'</span>',1)+rw('Опыт','<span id="rs_xp">'+F(xp)+'</span>');
+ const team=(t,title)=>{const L=rows.filter(r=>(r.team===P.team)==t).sort((a,b)=>b.d-a.d);return L.length?'<tr class="sep"><td colspan="4">'+title+'</td></tr>'+L.map(r=>'<tr class="'+(r.me?'me ':'')+(r.a?'':'dead')+'"><td>'+esc(r.n)+'</td><td>'+esc(r.tk)+'</td><td>'+F(r.d)+'</td><td>'+r.k+'</td></tr>').join(''):''};
+ $('rs_tb').innerHTML='<table><tr><th>Игрок</th><th>Танк</th><th>Урон</th><th>Уничт.</th></tr>'+team(true,'Ваша команда')+team(false,'Противник')+'</table>';
  if(ONL()){const o=JSON.parse(sn);Object.keys(ECO).forEach(k=>delete ECO[k]);Object.assign(ECO,o);hCredits();   /* онлайн: награду и исход считает сервер */
-  const show=r=>{applyEco(r.eco);window.SRV_STATS=r.stats;const R=r.reward||{};$('rs_t').textContent=r.win===undefined?$('rs_t').textContent:(r.win?'Победа!':'Поражение');
-   rs.className='on '+((r.win===undefined?win:r.win)?'win':'lose');$('rs_ct').textContent=F(R.cr||0);
+  const show=r=>{applyEco(r.eco);window.SRV_STATS=r.stats;const R=r.reward||{};$('rs_t').textContent=r.win===undefined?$('rs_t').textContent:(r.win?'Победа':'Поражение');
+   rs.className='on '+((r.win===undefined?win:r.win)?'win':'lose');$('rs_ct').textContent=F(R.cr||0);if(R.xp!=null)$('rs_xp').textContent=F(R.xp);
    $('rs_d').textContent=F(r.dmg!=null?r.dmg:dmg);$('rs_k').textContent=r.kills!=null?r.kills:kl},fail=()=>tst('Нет связи с сервером: награда не начислена');
   if(window.NET&&NET.on){let n=0;const w=()=>{if(NET.res){const r=NET.res;if(r.err)return fail();show(r);return}if(++n>40)return fail();setTimeout(w,250)};w()}
   else if(window.BT){const t=window.BT;window.BT=null;window.mausCall('battle/end',{ticket:t,win:!!win,dmg,kills:kl,map:mp.id||''}).then(show).catch(e=>tst(e.message||'Нет связи с сервером'))}

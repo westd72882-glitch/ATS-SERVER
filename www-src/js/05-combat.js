@@ -58,7 +58,7 @@ function impact(s,h){
   if(T===P){hitArc(s.o,true);$('dmg').style.opacity=1;S.shake=.7;const q=toScreen(p);popup('-'+dmg,innerWidth/2-20,innerHeight*.62,true)}
   else if(s.o===P){const q=toScreen(p);popup('-'+dmg,q.x,q.y);$('ret').animate([{transform:$('ret').style.transform+' scale(1.7)'},{transform:$('ret').style.transform+' scale(1)'}],160)}
   if(T.hp<=0)kill(T,s.o)}
- else{const n=h.k=='ground'?V3(0,1,0):V3(-s.v.x,0,-s.v.z).normalize();if(h.k=='ground')p.y=0;worldDecal(p,n,.2+Math.random()*.12);boom(p,true)}}
+ else{const n=h.k=='ground'?V3(0,1,0):V3(-s.v.x,0,-s.v.z).normalize();if(h.k=='ground')p.y=H(p.x,p.z);worldDecal(p,n,.2+Math.random()*.12);boom(p,true)}}
 /* ===== сбитая гусеница: попадание в нижнюю часть борта у носа или кормы; 7 с ремонта, танк не едет и не поворачивает =====
    Новых моделей нет: сама гусеница чуть «раскручивается» вперёд/назад, расходится наружу и провисает у места попадания */
 const TRK_T=7,_tm4=new THREE.Matrix4(),_tw=new THREE.Matrix4(),_tb=new THREE.Box3(),_tv=new THREE.Vector3(),_te=new THREE.Euler();
