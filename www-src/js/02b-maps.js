@@ -127,12 +127,12 @@ async function buildProtokGLB(tok){
    for(let r=0;r<M;r++)for(let c=0;c<M;c++){const o=r*M+c,ii=r*S2*N+c*S2;pos[o*3]=x0+c*S2*dx;pos[o*3+1]=HT[ii];pos[o*3+2]=z0+r*S2*dz;uv[o*2]=ua.getX(ii);uv[o*2+1]=ua.getY(ii)}
    for(let r=0;r<M-1;r++)for(let c=0;c<M-1;c++){const a0=r*M+c,b0=a0+1,c0=a0+M,d0=c0+1;if(fl)id.push(a0,c0,b0,b0,c0,d0);else id.push(a0,b0,c0,b0,d0,c0)}
    const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(pos,3));tg.setAttribute('uv',new THREE.BufferAttribute(uv,2));tg.setIndex(id);tg.computeVertexNormals();
-   const tm=new THREE.Mesh(tg,lam(m.material));tm.receiveShadow=true;tm.castShadow=false;out.push(tm);return}
+   const tmt=lam(m.material);tmt.color.set(0x587a45);if(tmt.map){tmt.map.wrapS=tmt.map.wrapT=THREE.RepeatWrapping;tmt.map.needsUpdate=true}else tmt.map=mapTex(256,256,(x,w,h)=>{x.fillStyle='#3f5a2a';x.fillRect(0,0,w,h);speck(x,w,h,3000,['#364f24','#48642f','#2f4620'],2)},[60,60]);const tm=new THREE.Mesh(tg,tmt);tm.receiveShadow=true;tm.castShadow=false;out.push(tm);return}
   if(/^wreck/.test(a)){m.material=lam(m.material);m.castShadow=m.receiveShadow=true;(wr[a]=wr[a]||new THREE.Box3()).union(box.setFromObject(m));out.push(m);return}
-  if(/^bridge_/.test(a)){m.material=lam(m.material);m.castShadow=m.receiveShadow=true;out.push(m);return}
+  if(/^bridge_/.test(a)){const bm=lam(m.material).clone(),off={bridge_concrete:1,bridge_asphalt:3,bridge_steel:2}[a]||0;if(off){bm.polygonOffset=true;bm.polygonOffsetFactor=bm.polygonOffsetUnits=-off}m.material=bm;m.castShadow=m.receiveShadow=true;out.push(m);return}
   /* деревья и трава: одинаковые меши -> InstancedMesh */
   const k=m.geometry.uuid+'|'+m.material.uuid;let g=groups.get(k);if(!g)groups.set(k,g={m,list:[],tree:a=='tree'});g.list.push(m.matrixWorld.clone())});
- const IM=[],hd=typeof CFG!='undefined'&&CFG.hd,TF=hd?.45:.28,GF=hd?.6:.3;
+ const IM=[],hd=typeof CFG!='undefined'&&CFG.hd,TF=hd?.45:.28,GF=hd?.8:.5;
  groups.forEach(g=>{g.list=g.list.filter((_,i)=>((i*.6180339)%1)<(g.tree?TF:GF));if(!g.list.length)return;const im=new THREE.InstancedMesh(g.m.geometry,lam(g.m.material),g.list.length);g.list.forEach((mx,i)=>im.setMatrixAt(i,mx));im.castShadow=false;im.receiveShadow=false;im.frustumCulled=false;IM.push(im);
   if(g.tree){g.m.geometry.computeBoundingBox();const bb=g.m.geometry.boundingBox,p=new THREE.Vector3(),s=new THREE.Vector3(),q=new THREE.Quaternion();
    g.list.forEach(mx=>{mx.decompose(p,q,s);const ht=(bb.max.y-bb.min.y)*s.y,r=Math.max(.45,Math.min(1.3,ht*.035));wcols.push({x:p.x,z:p.z,r,h:p.y+ht*.85})})}});
