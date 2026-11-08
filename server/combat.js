@@ -1,7 +1,7 @@
 // Серверный бой (авторитетный): позиции, перезарядка, выстрелы, броня/пробитие, урон, смерти, итог боя и награды считает ТОЛЬКО сервер.
 // Клиент шлёт лишь ввод: положение (st), выстрел (shot: углы башни/орудия), выход (leave).
 const crypto=require('crypto'),{WebSocketServer}=require('ws'),TANKS=require('./tanks.json');
-const ARENA=196,SPREAD=+process.env.SPREAD||.005,MAXT=15*60e3,SPAWNWAIT=90e3,TRK=7000,MAPS=['poly','meadow','himmel'];
+const ARENA=196,SPREAD=+process.env.SPREAD||.005,MAXT=15*60e3,SPAWNWAIT=90e3,TRK=7000,MAPS=['poly','meadow','protok'];
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),num=v=>Number.isFinite(+v)?+v:0;
 const box=t=>({hx:t.len*.2,hz:t.len/2,y0:0,y1:Math.max(2.2,t.len*.31)});
 module.exports=function(server,{VERSION,authToken,ownedTank,onEnd}){

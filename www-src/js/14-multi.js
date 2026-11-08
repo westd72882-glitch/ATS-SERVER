@@ -17,7 +17,7 @@ const st=document.createElement('style');st.textContent=`
 const bp=document.createElement('div');bp.id='bp';bp.innerHTML=`<div class="bx"><h2><span>Выбор боя</span><b id="bpx">×</b></h2>
 <div class="row" id="bpt"><button data-k="mp" class="sel">Мультиплеер</button><button data-k="bot">С ботами</button></div>
 <div class="lb">Режим</div><div class="row" id="bpm"><button data-n="1" class="sel">1 на 1</button><button data-n="5">5 на 5</button><button data-n="10">10 на 10</button></div>
-<div class="lb">Карта</div><div class="row" id="bpmap"><button data-m="poly" class="sel">Полигон</button><button data-m="meadow">Луга и поля</button><button data-m="himmel">Химмельсдорф</button></div>
+<div class="lb">Карта</div><div class="row" id="bpmap"><button data-m="poly" class="sel">Полигон</button><button data-m="meadow">Луга и поля</button><button data-m="protok">Проток</button></div>
 <div class="inf" id="bpi"></div><button class="go" id="bpg">В БОЙ!</button></div>`;document.body.appendChild(bp);
 let kind='mp',mode=1,queued=false;
 const G=()=>{try{return !!JSON.parse(localStorage.getItem('maus_session')).guest}catch(_){return false}};
