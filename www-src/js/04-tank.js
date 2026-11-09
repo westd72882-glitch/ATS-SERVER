@@ -1,6 +1,20 @@
 /* ===== танк: загрузка GLB (текстуры внутри) и сборка экземпляров ===== */
 let ITEMS=null;const BOX={cx:0,cz:0,hx:1.9,hz:5,y0:0,y1:3};      /* габариты корпуса, уточняются после загрузки */
-const getGlb=id=>fetch('models/'+id+'.glb').then(r=>{if(!r.ok)throw new Error('models/'+id+'.glb: '+r.status);return r.arrayBuffer()});
+/* Модели: хранятся на устройстве ЗАШИФРОВАННЫМИ (IndexedDB), ключи выдаёт сервер по токену сессии; расшифровка в памяти при загрузке танка */
+const GLB_SES=()=>{try{return JSON.parse(localStorage.getItem('maus_session'))}catch(_){return null}};
+const GLB_H=()=>{const s=GLB_SES();if(!(window.API_URL&&s&&s.token&&!s.guest))throw new Error('Нужен вход в аккаунт');return{Authorization:'Bearer '+s.token,'X-App-Version':window.APP_VERSION||'0'}};
+const GLB_DB=()=>GLB_DB.p||(GLB_DB.p=new Promise((ok,bad)=>{const r=indexedDB.open('ats_assets',1);r.onupgradeneeded=()=>r.result.createObjectStore('m');r.onsuccess=()=>ok(r.result);r.onerror=()=>bad(r.error)}));
+const GLB_IDB=(mode,fn)=>GLB_DB().then(d=>new Promise((ok,bad)=>{const t=d.transaction('m',mode),q=fn(t.objectStore('m'));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>bad(t.error);t.onabort=()=>bad(t.error)}));
+let GLB_A=null;const GLB_DL={};
+const glbAssets=()=>GLB_A||(GLB_A=fetch(window.API_URL+'/api/assets',{headers:GLB_H()}).then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||('assets: '+r.status));return j})).catch(e=>{GLB_A=null;throw e}));
+const glbBlob=(id,m)=>GLB_DL[id]||(GLB_DL[id]=(async()=>{let rec=null;try{rec=await GLB_IDB('readonly',s=>s.get(id))}catch(_){}
+ if(rec&&rec.h===m.h&&rec.b&&rec.b.byteLength===m.s+16)return rec.b;
+ const r=await fetch(window.API_URL+'/api/model/'+id,{headers:GLB_H()});if(!r.ok)throw new Error('model '+id+': '+r.status);
+ const b=await r.arrayBuffer();if(b.byteLength!==m.s+16)throw new Error('model '+id+': повреждена загрузка');
+ try{await GLB_IDB('readwrite',s=>s.put({h:m.h,b},id))}catch(_){}return b})().finally(()=>{delete GLB_DL[id]}));
+const getGlb=async id=>{if(window.ATS_LOCAL){const r=await fetch('models/'+id+'.glb');if(!r.ok)throw new Error('model '+id+': '+r.status);return r.arrayBuffer()}const A=await glbAssets(),m=A.m[id],k=A.k[id];if(!m||!k)throw new Error('model '+id+': нет в манифесте');
+ const b=await glbBlob(id,m),key=await crypto.subtle.importKey('raw',new Uint8Array(k.match(/../g).map(x=>parseInt(x,16))),'AES-CTR',false,['decrypt']);
+ return crypto.subtle.decrypt({name:'AES-CTR',counter:new Uint8Array(b,0,16),length:64},key,new Uint8Array(b,16))};
 function loadModel(){
  return getGlb('maus').then(buf=>new Promise((ok,bad)=>new THREE.GLTFLoader().parse(buf,'',g=>{g.scene.updateMatrixWorld(true);const items=[];
   g.scene.traverse(o=>{if(!o.isMesh)return;const gm=o.geometry.clone();gm.applyMatrix4(o.matrixWorld);gm.computeBoundingBox();items.push({g:gm,bb:gm.boundingBox,n:gm.attributes.position.count,mat:o.material})});
@@ -39,8 +53,7 @@ const MODELS={},CATALOG=[
  {id:'bt7',kmh:68,tier:3,len:5.7,name:'БТ-7',nat:'СССР',hp:480,dmg:75,pen:70,rel:2.8,price:12000,cls:'ЛТ',arm:[22,15,15,20,15],raw:{gun:/^Object_6$/,tur:/^Object_2$/,gp:.1}},
  {id:'kv1',kmh:35,tier:5,len:6.8,name:'КВ-1',nat:'СССР',hp:1000,dmg:140,pen:110,rel:4.0,price:120000,cls:'ТТ',arm:[75,75,70,75,75],raw:{gun:/^Object_2$/,tur:/^Object_3$/,gp:.1}},
  {id:'kv2',kmh:25,tier:6,len:6.8,name:'КВ-2',nat:'СССР',hp:1300,dmg:520,pen:120,rel:11,price:200000,cls:'ТТ',arm:[75,75,70,75,75],raw:{gun:/^Object_2$/,tur:/^Object_7$/,gp:.1}},
- {id:'is6',kmh:35,tier:8,len:8.6,name:'ИС-6',nat:'СССР',hp:1500,dmg:330,pen:215,rel:4.4,price:350000,cls:'ТТ',arm:[150,100,70,220,40],raw:{gun:/^gun_0Shape1_group_0/,tur:/^vertices_group_0_1(_|$)/,flip:1,off:[0,.0163],gp:.05}},
- {id:'govnotank',kmh:35,tier:8,len:10.6,name:'GOVNOTANK AERO',nat:'Европа',hp:1550,dmg:330,pen:215,rel:4.3,price:0,gold:1000,cls:'ТТ',arm:[150,100,70,220,40],raw:{gun:/Gun/,tur:/Turret|Cupola/,pg:[-.214,1.835,1.5],pt:[-.214,.256],trk:{x:1.3,yt:.96,yb:-.05,F:3.38,B:-3.4,w:.64,th:.15,pl:.155,n:89}}}];
+ {id:'is6',kmh:35,tier:8,len:8.6,name:'ИС-6',nat:'СССР',hp:1500,dmg:330,pen:215,rel:4.4,price:350000,cls:'ТТ',arm:[150,100,70,220,40],raw:{gun:/^gun_0Shape1_group_0/,tur:/^vertices_group_0_1(_|$)/,flip:1,off:[0,.0163],gp:.05}}];
 /* «сырые» модели (без узлов Hull>Turret>Gun): разбираем меши по именам, запекаем в мировые координаты и собираем нужную иерархию */
 /* колёса, вшитые в общий меш (AMX 40, O-Ho, O-I): делим меш на несвязные острова, круглые и тонкие по X — отдельные колёса */
 function splitWheels(g,mn){const pos=g.attributes.position,n=pos.count,ix=g.index?g.index.array:null,tn=(ix?ix.length:n)/3|0,vid=new Int32Array(n),mp=new Map();
@@ -121,7 +134,7 @@ function setPlayer(id){if(P){const i=ALL.indexOf(P);if(i>=0)ALL.splice(i,1);disp
  document.querySelectorAll('.hc').forEach(b=>b.classList.toggle('sel',b.dataset.id==id))}
 const ROM=['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
 const FLG={'Германия':'de','СССР':'su','Франция':'fr','Япония':'jp','Великобритания':'gb','США':'us','Китай':'cn','Европа':'eu'},KLS={'ТТ':'tt','СТ':'st','ЛТ':'lt','ПТ':'td'};
-function buildHangar(){const h=$('hangar');h.innerHTML='';CATALOG.slice().sort((a,b)=>a.tier-b.tier||(a.nat=='СССР')-(b.nat=='СССР')||a.name.localeCompare(b.name)).filter(c=>ECO.own.includes(c.id)).forEach(c=>{const b=document.createElement('button');b.className='hc'+(c.nat!='СССР'?' prem':'');b.dataset.id=c.id;b.innerHTML=`<i class="fl"><svg viewBox="0 0 60 30" preserveAspectRatio="none"><use href="#f-${FLG[c.nat]||'su'}"/></svg></i><u><svg><use href="#k-${KLS[c.cls]||'tt'}"/></svg>${ROM[c.tier]}</u><b>${c.name}</b>`;b.onclick=()=>setPlayer(c.id);h.appendChild(b)});if(typeof addIcons=='function')addIcons();if(P)document.querySelectorAll('.hc').forEach(b=>b.classList.toggle('sel',b.dataset.id==P.cat.id))}
+function buildHangar(){const h=$('hangar');h.innerHTML='';CATALOG.slice().sort((a,b)=>a.tier-b.tier||(a.nat=='СССР')-(b.nat=='СССР')||a.name.localeCompare(b.name)).filter(c=>ECO.own.includes(c.id)).forEach(c=>{const b=document.createElement('button');b.className='hc'+(c.nat!='СССР'?' prem':'');b.dataset.id=c.id;b.dataset.cls=c.cls;b.innerHTML=`<i class="fl"><svg viewBox="0 0 60 30" preserveAspectRatio="none"><use href="#f-${FLG[c.nat]||'su'}"/></svg></i><u><svg><use href="#k-${KLS[c.cls]||'tt'}"/></svg>${ROM[c.tier]}</u><b>${c.name}</b>`;b.onclick=()=>setPlayer(c.id);h.appendChild(b)});if(typeof addIcons=='function')addIcons();if(typeof applyHF=='function')applyHF();if(P)document.querySelectorAll('.hc').forEach(b=>b.classList.toggle('sel',b.dataset.id==P.cat.id))}
 function disposeTank(T){T.root.parent&&T.root.parent.remove(T.root);T.root.traverse(o=>{if(T.ownGeo&&o.geometry)o.geometry.dispose();if(o.isInstancedMesh)o.dispose()});
  T.own.forEach(x=>x.dispose&&x.dispose());T.own.length=0;if(T.flare)T.flare.material.dispose();T.decals.length=0;if(T.tag){T.tag.remove();T.tag=null}}
 function clearEnemies(){ENEMIES.splice(0).forEach(e=>{const i=ALL.indexOf(e);if(i>=0)ALL.splice(i,1);disposeTank(e)})}

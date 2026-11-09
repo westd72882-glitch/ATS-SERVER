@@ -29,7 +29,7 @@ $('af').onsubmit=async ev=>{ev.preventDefault();er();const nick=$('a_nick').valu
  try{
   if(mode=='in'){if(!nick||!pass)throw new Error('Введите ник и пароль');done(await api('login',{login:nick,password:pass}));return}
   if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(nick))throw new Error('Ник: 3–16 символов, буквы, цифры, _ и -');
-  if(!$('a_ag').checked)throw new Error('Примите пользовательское соглашение');try{localStorage.setItem('maus_eula','7.11.2026')}catch(_){}
+  /* согласие принимается самим фактом регистрации (текст внизу экрана) */try{localStorage.setItem('maus_eula','7.11.2026')}catch(_){}
   if(pass.length<6)throw new Error('Пароль минимум 6 символов');if(pass!==$('a_pass2').value)throw new Error('Пароли не совпадают');
   done(await api('register',{nick,password:pass}));
  }catch(e){er(e.message||'Ошибка сети')}finally{$('a_go').disabled=false}};

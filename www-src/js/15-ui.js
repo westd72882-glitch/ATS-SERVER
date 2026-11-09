@@ -14,42 +14,36 @@ let lastTok=null;setInterval(()=>{const s=sess(),t=s&&s.token||'';if(t===lastTok
 
 const css=document.createElement('style');css.textContent=`
 #rs,#up{position:fixed;inset:0;display:none;color:#fff;font-family:system-ui,sans-serif;overflow:hidden}
-#rs{z-index:45;background:#2a2a24 radial-gradient(ellipse at 50% 60%,#4a4a40,#16160f)}#rs.on{display:block}
-#rs .tb{position:absolute;left:0;right:0;top:0;height:12.4vh;background:#050505;display:flex;align-items:center}
-#rs .hb{width:12.4vh;height:12.4vh;margin:0 1.4vh 0 calc(env(safe-area-inset-left,0px) + 1vh);background:#2b2b2b;border:0;display:flex;align-items:center;justify-content:center}
-#rs .hb svg{width:6vh;height:6vh;fill:none;stroke:#cfd3d6;stroke-width:2.2}
-#rs .tt small{display:block;font:800 3.2vh Impact,'Arial Narrow',system-ui;letter-spacing:.2vh}#rs .tt b{font:700 4.6vh Impact,'Arial Narrow',system-ui;color:#d8d8d0;letter-spacing:.2vh}
-#rs .tabs{margin-left:auto;display:flex;height:100%;padding-right:calc(env(safe-area-inset-right,0px) + 1vh)}
-#rs .tabs button{all:unset;width:19vh;text-align:center;font:700 2.6vh Impact,'Arial Narrow',system-ui;color:#aaa;letter-spacing:.1vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6vh}
-#rs .tabs button.on{background:#383838;color:#ddd}#rs .tabs svg{width:7vh;height:7vh;fill:#cfd3d6}
-#rs .bn{position:absolute;left:0;right:0;top:12.4vh;height:16vh;text-align:center;overflow:hidden;
- background:linear-gradient(#0003,#0005),radial-gradient(ellipse 22vh 9vh at 12% 60%,#7f8f3a,#0000 70%),radial-gradient(ellipse 18vh 8vh at 28% 40%,#c9b54a,#0000 70%),radial-gradient(ellipse 30vh 12vh at 70% 70%,#3d6a3a,#0000 70%),radial-gradient(ellipse 24vh 10vh at 90% 30%,#6f8f55,#0000 70%),linear-gradient(90deg,#4d6a3c,#5b7d46 40%,#6a8a4e 70%,#3f5a3a)}
-#rs .bn:before{content:'';position:absolute;inset:0;background:url(img/load2.jpg) center/cover;opacity:.35;mix-blend-mode:luminosity}
-#rs .bn svg.tk{position:absolute;bottom:-2vh;width:30vh;height:30vh;opacity:.55;fill:#18240f}
-#rs .bn h1{position:relative;margin:1.6vh 0 0;font:900 8.6vh Impact,'Arial Narrow',system-ui;letter-spacing:.2vh;text-shadow:0 .5vh 1.4vh #000c,0 0 .4vh #000}
-#rs .bn p{position:relative;margin:0;font:800 3.6vh Impact,'Arial Narrow',system-ui;letter-spacing:.1vh;text-shadow:0 .3vh .8vh #000}
-#rs.lose .bn{filter:hue-rotate(-70deg) saturate(.7) brightness(.85)}
-#rs .rib{position:absolute;left:0;right:0;top:28.4vh;height:10.6vh;background:repeating-linear-gradient(90deg,#0000 0 .5vh,#0001 .5vh 1vh),linear-gradient(#c2191a,#8e0b0c 50%,#b01415);box-shadow:0 .3vh .6vh #000a,inset 0 .3vh .5vh #f66a;display:flex;justify-content:center;align-items:center;gap:4.4vh}
-#rs .rib svg{width:9.4vh;height:9.4vh;filter:drop-shadow(0 .4vh .5vh #000a)}
-#rs .got{position:absolute;left:0;right:0;top:39.6vh;text-align:center;font:800 3.4vh Impact,'Arial Narrow',system-ui}
-#rs .bx{position:absolute;top:44.4vh;width:35vh;height:18.6vh;border:.25vh solid #6d6d66;background:#0003}
-#rs .bx.a{left:calc(50% - 35vh)}#rs .bx.b{left:50%;opacity:.35}
-#rs .bx h4{margin:0;height:6vh;line-height:6vh;text-align:center;font:500 3.2vh system-ui;border-bottom:.25vh solid #6d6d66}
-#rs .bx div{display:flex;justify-content:flex-end;align-items:center;gap:1vh;padding:0 1.8vh;height:6.2vh;font:800 4.6vh Impact,'Arial Narrow',system-ui;letter-spacing:.2vh}
-#rs .bx div svg{width:4.6vh;height:4.6vh}
-#rs .cart{position:absolute;top:47.8vh;left:calc(50% + 36.8vh);width:13vh;height:10vh;border:0;border-radius:.6vh;background:linear-gradient(#4cbf3a,#2a8a1e);box-shadow:0 .3vh .8vh #000a;display:flex;align-items:center;justify-content:center}
-#rs .cart svg{width:6.4vh;height:6.4vh;fill:none;stroke:#fff;stroke-width:2}
-#rs .st{position:absolute;top:65.6vh;left:calc(50% - 45vh);width:90vh;height:12.6vh;display:flex;border:.25vh solid #6d6d66;background:#0003}
-#rs .st>div{flex:1;text-align:center;border-left:.25vh solid #6d6d66;padding-top:1.4vh;font:500 3.2vh system-ui;color:#ddd}#rs .st>div:first-child{border:0}
-#rs .st b{display:flex;justify-content:center;align-items:center;gap:1vh;margin-top:.8vh;font:800 5vh Impact,'Arial Narrow',system-ui;color:#fff}#rs .st b svg{width:5.4vh;height:5.4vh}
-#rs .bt{position:absolute;left:0;right:0;bottom:0;height:14vh;background:#1e1e1c;border-top:.2vh solid #0008;display:flex;align-items:center;padding:0 calc(env(safe-area-inset-right,0px) + 1vh) 0 calc(env(safe-area-inset-left,0px) + 5vh)}
-#rs .bt .m b{display:block;font:800 4.4vh Impact,'Arial Narrow',system-ui;color:#fff}#rs .bt .m span{font:500 3.4vh system-ui;color:#999}
-#rs .bt .t{position:absolute;left:50%;top:0;height:100%;display:flex;align-items:center;transform:translateX(-62%)}
-#rs .bt .t i{font:800 3.4vh system-ui;font-style:normal;color:#ccc;margin-right:1vh;align-self:flex-start;margin-top:2.2vh;letter-spacing:.2vh}
-#rs .bt .t svg.tn{width:13vh;height:11vh;fill:#6f7a62;margin-right:2vh}
-#rs .bt .t b{display:block;font:800 4.6vh Impact,'Arial Narrow',system-ui}#rs .bt .t span{font:500 3.4vh system-ui;color:#999}
-#rs .bt .d{margin-left:auto;text-align:right;margin-right:2.4vh}#rs .bt .d b{display:block;font:800 4.4vh Impact,'Arial Narrow',system-ui}#rs .bt .d span{font:500 3.4vh system-ui;color:#999}
-#rs .bt button{all:unset;width:12vh;height:10vh;background:#3a4650;display:flex;align-items:center;justify-content:center;border-radius:.4vh}#rs .bt button svg{width:7vh;height:7vh;fill:#e8edf0}
+#rs{z-index:45;background:radial-gradient(ellipse at 20% 0%,#16202a,#090c10 70%);flex-direction:column;box-sizing:border-box;padding:calc(env(safe-area-inset-top,0px) + 3vh) calc(env(safe-area-inset-right,0px) + 5vh) 2.6vh calc(env(safe-area-inset-left,0px) + 5vh)}
+#rs.on{display:flex;animation:rsin .4s ease-out}@keyframes rsin{from{opacity:0;transform:scale(1.015)}to{opacity:1;transform:none}}
+#rs.win{--ra:#5fcf6a}#rs.lose{--ra:#e0483a}
+#rs .top{display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:2vh;border-bottom:.2vh solid #ffffff1f;position:relative}
+#rs .top:after{content:'';position:absolute;left:0;bottom:-.2vh;width:16vh;height:.5vh;background:var(--ra)}
+#rs h1{margin:0;font:800 8.4vh/1 system-ui;letter-spacing:.6vh;color:var(--ra);text-transform:uppercase}
+#rs .sub{margin-top:1.1vh;font:600 1.9vh system-ui;color:#8794a0;letter-spacing:.25vh;text-transform:uppercase}
+#rs .who{display:flex;align-items:center;gap:2.2vh;text-align:right}
+#rs .who img{height:9.5vh;max-width:20vh;object-fit:contain;filter:drop-shadow(0 .5vh .7vh #0008)}
+#rs .who b{display:block;font:700 2.8vh system-ui}#rs .who span{font:500 1.9vh system-ui;color:#8794a0;letter-spacing:.15vh}
+#rs .main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1.2fr;gap:6vh;padding-top:2.6vh}
+#rs .cl{display:flex;flex-direction:column;min-height:0}
+#rs .lb{font:700 1.7vh system-ui;letter-spacing:.4vh;color:#6b7884;text-transform:uppercase;margin-bottom:1.4vh}
+#rs .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4vh 2.4vh}
+#rs .kp b{display:block;font:700 5.2vh/1 system-ui;font-variant-numeric:tabular-nums}
+#rs .kp span{display:block;margin-top:.6vh;font:500 1.7vh system-ui;color:#8794a0}
+#rs .rw{display:flex;justify-content:space-between;align-items:baseline;padding:1vh 0;border-bottom:.15vh solid #ffffff14;font:500 2.1vh system-ui;color:#c4cfd8}
+#rs .rw b{font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+#rs .rw.tot{font-size:2.5vh;color:#fff}#rs .rw.tot b{color:var(--ra)}
+#rs .tb{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+#rs table{width:100%;border-collapse:collapse;font:500 2vh system-ui;color:#c4cfd8}
+#rs th{padding:0 0 1vh;text-align:right;font:700 1.5vh system-ui;letter-spacing:.3vh;color:#6b7884;text-transform:uppercase}
+#rs td{padding:.85vh 0;text-align:right;border-bottom:.15vh solid #ffffff10;font-variant-numeric:tabular-nums}
+#rs td:first-child,#rs th:first-child{text-align:left}#rs td:nth-child(2){text-align:left;color:#8794a0;padding-left:2vh}#rs th:nth-child(2){text-align:left;padding-left:2vh}
+#rs tr.sep td{padding:1.6vh 0 .8vh;font:700 1.5vh system-ui;letter-spacing:.35vh;color:#6b7884;text-transform:uppercase;border-bottom:.2vh solid #ffffff22;text-align:left}
+#rs tr.me td{color:var(--ra);font-weight:700}#rs tr.dead td{opacity:.42}
+#rs .ft{display:flex;justify-content:flex-end;align-items:center;gap:3vh;padding-top:1.8vh}
+#rs .ft small{margin-right:auto;font:500 1.7vh system-ui;color:#6b7884}
+#rs .hb{all:unset;box-sizing:border-box;cursor:pointer;height:7vh;padding:0 7vh;display:flex;align-items:center;background:var(--ra);color:#0a0d10;font:800 2.5vh system-ui;letter-spacing:.5vh;border-radius:.6vh}
+#rs .hb:active{filter:brightness(.88);transform:translateY(.15vh)}
 /* улучшения */
 #up{z-index:46;background:#0d0f10 radial-gradient(ellipse at 50% 60%,#2b2a24,#0b0c0c)}#up.on{display:block}
 #up .hd{position:absolute;left:calc(env(safe-area-inset-left,0px) + 3vh);right:calc(env(safe-area-inset-right,0px) + 3vh);top:2vh;display:flex;align-items:center;font-size:2.8vh}
@@ -99,28 +93,49 @@ const MED=[
  ['Разрушитель',k=>k.kills>=3,'#d28a52','M20 40l8-8 4 4 8-10 M20 22l24 20 M44 22L20 42'],
  ['Мастер',k=>k.dmg>=3000,'#b6bcc4','M32 14l4 10h10l-8 6 3 10-9-6-9 6 3-10-8-6h10z']];
 function medal(m){return`<svg viewBox="0 0 64 64"><defs><linearGradient id="mg${m[0].length}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${m[2]}"/></linearGradient></defs><circle cx="32" cy="32" r="27" fill="#2b2f2a" stroke="url(#mg${m[0].length})" stroke-width="3.500"/><path d="M10 38c-2-12 4-22 14-26M54 38c2-12-4-22-14-26" fill="none" stroke="${m[2]}" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3"/><path d="${m[3]}" fill="${m[2]}" stroke="#111" stroke-width="1.500" stroke-linejoin="round"/></svg>`}
+/* ---------- статистика боя ---------- */
+const BS0=()=>({shots:0,hits:0,pens:0,np:0,taken:0,time:0});let BS=BS0();
+{const o=respawnPlayer;respawnPlayer=function(){BS=BS0();ALL.forEach(t=>{t.sd=0;t.sk=0});return o.apply(this,arguments)}}
+{const o=shoot;shoot=function(T,sp){const can=T===P&&P.alive&&T.rl<=0&&!(CDN>0);o(T,sp);if(can&&T.rl>0)BS.shots++}}
+{const o=impact;impact=function(s,h){const tk=h.k=='tank'?h.T:null,hp0=tk?tk.hp:0,d0=DMG;o(s,h);
+ if(tk){const dd=hp0-tk.hp;if(dd>0&&s.o)s.o.sd=(s.o.sd||0)+dd;
+  if(s.o===P&&tk.team!==P.team){BS.hits++;if(DMG>d0)BS.pens++;else BS.np++}
+  if(tk===P&&s.o&&s.o!==P&&dd>0)BS.taken+=dd}}}
+{const o=kill;kill=function(T,by){if(by&&by!==T)by.sk=(by.sk||0)+1;return o(T,by)}}
+{const o=updatePlayer;updatePlayer=function(dt){if(!paused&&!inHangar)BS.time+=dt;return o(dt)}}
+/* ---------- экран итогов боя (на весь экран) ---------- */
 const rs=document.createElement('div');rs.id='rs';
-rs.innerHTML=`<div class="tb"><button class="hb" id="rs_h"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg></button><div class="tt"><small>РЕЗУЛЬТАТЫ БОЯ</small><b id="rs_n"></b></div>
-</div>
-<div class="bn"><svg class="tk" style="left:-4vh" viewBox="0 0 24 24"><use href="#i-tank"/></svg><svg class="tk" style="right:-3vh;transform:scaleX(-1)" viewBox="0 0 24 24"><use href="#i-tank"/></svg><h1 id="rs_t"></h1><p id="rs_s"></p></div>
-<div class="st"><div>Урон<b><span id="rs_d"></span><svg viewBox="0 0 24 24" fill="none" stroke="#e8edf0" stroke-width="1.800"><path d="M3 12h13M12 6l6 6-6 6M19 4v16"/></svg></b></div><div>Итого кредитов<b><span id="rs_ct"></span><svg><use href="#c-silv"/></svg></b></div><div>Уничтожено<b><span id="rs_k"></span><svg viewBox="0 0 24 24" fill="none" stroke="#e8edf0" stroke-width="1.800"><path d="M2 14l8-8 6 3-2 3 6 5M4 18h16M5 10l11 4"/></svg></b></div></div>
-<div class="bt"><div class="m"><b id="rs_map"></b><span>Встречный бой</span></div><div class="t"><i id="rs_tr"></i><svg class="tn" viewBox="0 0 24 24"><use href="#i-tank"/></svg><div><b id="rs_tn"></b><span id="rs_ts"></span></div></div><div class="d"><b id="rs_dt"></b><span id="rs_tm"></span></div></div>`;
+rs.innerHTML=`<div class="top"><div><h1 id="rs_t"></h1><div class="sub" id="rs_s"></div><div class="sub"><span id="rs_map"></span> · <span id="rs_dt"></span> <span id="rs_tm"></span> · <span id="rs_du"></span></div></div><div class="who"><div><b id="rs_tn"></b><span><span id="rs_tr"></span> · <span id="rs_ts"></span></span></div><img id="rs_img" alt=""></div></div>
+<div class="main"><div class="cl"><div class="lb">Результативность</div><div class="kp"><div><b id="rs_d">0</b><span>Нанесено урона</span></div><div><b id="rs_k">0</b><span>Уничтожено</span></div><div><b id="rs_acc">—</b><span>Точность</span></div><div><b id="rs_pn">—</b><span>Пробитий</span></div><div><b id="rs_np">—</b><span>Не пробито</span></div><div><b id="rs_tk">0</b><span>Получено урона</span></div></div>
+<div class="lb" style="margin-top:3.2vh">Награда</div><div id="rs_rw"></div></div>
+<div class="cl"><div class="lb">Таблица боя</div><div class="tb" id="rs_tb"></div></div></div>
+<div class="ft"><small id="rs_nk"></small><button class="hb" id="rs_h">В АНГАР</button></div>`;
 document.body.appendChild(rs);
-const p2=n=>String(n).padStart(2,'0');
+const p2=n=>String(n).padStart(2,'0'),esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const oEnd=window.endBattle;
 if(typeof oEnd=='function')window.endBattle=function(win){
- if(BEND||inHangar)return;const sn=JSON.stringify(ECO),cr0=ECO.cr,xp0=ECO.xp||0,alive=!!(P&&P.alive),dmg=DMG,kl=kills;oEnd(win);
+ if(BEND||inHangar)return;const sn=JSON.stringify(ECO),cr0=ECO.cr,xp0=ECO.xp||0,alive=!!(P&&P.alive),dmg=DMG,kl=kills,bs=Object.assign({},BS),net=!!(window.NET&&NET.on);
+ const s=(()=>{try{return JSON.parse(localStorage.getItem('maus_session'))}catch(_){return null}})(),nick=s&&s.nick||'Игрок';
+ const rows=[P].concat(ENEMIES).filter((t,i,a)=>t&&a.indexOf(t)==i).map(t=>({me:t===P,team:t.team,n:t===P?nick:(t.name||'Бот'),tk:(t.cat&&t.cat.name)||'',d:Math.round(t===P?dmg:(t.sd||0)),k:t===P?kl:(t.sk||0),a:!!t.alive}));
+ oEnd(win);
  const r0=$('res');if(r0){r0.style.display='none';r0.classList.remove('on')}
- const cr=ECO.cr-cr0,xp=(ECO.xp||0)-xp0,cat=P&&P.cat||{},now=new Date(),s=(()=>{try{return JSON.parse(localStorage.getItem('maus_session'))}catch(_){return null}})();
- rs.className='on '+(win?'win':'lose');$('rs_n').textContent=s&&s.nick||'Игрок';
- $('rs_t').textContent=win?'Победа!':'Поражение';$('rs_s').textContent=win?'Вся техника противника уничтожена':'Вся ваша техника уничтожена';
- $('rs_d').textContent=F(dmg);$('rs_ct').textContent=F(cr);$('rs_k').textContent=kl;
- const mp=(typeof MAPS!='undefined'&&MAPS.find(m=>m.id==curMap))||{name:'Полигон'};$('rs_map').textContent=mp.name;
- $('rs_tr').textContent=ROM[cat.tier||P&&P.tier||1];$('rs_tn').textContent=cat.name||'Maus';$('rs_ts').textContent=alive?'Выжил':'Уничтожен';
- $('rs_dt').textContent=p2(now.getDate())+'.'+p2(now.getMonth()+1)+'.'+now.getFullYear();$('rs_tm').textContent=p2(now.getHours())+':'+p2(now.getMinutes())+':'+p2(now.getSeconds());
+ const cr=ECO.cr-cr0,xp=(ECO.xp||0)-xp0,cat=P&&P.cat||{},now=new Date();
+ rs.className='on '+(win?'win':'lose');
+ $('rs_t').textContent=win?'Победа':'Поражение';$('rs_s').textContent=win?'Вся техника противника уничтожена':'Вся ваша техника уничтожена';
+ $('rs_d').textContent=F(dmg);$('rs_k').textContent=kl;$('rs_tk').textContent=F(Math.round(bs.taken));
+ $('rs_acc').textContent=bs.shots?Math.round(Math.min(1,bs.hits/bs.shots)*100)+'%':'—';
+ $('rs_pn').textContent=net?'—':bs.pens;$('rs_np').textContent=net?'—':bs.np;
+ const mp=(typeof MAPS!='undefined'&&MAPS.find(m=>m.id==curMap))||{name:'Полигон'},ss=Math.round(bs.time);
+ $('rs_map').textContent=mp.name;$('rs_dt').textContent=p2(now.getDate())+'.'+p2(now.getMonth()+1)+'.'+now.getFullYear();$('rs_tm').textContent=p2(now.getHours())+':'+p2(now.getMinutes());
+ $('rs_du').textContent='Бой '+p2(Math.floor(ss/60))+':'+p2(ss%60);$('rs_nk').textContent=nick;
+ $('rs_tr').textContent=ROM[cat.tier||P&&P.tier||1];{const im=$('rs_img');im.src=(typeof ICONS!='undefined'&&ICONS[cat.id])||'';im.style.visibility=im.getAttribute('src')?'visible':'hidden'}$('rs_tn').textContent=cat.name||'Maus';$('rs_ts').textContent=alive?'Выжил':'Уничтожен';
+ const rw=(a,b,c)=>'<div class="rw'+(c?' tot':'')+'"><span>'+a+'</span><b>'+b+'</b></div>';
+ $('rs_rw').innerHTML=(net?'':rw('За нанесённый урон','+'+F(Math.round(dmg*1.2)))+rw('За уничтожение техники','+'+F(kl*1000))+rw(win?'За победу':'За участие','+'+F(win?6000:1500)))+rw('Кредиты','<span id="rs_ct">'+F(cr)+'</span>',1)+rw('Опыт','<span id="rs_xp">'+F(xp)+'</span>');
+ const team=(t,title)=>{const L=rows.filter(r=>(r.team===P.team)==t).sort((a,b)=>b.d-a.d);return L.length?'<tr class="sep"><td colspan="4">'+title+'</td></tr>'+L.map(r=>'<tr class="'+(r.me?'me ':'')+(r.a?'':'dead')+'"><td>'+esc(r.n)+'</td><td>'+esc(r.tk)+'</td><td>'+F(r.d)+'</td><td>'+r.k+'</td></tr>').join(''):''};
+ $('rs_tb').innerHTML='<table><tr><th>Игрок</th><th>Танк</th><th>Урон</th><th>Уничт.</th></tr>'+team(true,'Ваша команда')+team(false,'Противник')+'</table>';
  if(ONL()){const o=JSON.parse(sn);Object.keys(ECO).forEach(k=>delete ECO[k]);Object.assign(ECO,o);hCredits();   /* онлайн: награду и исход считает сервер */
-  const show=r=>{applyEco(r.eco);window.SRV_STATS=r.stats;const R=r.reward||{};$('rs_t').textContent=r.win===undefined?$('rs_t').textContent:(r.win?'Победа!':'Поражение');
-   rs.className='on '+((r.win===undefined?win:r.win)?'win':'lose');$('rs_ct').textContent=F(R.cr||0);
+  const show=r=>{applyEco(r.eco);window.SRV_STATS=r.stats;const R=r.reward||{};$('rs_t').textContent=r.win===undefined?$('rs_t').textContent:(r.win?'Победа':'Поражение');
+   rs.className='on '+((r.win===undefined?win:r.win)?'win':'lose');$('rs_ct').textContent=F(R.cr||0);if(R.xp!=null)$('rs_xp').textContent=F(R.xp);
    $('rs_d').textContent=F(r.dmg!=null?r.dmg:dmg);$('rs_k').textContent=r.kills!=null?r.kills:kl},fail=()=>tst('Нет связи с сервером: награда не начислена');
   if(window.NET&&NET.on){let n=0;const w=()=>{if(NET.res){const r=NET.res;if(r.err)return fail();show(r);return}if(++n>40)return fail();setTimeout(w,250)};w()}
   else if(window.BT){const t=window.BT;window.BT=null;window.mausCall('battle/end',{ticket:t,win:!!win,dmg,kills:kl,map:mp.id||''}).then(show).catch(e=>tst(e.message||'Нет связи с сервером'))}
@@ -167,5 +182,5 @@ const hp=$('hprof');if(hp)hp.addEventListener('click',()=>{if(ONL())window.mausC
 const nc=$('nco');if(nc){const n=nc.cloneNode(true);nc.replaceWith(n);n.textContent='Отключиться';
  n.onclick=()=>{try{if(window.NET&&NET.ws)NET.ws.close()}catch(_){}try{localStorage.removeItem('maus_session')}catch(_){}location.reload()}}
 /* ---------- ГОСТЬ ---------- */
-const g=$('a_guest');if(g)g.onclick=()=>{try{localStorage.setItem('maus_session',JSON.stringify({nick:'Гость',token:'',guest:true}))}catch(_){}window.OFFLINE_MODE=true;$('auth').classList.remove('on');if(window.startGame)startGame();const n=$('hnick');if(n)n.textContent='Гость'};
+/* офлайн/гостевой режим удалён: игра только онлайн (боты — через серверный билет) */
 })();

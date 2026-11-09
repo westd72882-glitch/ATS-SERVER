@@ -1,4 +1,4 @@
-/* Панель выбора боя: мультиплеер (онлайн-очередь 1x1/5x5/10x10) или бой с ботами; заглушки GAGROS / AERO */
+/* Панель выбора боя: мультиплеер (онлайн-очередь 1x1/5x5/10x10) или бой с ботами */
 (function(){
 const API=window.API_URL||'',VER=window.APP_VERSION||'0',$=id=>document.getElementById(id);
 const RM=['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
@@ -17,7 +17,7 @@ const st=document.createElement('style');st.textContent=`
 const bp=document.createElement('div');bp.id='bp';bp.innerHTML=`<div class="bx"><h2><span>Выбор боя</span><b id="bpx">×</b></h2>
 <div class="row" id="bpt"><button data-k="mp" class="sel">Мультиплеер</button><button data-k="bot">С ботами</button></div>
 <div class="lb">Режим</div><div class="row" id="bpm"><button data-n="1" class="sel">1 на 1</button><button data-n="5">5 на 5</button><button data-n="10">10 на 10</button></div>
-<div class="lb">Карта</div><div class="row" id="bpmap"><button data-m="poly" class="sel">Полигон</button><button data-m="meadow">Луга и поля</button><button data-m="himmel">Химмельсдорф</button></div>
+<div class="lb">Карта</div><div class="row" id="bpmap"><button data-m="poly" class="sel">Полигон</button><button data-m="meadow">Луга и поля</button><button data-m="protok">Проток</button></div>
 <div class="inf" id="bpi"></div><button class="go" id="bpg">В БОЙ!</button></div>`;document.body.appendChild(bp);
 let kind='mp',mode=1,queued=false;
 const G=()=>{try{return !!JSON.parse(localStorage.getItem('maus_session')).guest}catch(_){return false}};
@@ -33,12 +33,12 @@ function onMsg(m){
  else if(m.t=='match'){queued=false;startMatch(m)}
  else if(m.t=='st'){const e=NET.px[m.id];if(!e)return;e.tx=m.x;e.tz=m.z;e.th=m.h;e.tty=m.ty;e.tgp=m.gp;e.tv=m.v;e.tw=m.w;
   if(!e.inited){e.inited=1;e.x=m.x;e.z=m.z;e.h=m.h}}
- else if(m.t=='shot'){const e=NET.px[m.id];if(!e||!e.alive)return;e.tur.rotation.y=e.ty=m.ty;e.gunG.rotation.x=e.gp=m.gp;e.root.position.set(e.x,0,e.z);e.root.rotation.y=e.h;e.root.updateMatrixWorld(true);e.rl=0;shoot(e,.002)}
+ else if(m.t=='shot'){const e=NET.px[m.id];if(!e||!e.alive)return;e.tur.rotation.y=e.ty=m.ty;e.gunG.rotation.x=e.gp=m.gp;e.root.position.set(e.x,H(e.x,e.z),e.z);e.root.rotation.y=e.h;e.root.updateMatrixWorld(true);e.rl=0;shoot(e,.002)}
  else if(m.t=='hit'){const T=m.v==NET.me?P:NET.px[m.v];if(!T)return;const mine=m.by==NET.me,pos=T.root.position;
   if(m.r=='trk'){trackHit(T,m.side,m.end,V3(pos.x,1,pos.z));return}
   if(m.r=='p'){T.hp=m.hp;if(mine)DMG+=m.d;
-   if(T===P){$('dmg').style.opacity=1;S.shake=.7;popup('-'+m.d,innerWidth/2-20,innerHeight*.62,true)}else if(mine)popup('-'+m.d,innerWidth/2+30,innerHeight*.42)}
-  else if(T===P||mine){const tx=m.r=='r'?'Рикошет':'Не пробил';popup(tx,innerWidth/2-40,T===P?innerHeight*.62:innerHeight*.42,false)}}
+   if(T===P){hitArc(NET.px[m.by],true);$('dmg').style.opacity=1;S.shake=.7;popup('-'+m.d,innerWidth/2-20,innerHeight*.62,true)}else if(mine)popup('-'+m.d,innerWidth/2+30,innerHeight*.42)}
+  else if(T===P){hitArc(NET.px[m.by],false);noPen(m.e||0,m.p||0,m.r=='r')}else if(mine){popup(m.r=='r'?'Рикошет':'Не пробил',innerWidth/2-40,innerHeight*.42,false)}}
  else if(m.t=='dead'){const T=m.id==NET.me?P:NET.px[m.id];if(T&&T.alive){T.hp=0;kill(T,m.by==NET.me?P:(m.by==m.id?T:(NET.px[m.by]||T)))}}
  else if(m.t=='corr'){P.x=m.x;P.z=m.z;if(m.h!=null)P.h=m.h;P.v=0}
  else if(m.t=='end'){NET.res=m;if(m.eco)applyEco(m.eco)}
@@ -50,11 +50,11 @@ const oME=makeEnemies;makeEnemies=function(n){if(!NET.on)return oME(n);P.team='A
  for(const r of NET.roster){const rel=r.team==NET.abs?'A':'B',cat=CATALOG.find(c=>c.id==r.tank)||CATALOG[0],e=buildTank(cat.id);
   e.team=rel;e.net=1;e.name=r.nick;e.nick=r.nick;e.netId=r.id;e.tier=cat.tier;e.tag=document.createElement('div');e.tag.className='tag'+(rel=='A'?' ally':'');
   e.tag.innerHTML=r.nick+' · '+cat.name+'<span class=hpt></span><i><b></b></i>';document.body.appendChild(e.tag);ALL.push(e);ENEMIES.push(e);resetEnemy(e);
-  const sp=spawnPos(r.team);e.x=e.tx=sp.x;e.z=e.tz=sp.z;e.h=e.th=r.team=='B'?Math.PI:0;e.tty=e.tgp=e.tv=e.tw=0;e.root.position.set(e.x,0,e.z);NET.px[r.id]=e}};
+  const sp=spawnPos(r.team);e.x=e.tx=sp.x;e.z=e.tz=sp.z;e.h=e.th=r.team=='B'?Math.PI:0;e.tty=e.tgp=e.tv=e.tw=0;e.root.position.set(e.x,H(e.x,e.z),e.z);NET.px[r.id]=e}};
 const oRP=respawnPlayer;respawnPlayer=function(){oRP();if(NET.on){const p=spawnPos(NET.abs);P.x=p.x;P.z=p.z;P.h=NET.abs=='B'?Math.PI:0;cy=P.h}};
 window.netTick=function(e,dt){if(e.tx==null)return;const k=Math.min(1,dt*10);
  e.x+=(e.tx-e.x)*k;e.z+=(e.tz-e.z)*k;e.h+=wrap(e.th-e.h)*k;e.ty+=wrap(e.tty-e.ty)*k;e.gp+=(e.tgp-e.gp)*k;e.v=e.tv;e.w=e.tw;
- e.root.position.set(e.x,0,e.z);e.root.rotation.y=e.h;e.tur.rotation.y=e.ty;e.gunG.rotation.x=e.gp;animTracks(e,dt)};
+ e.root.position.set(e.x,H(e.x,e.z),e.z);e.root.rotation.y=e.h;e.tur.rotation.y=e.ty;e.gunG.rotation.x=e.gp;animTracks(e,dt)};
 const oSH=shoot;shoot=function(T,s){const r0=T===P?P.rl:0,ok=T===P&&P.alive&&CDN<=0;oSH(T,s);
  if(NET.on&&ok&&r0<=0&&P.rl>0)send({t:'shot',ty:P.tur.rotation.y,gp:P.gunG.rotation.x})};
 setInterval(()=>{if(!NET.on)return;if(!inHangar)NET.began=true;
@@ -67,14 +67,14 @@ function render(){
  bp.querySelectorAll('#bpt button').forEach(b=>b.classList.toggle('sel',b.dataset.k==kind));
  bp.querySelectorAll('#bpm button').forEach(b=>b.classList.toggle('sel',+b.dataset.n==mode));
  const t=(typeof P!='undefined'&&P&&P.cat)?'Ваш танк: <b>'+RM[P.tier]+' '+P.cat.name+'</b>':'',i=$('bpi'),g=$('bpg');
- if(bots()){i.innerHTML=t+'<br>'+(G()?'Гостевой режим (оффлайн): ':'')+'бой против ботов '+mode+' на '+mode+'.';g.textContent='В БОЙ!';g.className='go';return}
+ if(bots()){i.innerHTML=t+'<br>'+'бой против ботов '+mode+' на '+mode+'.';g.textContent='В БОЙ!';g.className='go';return}
  if(!API||!tok()){i.innerHTML=t+'<br>Мультиплеер недоступен: нет сервера или вы не вошли.';g.textContent='Нет сервера';g.className='go c';return}
  const q=NET.q[mode]||{n:0,need:mode*2,tiers:[]},c=!!NET.ws;
  i.innerHTML=t+'<br>Игроков в сети: <b>'+(c?NET.online:'…')+'</b>'+
   (queued?'<br>Поиск боя '+mode+' на '+mode+': <b>'+q.n+' / '+q.need+'</b>':'<br>В очереди '+mode+' на '+mode+': <b>'+q.n+' / '+q.need+'</b>')+
   '<br>Танки в очереди: '+(q.tiers.length?q.tiers.map(x=>RM[x]).join(', '):'—');
  g.textContent=!c?'Подключение…':queued?'Отмена':'Искать бой';g.className='go'+(queued?' c':'')}
-function open(){kind=G()?'bot':'mp';bp.querySelectorAll('#bpt button').forEach(b=>b.style.display=(b.dataset.k=='bot')==G()?'':'none');render();bp.classList.add('on');connect()}
+function open(){kind='mp';bp.querySelectorAll('#bpt button').forEach(b=>b.style.display='');render();bp.classList.add('on');connect()}
 $('play').onclick=open;$('bpx').onclick=()=>{if(queued){send({t:'cancel'});queued=false}bp.classList.remove('on')};
 $('bpt').onclick=e=>{const b=e.target.closest('button');if(!b||queued)return;kind=b.dataset.k;render()};
 $('bpm').onclick=e=>{const b=e.target.closest('button');if(!b||queued)return;mode=+b.dataset.n;render()};
@@ -83,9 +83,6 @@ $('bpg').onclick=()=>{
  if(bots()){MODE=mode;bp.classList.remove('on');startBattle();return}
  if(!NET.ws)return;
  if(queued){send({t:'cancel'});queued=false}else{send({t:'queue',mode,tank:P.cat.id,tier:P.tier});queued=true}render()};
-/* --- заглушки вместо боковых кнопок --- */
-for(const[id,txt]of[['mpb','GAGROS'],['mb','AERO']]){const o=$(id);if(!o)continue;const n=o.cloneNode(true);o.replaceWith(n);
- n.querySelectorAll('svg,span').forEach(x=>x.style.display='none');const s=document.createElement('span');s.textContent=txt;s.style.cssText='position:static;transform:none;display:block;font:800 2.2vh system-ui;color:#fff;opacity:1;text-shadow:0 .1vh .3vh #000';n.appendChild(s)}
 /* --- промокоды (вкладка «Сеть»), работают и без сервера; использованные хранятся в maus_promo (при онлайне уходят в облако) --- */
 const pb=$('prb');if(pb)pb.onclick=()=>{const c=$('pri').value.trim().toLowerCase(),T=m=>{if(typeof toast=='function')toast(m)};if(!c)return;
  if(ONL()){ecoOp('promo',{code:c},r=>{buildHangar();if(typeof buildShop=='function')buildShop();$('pri').value='';T(r.msg)});return}

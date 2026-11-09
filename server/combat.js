@@ -1,7 +1,7 @@
 // Серверный бой (авторитетный): позиции, перезарядка, выстрелы, броня/пробитие, урон, смерти, итог боя и награды считает ТОЛЬКО сервер.
 // Клиент шлёт лишь ввод: положение (st), выстрел (shot: углы башни/орудия), выход (leave).
 const crypto=require('crypto'),{WebSocketServer}=require('ws'),TANKS=require('./tanks.json');
-const ARENA=196,SPREAD=+process.env.SPREAD||.005,MAXT=15*60e3,SPAWNWAIT=90e3,TRK=7000,MAPS=['poly','meadow','himmel'];
+const ARENA=196,SPREAD=+process.env.SPREAD||.005,MAXT=15*60e3,SPAWNWAIT=90e3,TRK=7000,MAPS=['poly','meadow','protok'];
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),num=v=>Number.isFinite(+v)?+v:0;
 const box=t=>({hx:t.len*.2,hz:t.len/2,y0:0,y1:Math.max(2.2,t.len*.31)});
 module.exports=function(server,{VERSION,authToken,ownedTank,onEnd}){
@@ -56,7 +56,7 @@ function fire(w,now){const r=w.room,st=w.st;
  if(!best)return;const{t,h,p}=best,b=h.b;
  if(h.ly<b.y0+(b.y1-b.y0)*.36&&Math.abs(h.lx)>b.hx*.55&&Math.abs(h.lz)>b.hz*.6){t.tk=now+TRK;bc(r,{t:'hit',v:t.id,by:w.id,d:0,hp:t.hp,r:'trk',side:Math.sign(h.lx)||1,end:Math.sign(h.lz)||1});return}
  const ai=armor(t.st,b,h,h.dl),pn=st.pen*(.85+Math.random()*.3);
- if(ai.ric||ai.eff>pn){bc(r,{t:'hit',v:t.id,by:w.id,d:0,hp:t.hp,r:ai.ric?'r':'n'});return}
+ if(ai.ric||ai.eff>pn){bc(r,{t:'hit',v:t.id,by:w.id,d:0,hp:t.hp,r:ai.ric?'r':'n',e:Math.round(ai.eff),p:Math.round(pn)});return}
  const dm=Math.round(st.dmg*(.85+Math.random()*.3)),real=Math.min(dm,t.hp);t.hp-=real;w.dmg+=real;
  bc(r,{t:'hit',v:t.id,by:w.id,d:real,hp:t.hp,r:'p'});
  if(t.hp<=0){t.alive=false;w.kills++;bc(r,{t:'dead',id:t.id,by:w.id});check(r)}}

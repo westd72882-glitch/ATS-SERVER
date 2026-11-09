@@ -26,10 +26,10 @@ function shoot(T,spread){if(CDN>0)return;
  if(T===P)P.disp=Math.min(.04,(P.disp||.0045)+.01);
  shells.push({p:p.clone(),v:d.clone().multiplyScalar(T.cat.vel),o:T,m:null});
  const dist=T===P?0:p.distanceTo(P.root.position);
- if(T===P){flash.position.copy(p);flash.intensity=70;S.shake=.5;S.bpv-=1.2;fo=.3}
+ if(T===P){flash.position.copy(p);flash.intensity=18;S.shake=.4;S.bpv-=1.2;fo=.06}
  bang(T===P?.9:cl(40/(dist+15),0,.7),1600);
- for(let i=0;i<14;i++)fire.emit(p.x,p.y,p.z,R2()*7+d.x*(10+Math.random()*22),R2()*7+d.y*(10+Math.random()*22),R2()*7+d.z*(10+Math.random()*22),.3+Math.random()*.2,3+Math.random()*3.5,6,[1,.7,.3],1);
- for(let i=0;i<8;i++)smoke.emit(p.x,p.y,p.z,R2()*5+d.x*9,R2()*3+d.y*9+1,R2()*5+d.z*9,2.4,1.8,4,[.72,.72,.72],.55)}
+ for(let i=0;i<7;i++)fire.emit(p.x,p.y,p.z,R2()*4+d.x*(8+Math.random()*14),R2()*4+d.y*(8+Math.random()*14),R2()*4+d.z*(8+Math.random()*14),.2+Math.random()*.12,1+Math.random()*1.4,3,[1,.72,.35],.7);
+ for(let i=0;i<5;i++)smoke.emit(p.x,p.y,p.z,R2()*4+d.x*8,R2()*3+d.y*9+1,R2()*5+d.z*9,2.4,1.8,4,[.72,.72,.72],.55)}
 const shellGlow=new THREE.SpriteMaterial({map:flareTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false}),shellGeo=new THREE.CylinderGeometry(.11,.11,1.6,6).rotateX(Math.PI/2),shellMat=new THREE.MeshBasicMaterial({color:0xfff0b0,fog:false});
 function boom(p,big){const dist=Math.hypot(p.x-P.x,p.z-P.z);const n=big?4:3;
  for(let i=0;i<n;i++)fire.emit(p.x,p.y+.5,p.z,R2()*5,Math.random()*3,R2()*4,.3,.4+Math.random()*.6,1.2,[1,.55,.2],.8);
@@ -40,6 +40,12 @@ const SV=(id)=>`<svg class="fi"><use href="#${id}"/></svg>`;
 function feedK(a,b){const d=document.createElement('div'),n=t=>{const e=document.createElement('span');e.textContent=t;return e.outerHTML};d.innerHTML=n(a)+SV('i-arrow')+n(b)+SV('i-boom');$('feed').appendChild(d);setTimeout(()=>d.remove(),4000)}
 function feed(t){const d=document.createElement('div');d.textContent=t;$('feed').appendChild(d);setTimeout(()=>d.remove(),4000)}
 function say(t){const b=$('big');b.textContent=t;b.style.opacity=1;clearTimeout(say.t);say.t=setTimeout(()=>b.style.opacity=0,1800)}
+/* индикатор попадания по игроку: красная дуга со стороны стрелявшего — пробитие, чёрная — не пробили */
+function hitArc(from,pen){if(!from||from.x==null)return;const f=new THREE.Vector3();cam.getWorldDirection(f);const dx=from.x-P.x,dz=from.z-P.z,l=Math.hypot(f.x,f.z)||1,fx=f.x/l,fz=f.z/l,ang=Math.atan2(dx*(-fz)+dz*fx,dx*fx+dz*fz)*180/Math.PI;
+ const e=document.createElement('div');e.className='hita '+(pen?'p':'b');e.style.setProperty('--a',(ang-26)+'deg');document.body.appendChild(e);setTimeout(()=>e.remove(),1700)}
+function noPen(eff,pn,ric){if(ric){popup('Рикошет',innerWidth/2-40,innerHeight*.62,false);feed('Рикошет');return}
+ const k=Math.max(1,Math.round(eff-pn));popup('Не пробито: +'+k+' мм',innerWidth/2-70,innerHeight*.62,false);feed('Не пробито: не хватило '+k+' мм (броня '+Math.round(eff)+' / пробитие '+Math.round(pn)+')')}
+function clearFx(){const d=$('dmg');if(d)d.style.opacity=0;fo=0;const f=$('flash');if(f)f.style.opacity=0;const t=$('trk');if(t)t.style.display='none';document.querySelectorAll('.hita,.pop').forEach(x=>x.remove())}
 function impact(s,h){
  const p=s.p;
  if(h.k=='tank'){const T=h.T,n=V3(0,0,0),ax=Math.abs(h.lx/T.box.hx),az=Math.abs(h.lz/T.box.hz),ay=Math.abs((h.ly-(T.box.y0+T.box.y1)/2)/((T.box.y1-T.box.y0)/2));
@@ -47,12 +53,12 @@ function impact(s,h){
   tankDecal(T,V3(h.lx+T.box.cx,h.ly,h.lz+T.box.cz),n);boom(p,false);if(window.NET&&NET.on)return;   /* сетевой бой: урон/броню/гусеницы считает сервер */
   {const bh=T.box.y1-T.box.y0;if(h.ly<T.box.y0+bh*.36&&Math.abs(h.lx)>T.box.hx*.55&&Math.abs(h.lz)>T.box.hz*.6){trackHit(T,Math.sign(h.lx)||1,Math.sign(h.lz)||1,p);return}}
   const ai=armorInfo(T,h,s.v),pn=s.o.cat.pen*(.85+Math.random()*.3);
-  if(ai.ric||ai.eff>pn){const tx=ai.ric?'Рикошет':'Не пробил';if(T===P)popup(tx,innerWidth/2-40,innerHeight*.62,false);else if(s.o===P){const q=toScreen(p);popup(tx,q.x,q.y)}return}
+  if(ai.ric||ai.eff>pn){const tx=ai.ric?'Рикошет':'Не пробил';if(T===P){hitArc(s.o,false);noPen(ai.eff,pn,ai.ric)}else if(s.o===P){const q=toScreen(p);popup(tx,q.x,q.y)}return}
   const dmg=Math.round(s.o.cat.dmg*(.85+Math.random()*.3));if(T.net&&s.o!==P)return;T.hp=Math.max(0,T.hp-dmg);if(s.o===P&&T.team!==P.team)DMG+=dmg;
-  if(T===P){$('dmg').style.opacity=1;S.shake=.7;const q=toScreen(p);popup('-'+dmg,innerWidth/2-20,innerHeight*.62,true)}
+  if(T===P){hitArc(s.o,true);$('dmg').style.opacity=1;S.shake=.7;const q=toScreen(p);popup('-'+dmg,innerWidth/2-20,innerHeight*.62,true)}
   else if(s.o===P){const q=toScreen(p);popup('-'+dmg,q.x,q.y);$('ret').animate([{transform:$('ret').style.transform+' scale(1.7)'},{transform:$('ret').style.transform+' scale(1)'}],160)}
   if(T.hp<=0)kill(T,s.o)}
- else{const n=h.k=='ground'?V3(0,1,0):V3(-s.v.x,0,-s.v.z).normalize();if(h.k=='ground')p.y=0;worldDecal(p,n,.2+Math.random()*.12);boom(p,true)}}
+ else{const n=h.k=='ground'?V3(0,1,0):V3(-s.v.x,0,-s.v.z).normalize();if(h.k=='ground')p.y=H(p.x,p.z);worldDecal(p,n,.2+Math.random()*.12);boom(p,true)}}
 /* ===== сбитая гусеница: попадание в нижнюю часть борта у носа или кормы; 7 с ремонта, танк не едет и не поворачивает =====
    Новых моделей нет: сама гусеница чуть «раскручивается» вперёд/назад, расходится наружу и провисает у места попадания */
 const TRK_T=7,_tm4=new THREE.Matrix4(),_tw=new THREE.Matrix4(),_tb=new THREE.Box3(),_tv=new THREE.Vector3(),_te=new THREE.Euler();
@@ -79,7 +85,7 @@ function trackTick(T,dt){T.tk-=dt;T.tkt=(T.tkt||0)+dt;
  const e=x=>x*x*(3-2*x),k=e(Math.min(1,T.tkt/.35,T.tk/.5));if(Math.abs(k-(T.tkk||0))>.004)trkWarp(T,k)}
 function kill(T,by){T.alive=false;T.dead=7;T.flare.material.opacity=0;if(T.tag)T.tag.style.display='none';
  const c=T.root.position;for(let i=0;i<2;i++)boom(V3(c.x+R2()*3,c.y+1+i,c.z+R2()*3),true);T.tur.rotation.y+=R2()*.8;T.gunG.rotation.x=-.12;
- if(T===P){P.dead=4;say('Подбит!')}
+ if(T===P){P.dead=4;say('Уничтожен!')}
  else if(by===P){kills++;$('kills').textContent=kills;say('Уничтожен!')}
  feedK(by===P?'Вы':by.name,T===P?'Вы':T.name);if(typeof battleCheck=='function')battleCheck(T)}
 function updateShells(dt){

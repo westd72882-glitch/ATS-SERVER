@@ -21,4 +21,4 @@ function bang(v,f0){if(!AC||v<.02)return;const s=AC.createBufferSource(),f=AC.cr
 const flareTex=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
  const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'#fff');g.addColorStop(.18,'#ffe9a0');g.addColorStop(.45,'rgba(255,140,40,.55)');g.addColorStop(1,'rgba(255,90,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128);
  x.translate(64,64);x.fillStyle='rgba(255,230,160,.75)';for(let i=0;i<8;i++){x.rotate(Math.PI/4);x.beginPath();x.moveTo(0,-3);x.lineTo(62,0);x.lineTo(0,3);x.fill()}return new THREE.CanvasTexture(c)})();
-function makeFlare(parent){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:flareTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false,opacity:0}));s.scale.setScalar(9);parent.add(s);return s}
+function makeFlare(parent){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:flareTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false,opacity:0}));s.scale.setScalar(3.5);parent.add(s);return s}

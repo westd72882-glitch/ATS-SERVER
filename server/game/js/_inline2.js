@@ -1,0 +1,1 @@
+!function(){var e=function(){document.documentElement.style.setProperty("--sl",97/(window.devicePixelRatio||1)+"px")};e(),addEventListener("resize",e)}();

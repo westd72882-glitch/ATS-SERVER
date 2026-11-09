@@ -68,7 +68,7 @@ $('load').addEventListener('wheel',e=>{if(inHangar&&!e.target.closest('#hangar,#
 addEventListener('pointermove',e=>{if(hPt[e.pointerId]){hPt[e.pointerId]=[e.clientX,e.clientY];const q=Object.values(hPt);if(q.length==2&&inHangar){const d=Math.hypot(q[0][0]-q[1][0],q[0][1]-q[1][1]);if(hPd>0)hR=cl(hR*hPd/d,6,11.5);hPd=d;hIdle=0;return}}if(!hDrag||e.pointerId!=hDrag.id)return;hAz-=(e.clientX-hDrag.x)*.008;hEl=cl(hEl+(e.clientY-hDrag.y)*.003,.04,.55);hDrag.x=e.clientX;hDrag.y=e.clientY;hIdle=0});
 const hup=e=>{delete hPt[e.pointerId];hPd=0;if(hDrag&&e.pointerId==hDrag.id)hDrag=null};addEventListener('pointerup',hup);addEventListener('pointercancel',hup);
 
-function enterHangar(){inHangar=true;hDirty=true;document.body.classList.add('hg');hscene.add(P.root);P.root.visible=true;cam.fov=55;cam.updateProjectionMatrix();$('load').classList.add('on');$('hg').style.display='block';$('modes').classList.remove('open');hIdle=0;hInfo();hideLoader();setTimeout(hSel,30)}
+function enterHangar(){if(typeof clearFx=='function')clearFx();inHangar=true;hDirty=true;document.body.classList.add('hg');hscene.add(P.root);P.root.visible=true;cam.fov=55;cam.updateProjectionMatrix();$('load').classList.add('on');$('hg').style.display='block';$('modes').classList.remove('open');hIdle=0;hInfo();hideLoader();setTimeout(hSel,30)}
 function leaveHangar(){inHangar=false;cam.clearViewOffset();R.shadowMap.autoUpdate=true;hPR();document.body.classList.remove('hg');scene.add(P.root);$('modes').classList.remove('open')}
 function hInfo(){const c=P&&P.cat;if(!c)return;const r=(k,v)=>`<div><em>${k}</em><span>${v}</span></div>`,a=c.arm;
  $('hinfo').innerHTML=`<b class="${isPrem(c)?'gold':''}">${c.name}</b><em>${KI(c.cls)} ${ROM[c.tier]} уровень · ${c.nat} · ${c.cls}${isPrem(c)?' · <u class="gold">Премиум</u>':' · Ветка'}</em><h5>ХАРАКТЕРИСТИКИ</h5>${r('Прочность',c.hp+' HP')}${r('Скорость',c.kmh+' км/ч')}${r('Урон',c.dmg)}${r('Пробитие',c.pen+' мм')}${c.clip?r('Барабан',c.clip.n+' сн. / '+c.clip.gap+' с между'):''}${r(c.clip?'Перезарядка барабана':'Перезарядка',c.rel+' с')}<h5>БРОНЯ</h5>${r('Лоб корпуса',a[0]+' мм')}${r('Борт',a[1]+' мм')}${r('Корма',a[2]+' мм')}${r('Башня',a[3]+' мм')}${r('Крыша',a[4]+' мм')}`}
@@ -223,7 +223,7 @@ $('mb').addEventListener('click',()=>$('maps').classList.remove('open'));
 
 /* ===== кнопки интерфейса ангара (v39) ===== */
 $('mup').onclick=()=>{const i=$('hinfo');i.classList.toggle('show');$('mup').classList.toggle('on',i.classList.contains('show'))};
-document.querySelectorAll('#hside .sb,#hmods .mod[data-t],#hchat,#hfilt').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.t||'Пока недоступно')));
+document.querySelectorAll('#hside .sb,#hmods .mod[data-t],#hchat').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.t||'Пока недоступно')));
 document.querySelectorAll('#hcur .pl').forEach(b=>b.addEventListener('click',()=>toast('Пополнение пока недоступно')));
 
 /* ===== конец боя ===== */
@@ -273,7 +273,7 @@ function buildShop(){
  const cols=[];for(let t=1;t<=10;t++)cols.push([]);
  const fc=(NATS.find(n=>n[0]==treeNat)||[])[1]||'';
  if(BRANCHES[treeNat])BRANCHES[treeNat].forEach((id,i)=>cols[i].push(id));
- else CATALOG.filter(c=>c.nat==treeNat).forEach(c=>cols[c.tier-1].push(c.id));
+ else cols.forEach(a=>a.push(null));   /* у других наций премиум-танков в ветках нет: заглушки «скоро» */
  cols.forEach(a=>{while(a.length<4)a.push(undefined)});/* 4 ряда веток, свободные — запас */
  const card=(id,ti)=>{if(id===undefined)return `<div class="nd resn"></div>`;if(!id)return `<div class="nd stubn"><span class="kic">${KI('ЛТ')}</span>?<small>скоро</small></div>`;const c=CATALOG.find(c=>c.id==id),own=ECO.own.includes(id),pv=chainPrev(id),can=!own&&SOVB.includes(id)&&(!pv||ECO.own.includes(pv)),pr=isPrem(c);
   return `<button class="nd ${own?'own':''}${can?' can':''}${!own&&!can&&!pr?' lock':''}${pr?' prem':''}" data-id="${id}"><i class="nfl"><svg viewBox="0 0 60 30" preserveAspectRatio="none"><use href="#f-${FLG[c.nat]||'su'}"/></svg></i><span class="ti2">${KI(c.cls)} ${ROM[c.tier]}</span>${ICONS[id]?'<img src="'+ICONS[id]+'">':''}<b>${c.name}</b>${own?'<i class="ck">✓</i>':pr?'<em class="rs gold">Магазин</em>':can?'<em class="rs">'+sl+fmt(c.rc)+'</em>':'<em class="rs dim">'+sl+fmt(c.rc)+'</em>'}</button>`};
@@ -299,7 +299,7 @@ function navHead(title,tabs,act){return `<div class="nhd"><button class="nhb" ar
 function infoPanel(){qInit();const sh=$('shop'),M=panel=='m',sl='<svg class="gi"><use href="#c-silv"/></svg>';
  if(M){const tabs=[['n','НОВОСТИ','mail'],['u','УВЕДОМЛЕНИЯ','warn']];
   const rows=mTab=='u'?(ECO.mail.length?ECO.mail.map(x=>`<div class="nrw${x.rd?'':' new'}"><div class="nri">${chest('#b8892a')}</div><div class="nrt"><span>${x.t}</span><p>${x.b.replace(/\n/g,'<br>')}</p></div>${x.r?`<button class="mqb" data-m="${x.id}" ${x.c?'disabled':''}>${x.c?'Получено':'Забрать '+sl+fmt(x.r)}</button>`:''}</div>`).join(''):'<div class="emp2">Уведомлений нет</div>'):'<div class="emp2">Новостей пока нет</div>';
-  sh.innerHTML=navHead(tabs.find(t=>t[0]==mTab)[1],tabs,mTab)+'<div class="nbd">'+rows+'</div>';
+  sh.innerHTML=navHead('СООБЩЕНИЯ',tabs,mTab)+'<div class="nbd">'+rows+'</div>';
   if(mTab=='u'){ECO.mail.forEach(x=>x.rd=1);js('maus_eco2',ECO)}
   sh.querySelectorAll('.ntb').forEach(b=>b.onclick=()=>{if(b.classList.contains('off'))return;mTab=b.dataset.t;infoPanel()})}
  else{const pts=ECO.q.c.length*30,TH=[30,70,100,120],mx=120,dn=Math.floor(Date.now()/864e5),di=(dn+3)%7,now=new Date(),hl=23-now.getHours(),ml=59-now.getMinutes();
@@ -311,3 +311,12 @@ function infoPanel(){qInit();const sh=$('shop'),M=panel=='m',sl='<svg class="gi"
  sh.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const d=QDEF.find(d=>d[0]==b.dataset.q);if(!d||ECO.q.c.includes(d[0])||ECO.q[d[2]]<d[3])return;if(ONL()){ecoOp('claimQuest',{id:d[0]},r=>{toast(r.msg);infoPanel()});return}ECO.q.c.push(d[0]);ECO.cr+=d[4];js('maus_eco2',ECO);hCredits();toast('Награда: +'+fmt(d[4])+' кр.');infoPanel()});
  badges()}
 badges();
+
+/* ===== фильтр техники в ангаре (по классу) ===== */
+let HFC=null;
+function applyHF(){document.querySelectorAll('#hangar .hc').forEach(b=>{b.style.display=(!HFC||b.dataset.cls==HFC)?'':'none'});const f=$('hfilt');if(f)f.classList.toggle('act',!!HFC)}
+(function(){const f=$('hfilt'),p=$('hfp');if(!f||!p)return;
+ const draw=()=>{p.querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.c||'')==(HFC||'')))};
+ f.addEventListener('click',e=>{e.stopPropagation();p.classList.toggle('on');draw()});
+ p.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;HFC=b.dataset.c||null;applyHF();draw();p.classList.remove('on');const h=$('hangar');if(h)h.scrollLeft=0});
+ document.addEventListener('pointerdown',e=>{if(p.classList.contains('on')&&!e.target.closest('#hfp,#hfilt'))p.classList.remove('on')},true)})();

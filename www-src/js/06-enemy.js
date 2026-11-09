@@ -1,9 +1,11 @@
 /* ===== враги: такие же Maus, ездят и стреляют по игроку ===== */
 const ENEMIES=[],VMAX=7,TURN=.62;
-function spawnPos(team){let x,z,n=0;const sd=team=='B'?-1:1;do{x=(Math.random()-.5)*300;z=sd*(110+Math.random()*75)}while(n++<50&&(cols.some(c=>Math.hypot(c.x-x,c.z-z)<c.r+6)||ALL.some(t=>t.alive&&Math.hypot(t.x-x,t.z-z)<14)));return{x,z}}
+function spawnPos(team){let x,z,n=0,ok;const sd=team=='B'?-1:1,sp=window.SPAWN_SPAN||75;
+ do{x=(Math.random()-.5)*300;z=sd*(110+Math.random()*sp);ok=!cols.some(c=>Math.hypot(c.x-x,c.z-z)<c.r+6)&&!ALL.some(t=>t.alive&&Math.hypot(t.x-x,t.z-z)<14);
+  if(ok&&MAPHF){const h=H(x,z);ok=h>1&&h<4.5&&[[6,0],[-6,0],[0,6],[0,-6]].every(d=>Math.abs(H(x+d[0],z+d[1])-h)<.7)}}while(n++<400&&!ok);return{x,z}}
 function newWP(e){let x,z,n=0;do{x=(Math.random()-.5)*340;z=(Math.random()-.5)*340}while(n++<30&&cols.some(c=>Math.hypot(c.x-x,c.z-z)<c.r+5));e.wx=x;e.wz=z;e.wt=15+Math.random()*10}
 function resetEnemy(e){const p=spawnPos(e.team);Object.assign(e,{x:p.x,z:p.z,h:(e.team=='B'?Math.PI:0)+(Math.random()-.5)*.5,v:0,w:0,ty:0,gp:0,hp:e.maxhp,alive:true,dead:0,rl:3+Math.random()*4,stuck:0});trackFix(e);
- e.decals.forEach(d=>e.body.remove(d));e.decals.length=0;e.tur.rotation.y=0;e.root.position.set(e.x,0,e.z);newWP(e)}
+ e.decals.forEach(d=>e.body.remove(d));e.decals.length=0;e.tur.rotation.y=0;e.root.position.set(e.x,H(e.x,e.z),e.z);newWP(e)}
 let MODE=1;
 function makeBots(team,n){for(let i=0;i<n;i++){const pool=CATALOG.filter(c=>Math.abs(c.tier-P.tier)<=1),cat=(pool.length?pool:CATALOG)[Math.floor(Math.random()*(pool.length||CATALOG.length))],e=buildTank(cat.id);e.team=team;e.tag=document.createElement('div');e.tag.className='tag'+(team=='A'?' ally':'');e.tier=cat.tier;e.tag.innerHTML=cat.name+'<span class=hpt></span><i><b></b></i>';document.body.appendChild(e.tag);
  ALL.push(e);ENEMIES.push(e);resetEnemy(e)}}
@@ -49,4 +51,4 @@ function aiUpdate(e,dt){
   if(e.rl<=0&&Math.abs(wrap(want-e.ty))<.03&&dist>15&&los(e,tg))shoot(e,sp)}
  else{e.ty=wrap(e.ty+cl(wrap(-e.ty),-.3*dt,.3*dt));e.gp+=cl(-e.gp,-.2*dt,.2*dt)}
  if(lim)e.ty=cl(e.ty,-lim,lim);e.tur.rotation.y=e.ty;e.gunG.rotation.x=e.gp;
- e.root.position.set(e.x,0,e.z);e.root.rotation.y=e.h;animTracks(e,dt)}
+ e.root.position.set(e.x,H(e.x,e.z),e.z);e.root.rotation.y=e.h;animTracks(e,dt)}

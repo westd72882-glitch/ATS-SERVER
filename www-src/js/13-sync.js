@@ -29,8 +29,8 @@ const HG=()=>typeof inHangar!='undefined'&&inHangar&&window.ldStatus;
 window.mausPull=async function(){const s=gs();if(!s||!s.token)return;
  try{if(HG())ldStatus('Синхронизация с сервером…',40);else{const L=document.getElementById('ltxt');if(L&&!(window.loadProg&&loadProg.n))L.textContent='Синхронизация с сервером…'}const r=await call('save/get');const sv=r.save;
   if(!sv){push();return}
-  const loc=snap(),d=sv.data;let diff=false;for(const k of Object.keys(d))if(loc[k]!==d[k])diff=true;for(const k of Object.keys(loc))if(!(k in d))diff=true;
-  if(diff){applying=true;for(const k of Object.keys(loc))if(!(k in d))ri.call(localStorage,k);for(const k of Object.keys(d))si.call(localStorage,k,d[k]);
+  const loc=snap(),d=sv.data;let diff=false;/* maus_eco2 сервер всегда отдаёт в своём формате (серверная экономика, её подтягивает eco/get) — в сравнении не участвует, иначе страница перезагружалась при каждом запуске */for(const k of Object.keys(d))if(k!='maus_eco2'&&loc[k]!==d[k])diff=true;for(const k of Object.keys(loc))if(k!='maus_eco2'&&!(k in d))diff=true;
+  if(diff&&window.ATS_SYNCED){sched()}else if(diff){applying=true;for(const k of Object.keys(loc))if(!(k in d))ri.call(localStorage,k);for(const k of Object.keys(d))si.call(localStorage,k,d[k]);
    if(!sessionStorage.getItem('maus_rl')){sessionStorage.setItem('maus_rl','1');location.reload();return}applying=false}
   sessionStorage.removeItem('maus_rl');if(HG()){ldStatus('Синхронизация завершена',100);setTimeout(()=>{try{hideLoader()}catch(_){}},400)}}catch(e){if(HG()){ldStatus('Не удалось синхронизироваться, продолжаем офлайн',100);setTimeout(()=>{try{hideLoader()}catch(_){}},1200)}}};
 /* Ожидание сервера перед входом в игру (Render «просыпается» до ~60 с) */
@@ -40,16 +40,16 @@ window.srvGateFn=async function(){const s=gs();if(!(s&&s.token&&!s.guest))return
  const say=t=>{if(L){L.style.display='';L.textContent=t}};
  while(!off){const sec=Math.round((Date.now()-t0)/1000);
   say(navigator.onLine===false?'Нет подключения к интернету…':sec<5?'Подключение к серверу…':'Сервер запускается, подождите… '+sec+' с');
-  if(sec>=20&&!btn&&ld){btn=document.createElement('button');btn.textContent='Играть офлайн';btn.style.cssText='position:absolute;left:50%;bottom:9vh;transform:translateX(-50%);padding:1.6vh 5vh;border:1px solid #fff5;border-radius:.6vh;background:#0008;color:#fff;font:700 2.6vh system-ui';btn.onclick=()=>{off=true;window.OFFLINE_MODE=true};ld.appendChild(btn)}
+  
   if(await ping(8000))break;await new Promise(r=>setTimeout(r,1500))}
  if(btn)btn.remove();if(off)return;
  say('Синхронизация данных…');try{await window.mausPull()}catch(_){}};
 /* Потеря связи: отключаем от игры */
-(function(){let bad=0,shown=false;const lost=()=>{if(shown||window.OFFLINE_MODE)return;shown=true;try{if(window.NET&&NET.ws)NET.ws.close()}catch(_){}
+(function(){let bad=0,shown=false;const lost=()=>{if(shown)return;shown=true;try{if(window.NET&&NET.ws)NET.ws.close()}catch(_){}
   const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:99998;background:#000d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh;font:700 3.4vh system-ui;text-align:center';
   d.innerHTML='<div>Соединение с сервером потеряно</div><button style="padding:2vh 7vh;border:0;border-radius:.6vh;background:#d9482a;color:#fff;font:800 3vh system-ui">Переподключиться</button>';
   d.querySelector('button').onclick=()=>location.reload();document.body.appendChild(d)};
  addEventListener('offline',()=>{if(gs()&&gs().token)lost()});
- let pinging=false;setInterval(async()=>{if(pinging)return;const s=gs();if(!(s&&s.token&&!s.guest)||window.OFFLINE_MODE||document.hidden)return;pinging=true;try{if(await ping(6000))bad=0;else if(++bad>=2)lost()}finally{pinging=false}},15000)})();
+ let pinging=false;setInterval(async()=>{if(pinging)return;const s=gs();if(!(s&&s.token&&!s.guest)||document.hidden)return;pinging=true;try{if(await ping(6000))bad=0;else if(++bad>=2)lost()}finally{pinging=false}},15000)})();
 if(!(gs()&&gs().token))mausPull();
 })();
