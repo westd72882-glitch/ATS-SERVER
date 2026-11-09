@@ -99,7 +99,7 @@ const server=http.createServer((req,res)=>{
   const cv=String(req.headers['x-app-version']||'');
   if(cv!==VERSION)return fail(res,'Версия игры устарела. Требуется '+VERSION+', у вас '+(cv||'?')+'. Обновите приложение.',426,{version:VERSION,upgrade:true});
   const j=b?JSON.parse(b):{},ip=req.headers['x-forwarded-for']||req.socket.remoteAddress;
-  const auth=()=>{const t=String(req.headers.authorization||'').replace('Bearer ','');const n=db.sessions[t];return n&&db.users[n.toLowerCase()]?db.users[n.toLowerCase()]:null};
+  const auth=()=>{const t=String(req.headers.authorization||'').replace('Bearer ','');const n=db.sessions[t];const u=n&&db.users[n.toLowerCase()];return u&&!u.banned?u:null};
   if(url=='/api/register'||url=='/api/login'){if(limit('a'+ip,20))return fail(res,'Слишком много попыток, подождите',429)}
   if(url=='/api/register'){const nick=String(j.nick||'').trim(),pw=String(j.password||'');
    if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(nick)||pw.length<6||pw.length>128)return fail(res,'Неверные данные');
@@ -108,6 +108,7 @@ const server=http.createServer((req,res)=>{
    db.users[nick.toLowerCase()]={nick,salt,h:hash(pw,salt),created:Date.now()};mark('users',nick.toLowerCase());
    return send(res,200,session(db.users[nick.toLowerCase()]))}
   if(url=='/api/login'){const k=String(j.login||'').trim().toLowerCase(),u=db.users[k];
+   if(u&&u.banned)return fail(res,'Аккаунт заблокирован'+(u.banned.reason?(': '+u.banned.reason):'.'),403,{banned:true,reason:u.banned.reason||''});
    if((tries['f'+k]||0)>=8)return fail(res,'Слишком много неудачных попыток входа, подождите 10 минут',429);
    if(!u||hash(String(j.password||'').slice(0,128),u.salt)!==u.h){limit('f'+k,1e9);return fail(res,'Неверный ник или пароль',401)}return send(res,200,session(u))}
   if(url=='/api/promo/check'){if(limit('p'+ip,40))return fail(res,'Слишком часто',429);const c=String(j.code||'').trim().toLowerCase(),r=PROMOS[c];if(!r)return fail(res,'Промокод не найден');return send(res,200,{ok:true,code:c,reward:r})}
@@ -142,9 +143,52 @@ const server=http.createServer((req,res)=>{
    const shots=Math.floor(sec/(st.rel*.8))+1,kills=Math.min(+j.kills>0?Math.floor(+j.kills):0,t.mode,shots),dmg=Math.min(+j.dmg>0?Math.floor(+j.dmg):0,shots*st.dmg*1.2,t.mode*2400);
    const out=await applyBattle(key,{win:!!j.win&&sec>=40,dmg,kills,tank:t.tank,mode:t.mode,map:String(j.map||'').slice(0,16)});await flush();return send(res,200,Object.assign({ok:true},out))}
   if(url=='/api/top'){const top=Object.entries(db.battles).map(([k,s])=>({nick:(db.users[k]||{}).nick||k,b:s.b,w:s.w,dmg:s.dmg})).sort((a,c)=>c.dmg-a.dmg).slice(0,20);return send(res,200,{top})}
+
+  // ===== Админ-панель: доступна только аккаунту Ats_Admin =====
+  if(url.startsWith('/api/admin/')){
+   const admUser=auth();
+   if(!admUser||admUser.nick.toLowerCase()!=='ats_admin')return fail(res,'Нет доступа',403);
+   const sub=url.slice('/api/admin/'.length);
+   if(sub==='users'){
+    const q=String(j.q||'').trim().toLowerCase();
+    const list=Object.values(db.users).filter(u=>!q||u.nick.toLowerCase().includes(q)).map(u=>{
+     const k=u.nick.toLowerCase(),e=db.eco[k],b=db.battles[k];
+     return{nick:u.nick,created:u.created,banned:u.banned||null,cr:e?e.cr:null,au:e?e.au:null,battles:b?b.b:0,wins:b?b.w:0};
+    }).sort((a,c)=>c.created-a.created).slice(0,200);
+    return send(res,200,{users:list});
+   }
+   if(sub==='ban'){
+    const nick=String(j.nick||'').trim().toLowerCase(),u=db.users[nick];
+    if(!u)return fail(res,'Игрок не найден');
+    if(u.nick.toLowerCase()==='ats_admin')return fail(res,'Нельзя заблокировать администратора');
+    u.banned={reason:String(j.reason||'').slice(0,200)||'Нарушение правил',by:admUser.nick,at:Date.now()};
+    for(const t in db.sessions)if(String(db.sessions[t]).toLowerCase()===nick)delete db.sessions[t];
+    mark('users',nick);return send(res,200,{ok:true});
+   }
+   if(sub==='unban'){
+    const nick=String(j.nick||'').trim().toLowerCase(),u=db.users[nick];
+    if(!u)return fail(res,'Игрок не найден');
+    delete u.banned;mark('users',nick);return send(res,200,{ok:true});
+   }
+   if(sub==='grant'){
+    const nick=String(j.nick||'').trim().toLowerCase(),u=db.users[nick];
+    if(!u)return fail(res,'Игрок не найден');
+    const e=ecoGet(nick);
+    if(j.cr!=null)e.cr=Math.max(0,Math.floor(+j.cr)||0);
+    if(j.au!=null)e.au=Math.max(0,Math.floor(+j.au)||0);
+    mark('eco',nick);return send(res,200,{ok:true,eco:e});
+   }
+   if(sub==='kick'){
+    const nick=String(j.nick||'').trim().toLowerCase();
+    for(const t in db.sessions)if(String(db.sessions[t]).toLowerCase()===nick)delete db.sessions[t];
+    return send(res,200,{ok:true});
+   }
+   return fail(res,'Неизвестная команда админки',404);
+  }
+
   fail(res,'Не найдено',404)}catch(e){console.error(e);fail(res,'Ошибка запроса')}})});
 // ===== мультиплеер: серверный бой (combat.js) =====
-require('./combat')(server,{VERSION,authToken:t=>{const n=db.sessions[t],u=n&&db.users[n.toLowerCase()];return u?u.nick:null},
+require('./combat')(server,{VERSION,authToken:t=>{const n=db.sessions[t],u=n&&db.users[n.toLowerCase()];return(u&&!u.banned)?u.nick:null},
  ownedTank:(nick,id)=>ecoGet(nick.toLowerCase()).own.includes(id),
  onEnd:async(nick,r)=>{const out=await applyBattle(nick.toLowerCase(),r);await flush();return out}});
 store.load().then(()=>server.listen(process.env.PORT||3000,()=>console.log('ATS server up, version',VERSION))).catch(e=>{console.error('Не удалось подключиться к БД',e);process.exit(1)});
