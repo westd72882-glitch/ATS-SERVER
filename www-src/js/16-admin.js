@@ -3,6 +3,7 @@
 const $=id=>document.getElementById(id);
 const nick=()=>{try{return (JSON.parse(localStorage.getItem('maus_session'))||{}).nick||''}catch(_){return''}};
 const isAdmin=()=>nick().toLowerCase()==='ats_admin';
+const fmtT=ms=>{const m=Math.floor((ms||0)/60000),h=Math.floor(m/60);return h?h+' ч '+(m%60)+' мин':m+' мин'};
 const fmt=n=>n==null?'—':String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 
 function paintBtn(){const b=$('padm');if(b)b.style.display=isAdmin()?'':'none'}
@@ -24,11 +25,11 @@ async function render(q){
   l.innerHTML=r.users.map(u=>{
    const banned=u.banned;
    return '<div class="adr'+(banned?' b':'')+'" data-n="'+u.nick.replace(/"/g,'&quot;')+'">'
-    +'<div class="adi"><b>'+u.nick+'</b><small>боёв '+(u.battles||0)+' · побед '+(u.wins||0)+' · '+fmt(u.cr)+' кр · '+fmt(u.au)+' зол'
+    +'<div class="adi"><b>'+u.nick+(u.seen&&Date.now()-u.seen<180000?' <i style="color:#5fcf6a;font-style:normal;font-size:.7em">● онлайн</i>':'')+'</b><small>в игре '+fmtT(u.pt)+' · боёв '+(u.battles||0)+' · побед '+(u.wins||0)+' · '+fmt(u.cr)+' кр · '+fmt(u.au)+' зол'
     +(banned?' · заблокирован: '+(banned.reason||'')+'':'')+'</small></div>'
     +'<div class="ada">'
     +(banned?'<button data-act="unban" class="mqb">Разбан</button>':'<button data-act="ban" class="mqb danger">Бан</button>')
-    +'<button data-act="grant" class="mqb">Выдать</button>'
+    +'<button data-act="gold" class="mqb">+ Золото</button><button data-act="cred" class="mqb">+ Кредиты</button>'
     +'<button data-act="kick" class="mqb">Кикнуть</button>'
     +'</div></div>';
   }).join('');
@@ -51,6 +52,10 @@ $('adl').addEventListener('click',async e=>{
    await call('unban',{nick:n});
   }else if(act==='kick'){
    await call('kick',{nick:n});
+  }else if(act==='gold'||act==='cred'){
+   const v=prompt((act==='gold'?'Сколько золота выдать':'Сколько кредитов выдать')+' (можно отрицательное — списать):','');
+   if(v===null||v.trim()===''||!isFinite(+v)){b.disabled=false;return}
+   await call('grant',act==='gold'?{nick:n,addAu:+v}:{nick:n,addCr:+v});
   }else if(act==='grant'){
    const cr=prompt('Выдать кредитов (оставьте пустым, чтобы не менять):','');
    const au=prompt('Выдать золота (оставьте пустым, чтобы не менять):','');
@@ -62,3 +67,6 @@ $('adl').addEventListener('click',async e=>{
  finally{busy=false}
 });
 })();
+
+/* пульс активности: сервер считает общее время в игре */
+(function(){const ping=()=>{try{if(!document.hidden&&window.ONL&&ONL())window.mausCall('ping',{}).catch(()=>{})}catch(_){}};setInterval(ping,60000);setTimeout(ping,15000)})();

@@ -1,5 +1,7 @@
 /* ===== враги: такие же Maus, ездят и стреляют по игроку ===== */
 const ENEMIES=[],VMAX=7,TURN=.62;
+function ePose(e){if(!MAPHF){e.root.position.set(e.x,0,e.z);e.root.rotation.y=e.h;return}const fx=Math.sin(e.h),fz=Math.cos(e.h),hF=H(e.x+fx*3.6,e.z+fz*3.6),hR=H(e.x-fx*3.6,e.z-fz*3.6),hr=H(e.x+fz*1.6,e.z-fx*1.6),hl=H(e.x-fz*1.6,e.z+fx*1.6);
+ e.root.position.set(e.x,Math.max((hF+hR+hr+hl)/4,H(e.x,e.z)-.3)+.03,e.z);e.root.rotation.y=e.h;e.body.rotation.set(cl(Math.atan2(hF-hR,7.2),-.5,.5),0,cl(Math.atan2(hr-hl,3.2),-.4,.4))}
 function spawnPos(team){let x,z,n=0,ok;const sd=team=='B'?-1:1,sp=window.SPAWN_SPAN||75;
  do{x=(Math.random()-.5)*300;z=sd*(110+Math.random()*sp);ok=!cols.some(c=>Math.hypot(c.x-x,c.z-z)<c.r+6)&&!ALL.some(t=>t.alive&&Math.hypot(t.x-x,t.z-z)<14);
   if(ok&&MAPHF){const h=H(x,z);ok=h>1&&h<4.5&&[[6,0],[-6,0],[0,6],[0,-6]].every(d=>Math.abs(H(x+d[0],z+d[1])-h)<.7)}}while(n++<400&&!ok);return{x,z}}
@@ -51,4 +53,4 @@ function aiUpdate(e,dt){
   if(e.rl<=0&&Math.abs(wrap(want-e.ty))<.03&&dist>15&&los(e,tg))shoot(e,sp)}
  else{e.ty=wrap(e.ty+cl(wrap(-e.ty),-.3*dt,.3*dt));e.gp+=cl(-e.gp,-.2*dt,.2*dt)}
  if(lim)e.ty=cl(e.ty,-lim,lim);e.tur.rotation.y=e.ty;e.gunG.rotation.x=e.gp;
- e.root.position.set(e.x,H(e.x,e.z),e.z);e.root.rotation.y=e.h;animTracks(e,dt)}
+ ePose(e);animTracks(e,dt)}

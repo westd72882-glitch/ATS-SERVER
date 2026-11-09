@@ -266,7 +266,7 @@ body.hg .hud,body.hg #mm,body.hg #base,body.hg #fire,body.hg #bscope,body.hg #bm
 #hprof{all:unset;position:absolute;left:calc(var(--sl) + 1.2vh);top:1.2vh;width:12.4vh;height:12.4vh;z-index:3!important}
 #hprof>svg:first-child{width:100%;height:100%;filter:drop-shadow(0 .3vh .6vh #000a)}
 #hprof .lk{position:absolute;width:3vh;height:3vh;right:1.2vh;bottom:1.4vh;filter:drop-shadow(0 0 .3vh #000)}
-#hnick{position:absolute;left:calc(var(--sl) + 15.6vh);top:4.2vh;font-size:2.7vh;font-weight:600;color:#f1f4f6;text-shadow:0 .1vh .4vh #000;letter-spacing:.02em}
+#hnick{position:absolute;left:calc(var(--sl) + 15.6vh);top:5.6vh;font-size:2.7vh;font-weight:600;color:#f1f4f6;text-shadow:0 .1vh .4vh #000;letter-spacing:.02em}
 /* валюты */
 #hcur{position:absolute;right:calc(env(safe-area-inset-right,0px) + 1.4vh);top:1.1vh;display:flex;align-items:center;gap:2.6vh;height:4.8vh;font-size:2.6vh;color:#f1f4f6;text-shadow:0 .1vh .4vh #000}
 #hcur .cu{position:relative;display:flex;align-items:center;gap:.8vh;padding-right:.2vh}

@@ -132,6 +132,7 @@ const server=http.createServer((req,res)=>{
   if(url=='/api/eco/get'){return send(res,200,{eco:ecoGet(key)})}
   if(url=='/api/eco/op'){if(limit('e'+key,400))return fail(res,'Слишком часто',429);try{const r=ecoOp(key,j);await flush();return send(res,200,Object.assign({ok:true,eco:ecoGet(key)},r))}catch(x){if(typeof x=='string')return fail(res,x);throw x}}
   if(url=='/api/promo'){try{const r=ecoOp(key,{op:'promo',code:j.code});await flush();return send(res,200,{ok:true,msg:r.msg,eco:ecoGet(key)})}catch(x){if(typeof x=='string')return fail(res,x);throw x}}
+  if(url=='/api/ping'){const u=db.users[key];if(u){const now=Date.now(),d=now-(u.seen||0),o=u.pt||0;u.pt=o+(d>0&&d<150000?d:30000);u.seen=now;mark('users',key);if((u.pt/3e5|0)!=(o/3e5|0))await flush()}return send(res,200,{ok:true})}
   if(url=='/api/stats'){const s=db.battles[key]||{b:0,w:0,dmg:0,kills:0,xp:0,mk:0};return send(res,200,{stats:{b:s.b,w:s.w,dmg:s.dmg,kills:s.kills,xp:s.xp||0,mk:s.mk||0}})}
   if(url=='/api/battle/start'){if(limit('b'+key,60))return fail(res,'Слишком часто',429);const tk=String(j.tank||''),e=ecoGet(key),mode=[1,5,10].includes(+j.mode)?+j.mode:1;
    if(!TANKS[tk]||!e.own.includes(tk))return fail(res,'Танк недоступен');const id=crypto.randomBytes(12).toString('hex');
@@ -153,7 +154,7 @@ const server=http.createServer((req,res)=>{
     const q=String(j.q||'').trim().toLowerCase();
     const list=Object.values(db.users).filter(u=>!q||u.nick.toLowerCase().includes(q)).map(u=>{
      const k=u.nick.toLowerCase(),e=db.eco[k],b=db.battles[k];
-     return{nick:u.nick,created:u.created,banned:u.banned||null,cr:e?e.cr:null,au:e?e.au:null,battles:b?b.b:0,wins:b?b.w:0};
+     return{nick:u.nick,created:u.created,banned:u.banned||null,cr:e?e.cr:null,au:e?e.au:null,battles:b?b.b:0,wins:b?b.w:0,pt:u.pt||0,seen:u.seen||0};
     }).sort((a,c)=>c.created-a.created).slice(0,200);
     return send(res,200,{users:list});
    }
@@ -176,6 +177,8 @@ const server=http.createServer((req,res)=>{
     const e=ecoGet(nick);
     if(j.cr!=null)e.cr=Math.max(0,Math.floor(+j.cr)||0);
     if(j.au!=null)e.au=Math.max(0,Math.floor(+j.au)||0);
+    if(j.addCr!=null)e.cr=Math.max(0,(e.cr||0)+(Math.floor(+j.addCr)||0));
+    if(j.addAu!=null)e.au=Math.max(0,(e.au||0)+(Math.floor(+j.addAu)||0));
     mark('eco',nick);return send(res,200,{ok:true,eco:e});
    }
    if(sub==='kick'){

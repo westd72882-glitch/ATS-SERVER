@@ -35,11 +35,11 @@ function updatePlayer(dt){
  P.h+=P.w*dt;const f=FWD();P.x+=f.x*P.v*dt;P.z+=f.z*P.v*dt;collide(P,dt);
  /* подвеска */
  const r=V3(Math.cos(P.h),0,-Math.sin(P.h)),hF=H(P.x+f.x*3.6,P.z+f.z*3.6),hR=H(P.x-f.x*3.6,P.z-f.z*3.6),hRt=H(P.x+r.x*1.6,P.z+r.z*1.6),hL=H(P.x-r.x*1.6,P.z-r.z*1.6);
- const gy=(hF+hR+hRt+hL)/4,pT=Math.atan2(hF-hR,7.2),rT=Math.atan2(hRt-hL,3.2),acc=cl((tgt-P.v)*.0025,-.025,.025);
- S.bp=pT;const pt=cl(pT+acc,-.2,.2)+Math.sin(S.t*38)*.0006*(1+Math.abs(P.v)*.3),rt=cl(rT-P.w*P.v*.004,-.2,.2);
+ const gy=Math.max((hF+hR+hRt+hL)/4,H(P.x,P.z)-.3),pT=cl(Math.atan2(hF-hR,7.2),-.5,.5),rT=cl(Math.atan2(hRt-hL,3.2),-.4,.4),acc=cl((tgt-P.v)*.0025,-.025,.025);
+ S.bp=pT;const pt=cl(pT+acc,-.5,.5)+Math.sin(S.t*38)*.0006*(1+Math.abs(P.v)*.3),rt=cl(rT-P.w*P.v*.004,-.4,.4);
  S.bpv+=(-(S.bp2-pt)*70-S.bpv*9)*dt;S.bp2+=S.bpv*dt;S.brv+=(-(S.br-rt)*70-S.brv*9)*dt;S.br+=S.brv*dt;
  S.byv+=((gy-S.by)*90-S.byv*12)*dt;S.by+=S.byv*dt;S.bp2=cl(S.bp2,pT-.05,pT+.05);S.br=cl(S.br,rT-.05,rT+.05);S.by=cl(S.by,gy-.02,gy+.15);
- const lift=Math.abs(Math.sin(S.bp2))*P.box.hz+Math.abs(Math.sin(S.br))*P.box.hx;
+ const lift=(Math.abs(Math.sin(S.bp2))*P.box.hz+Math.abs(Math.sin(S.br))*P.box.hx)*.1;
  P.root.position.set(P.x,gy+(S.by-gy)*.6+lift+.03,P.z);P.root.rotation.y=P.h;P.body.rotation.set(S.bp2,0,S.br);animTracks(P,dt);
  /* камера */
  CD+=(CDt-CD)*Math.min(1,dt*8);const F=SPEC&&SPEC.alive?SPEC:P,T=V3(F.x,F.root.position.y+3.6+(CD-13)*.12,F.z);cam.position.set(T.x+Math.sin(cy)*Math.cos(cp)*CD,T.y+Math.sin(cp)*CD+1,T.z+Math.cos(cy)*Math.cos(cp)*CD);
