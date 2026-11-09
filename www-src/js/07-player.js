@@ -1,5 +1,5 @@
 /* ===== игрок: управление, физика, подвеска, камера, башня ===== */
-var SPEC=null;let jx=0,jy=0,cy=0,cp=.3,fo=0,scope=false;const SFOV=13;function setScope(v){scope=v;$('scope').style.display=v?'block':'none';$('cdot').style.display=v?'none':'';if(!v){P.root.visible=true;cam.fov=55;cam.updateProjectionMatrix()}}
+var SPEC=null;let jx=0,jy=0,cy=0,cp=.3,fo=0,scope=false;const SFOV=13;function setScope(v){scope=v;$('scope').style.display=v?'block':'none';$('cdot').style.display=v?'none':'';if(!v&&P&&P.root){P.root.visible=true;cam.fov=55;cam.updateProjectionMatrix()}}
 const ptr={},base=$('base'),knob=$('knob'),K={};
 /* камера: 3 дальности — близко / средне / далеко */
 const CDS=[8,13,21];let CDi=1,CD=13,CDt=13;try{CDi=Math.min(2,Math.max(0,+localStorage.getItem('maus_cam')||1));CD=CDt=CDS[CDi]}catch(_){}

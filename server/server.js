@@ -15,7 +15,7 @@ const hash=(p,s)=>crypto.scryptSync(p,s,32).toString('hex');
   const nick='Ats_Admin',key=nick.toLowerCase();
   if(db.users[key])return;
   const salt=crypto.randomBytes(16).toString('hex');
-  db.users[key]={nick,salt,h:hash('ivan2025',salt),created:Date.now()};
+  db.users[key]={nick,salt,h:hash(process.env.ADMIN_PASSWORD||'ivan2025',salt),created:Date.now()};
   mark('users',key);
 })();
 const H={'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type,Authorization,X-App-Version','Access-Control-Allow-Methods':'GET,POST,PUT,OPTIONS'};

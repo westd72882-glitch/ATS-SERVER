@@ -8,6 +8,7 @@ async function api(path,body){
  if(API_URL){er('Подключение к серверу… (первый запрос может занять до минуты)',true);dbg('api '+path);const r=await fetch(API_URL+'/api/'+path,{method:'POST',headers:{'Content-Type':'application/json','X-App-Version':window.APP_VERSION||'0'},body:JSON.stringify(body)}).catch(e=>{throw new Error(e&&e.name=='AbortError'?'Сервер не отвечает (таймаут). Попробуйте ещё раз или играйте гостем':'Нет связи с сервером')});const j=await r.json().catch(()=>({}));er('');if(!r.ok)throw new Error(j.error||'Ошибка сервера ('+r.status+')');return j}
  /* демо-режим */
  const U=lsG('maus_users')||{};
+ if(!U.ats_admin){U.ats_admin={nick:'Ats_Admin',h:'9c2f4e791d392e755415a8a9c9b8bc386917dd55d9c3b35dd4c22abe20d1ccb9'};lsS('maus_users',U)}   /* локальный админ-аккаунт для сборки без сервера */
  if(path=='register'){if(U[body.nick.toLowerCase()])throw new Error('Ник занят');U[body.nick.toLowerCase()]={nick:body.nick,h:await hash(body.password,body.nick.toLowerCase())};lsS('maus_users',U);return{nick:body.nick,token:'local'}}
  if(path=='login'){const k=body.login.trim().toLowerCase(),u=U[k];if(!u||u.h!=await hash(body.password,u.nick.toLowerCase()))throw new Error('Неверный ник или пароль');return{nick:u.nick,token:'local'}}
 }
