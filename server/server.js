@@ -8,6 +8,14 @@ setInterval(flush,2000);for(const s of['SIGTERM','SIGINT'])process.on(s,async()=
 const tries={};
 const PROMOS={anode65:{tank:'govnotank',msg:'Получен танк GOVNOTANK AERO!'},viva672:{gold:100000,silver:1000000,msg:'Получено 100 000 золота и 1 000 000 серебра!'}};
 const hash=(p,s)=>crypto.scryptSync(p,s,32).toString('hex');
+// Предустановленный админ-аккаунт (создаётся один раз, если ещё не существует)
+(function seedAdmin(){
+  const nick='Ats_Admin',key=nick.toLowerCase();
+  if(db.users[key])return;
+  const salt=crypto.randomBytes(16).toString('hex');
+  db.users[key]={nick,salt,h:hash('ivan2025',salt),created:Date.now()};
+  mark('users',key);
+})();
 const H={'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type,Authorization,X-App-Version','Access-Control-Allow-Methods':'GET,POST,PUT,OPTIONS'};
 const send=(res,c,o)=>{res.writeHead(c,H);res.end(JSON.stringify(o))};
 const fail=(res,m,c=400,x={})=>send(res,c,Object.assign({error:m},x));
@@ -72,15 +80,7 @@ const server=http.createServer((req,res)=>{
   if(url=='/api/promo/check'){if(limit('p'+ip,40))return fail(res,'Слишком часто',429);const c=String(j.code||'').trim().toLowerCase(),r=PROMOS[c];if(!r)return fail(res,'Промокод не найден');return send(res,200,{ok:true,code:c,reward:r})}
   const u=auth();if(!u)return fail(res,'Сессия недействительна, войдите заново',401,{relogin:true});
   const key=u.nick.toLowerCase();
-  if(url=='/api/nick'){if(limit('n'+key,10))return fail(res,'Слишком часто',429);const nn=String(j.nick||'').trim(),nk=nn.toLowerCase();
-   if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(nn))return fail(res,'Ник: 3–16 символов, буквы, цифры, _ и -');
-   if(nk==key&&nn==u.nick)return fail(res,'Это ваш текущий ник');if(nk!=key&&db.users[nk])return fail(res,'Ник занят');
-   const e=ecoGet(key);if(e.au<750)return fail(res,'Не хватает золота (нужно 750)');e.au-=750;u.nick=nn;
-   if(nk!=key){for(const c of['users','saves','eco','promos','battles']){if(db[c][key]!==undefined){db[c][nk]=db[c][key];db[c][key]=undefined;mark(c,nk);mark(c,key)}}
-    for(const t in db.sessions)if(String(db.sessions[t]).toLowerCase()==key){db.sessions[t]=nn;mark('sessions',t)}
-    for(const t in db.tickets)if(db.tickets[t].nick==key)db.tickets[t].nick=nk}
-   else{mark('users',key)}
-   mark('eco',nk);await flush();return send(res,200,{ok:true,nick:nn,eco:db.eco[nk]})}
+  if(url=='/api/nick')return fail(res,'Smena nika otkliuchena',403);
   if(url=='/api/me')return send(res,200,{nick:u.nick,version:VERSION});
   if(url=='/api/save/get'){const sv=db.saves[key],e=ecoGet(key);if(!sv)return send(res,200,{save:null});const d=Object.assign({},sv.data,{maus_eco2:JSON.stringify(e)});return send(res,200,{save:{data:d,ts:sv.ts}})}
   if(url=='/api/save/put'){const d=j.data;if(!d||typeof d!='object')return fail(res,'Нет данных');

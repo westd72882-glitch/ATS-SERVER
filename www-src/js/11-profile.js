@@ -13,7 +13,7 @@ function fill(){const s=ld();$('pnick').textContent=nick();
 const open=()=>{fill();$('prof').classList.add('on')},close=()=>{$('prof').classList.remove('on');$('pnr').style.display='none'};
 $('hprof').onclick=open;$('pback').onclick=close;
 $('pava').onclick=()=>{if(typeof toast=='function')toast('Смена аватара пока недоступна')};
-$('pchn').onclick=()=>{$('pni').value=nick();$('pnr').style.display='flex'};
+$('pchn').style.display='none';
 $('pnok').onclick=async()=>{const v=$('pni').value.trim(),T=m=>{if(typeof toast=='function')toast(m)};
  if(!/^[\p{L}\p{N}_\-]{3,16}$/u.test(v)){T('Ник: 3–16 символов');return}if(v==nick()){T('Это ваш текущий ник');return}
  if(ECO.au<750){T('Не хватает золота: смена ника стоит 750');return}

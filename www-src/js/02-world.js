@@ -4,7 +4,7 @@ const cols=[];                                   /* круглые препят�
 (function(){
  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle='#76735f';x.fillRect(0,0,256,256);
  for(let i=0;i<5000;i++){const v=100+Math.random()*50|0;x.fillStyle=`rgba(${v},${v-3},${v-18},.5)`;x.fillRect(Math.random()*256,Math.random()*256,2,2)}
- const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(70,70);t.encoding=THREE.sRGBEncoding;t.anisotropy=R.capabilities.getMaxAnisotropy();window.GTEX=t;
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(70,70);t.encoding=THREE.sRGBEncoding;try{t.anisotropy=R.capabilities.getMaxAnisotropy()}catch(e){t.anisotropy=1}window.GTEX=t;
  const g=new THREE.Mesh(new THREE.PlaneGeometry(440,440).rotateX(-Math.PI/2),new THREE.MeshLambertMaterial({map:t}));g.receiveShadow=true;scene.add(g);window.GRND=g;window.POLYTEX=t;
  const wm=new THREE.MeshStandardMaterial({color:0x8d8b84,roughness:1});
  [[0,-200,400,1],[0,200,400,1],[-200,0,1,400],[200,0,1,400]].forEach(([px,pz,sx,sz])=>{const w=new THREE.Mesh(new THREE.BoxGeometry(sx+(sx<2?1:0),4,sz+(sz<2?1:0)),wm);w.position.set(px,2,pz);w.castShadow=w.receiveShadow=true;scene.add(w)});

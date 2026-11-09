@@ -187,7 +187,7 @@ hCredits();
 const PRE={l:{res:'50',obj:'l',tank:'l',fx:'l',dist:'l',sh:'0',hd:false},m:{res:'75',obj:'m',tank:'m',fx:'m',dist:'m',sh:'2',hd:false},h:{res:'100',obj:'h',tank:'h',fx:'h',dist:'h',sh:'3',hd:true}};
 const CFG=Object.assign({snd:true,fps:true,sens:1,gq:'h',aa:'1'},PRE.h,jl('maus_cfg4'));if(+CFG.res>100||!+CFG.res)CFG.res='100';
 const saveCfg=()=>js('maus_cfg4',CFG);
-[smoke,fire].forEach(p=>{const e=p.emit;p.emit=function(){if(Math.random()<FXK)e.apply(p,arguments)}});
+[smoke,fire].forEach(p=>{const e=p.emit;p.emit=function(x,y,z,vx,vy,vz,life,s,gr,rgb,a){if(Math.random()>=FXK)return;const k=.45+.55*FXK;e.call(p,x,y,z,vx,vy,vz,life*k,s*k,gr,rgb,a)}});
 function applyCfg(){muted=!CFG.snd;if(AC){MG.gain.value=muted?0:1;muted?AC.suspend():AC.resume()}
  $('bsnd').classList.toggle('on',CFG.snd);$('sfps').classList.toggle('on',CFG.fps);$('fps').style.display=CFG.fps?'':'none';$('ssens').value=CFG.sens;SENS=+CFG.sens;
  document.querySelectorAll('.seg[data-k]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v==CFG[g.dataset.k])));
